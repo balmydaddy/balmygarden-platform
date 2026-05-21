@@ -637,16 +637,26 @@ export default function Home() {
               </div>
               <div style={{ marginTop:20 }}>
                 <div style={secT}>품목별 총 지출 (상위 10)</div>
-                <div style={{ ...card, overflowX:"auto" }}>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={byName.map(([name,value])=>({name,value}))}>
+                <div style={card}>
+                  <ResponsiveContainer width="100%" height={Math.max(200, byName.length*40+30)}>
+                    <BarChart data={byName.map(([name,value])=>({name,value}))} layout="vertical" margin={{left:0,right:16}}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                      <XAxis dataKey="name" tick={{fontSize:10}} interval={0} angle={-20} textAnchor="end" height={48}/>
-                      <YAxis tick={{fontSize:10}} tickFormatter={v=>v.toLocaleString()}/>
+                      <XAxis type="number" tick={{fontSize:10}} tickFormatter={v=>v.toLocaleString()}/>
+                      <YAxis type="category" dataKey="name" tick={{fontSize:10}} width={120}
+                        tickFormatter={(v:string)=>v.length>12?v.slice(0,12)+"…":v}/>
                       <Tooltip formatter={fmt}/>
-                      <Bar dataKey="value" radius={[4,4,0,0]}>{byName.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}</Bar>
+                      <Bar dataKey="value" radius={[0,4,4,0]}>{byName.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}</Bar>
                     </BarChart>
                   </ResponsiveContainer>
+                  <div style={{ marginTop:8, borderTop:"1px solid #f0f0f0", paddingTop:8 }}>
+                    {byName.map(([name,value],i)=>(
+                      <div key={name} style={{ display:"flex", alignItems:"center", gap:8, padding:"4px 0", fontSize:12 }}>
+                        <span style={{ width:10, height:10, borderRadius:2, background:COLORS[i%COLORS.length], flexShrink:0 }}/>
+                        <span style={{ flex:1, color:"#444" }}>{name}</span>
+                        <span style={{ fontWeight:600, whiteSpace:"nowrap" }}>{Math.round(value).toLocaleString()}원</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div style={{ marginTop:16 }}>
