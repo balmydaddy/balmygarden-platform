@@ -164,11 +164,6 @@ function OnboardingScreen({ onDone }: { onDone: () => void }) {
         </div>
         <button onClick={onDone} style={{ marginTop:12, background:"none", border:"none", cursor:"pointer", color:"#aaa", fontSize:12 }}>건너뛰기</button>
       </div>
-      {/* 푸터 */}
-      <div style={{ marginTop:40, paddingTop:16, borderTop:"1px solid #eee", textAlign:"center", fontSize:11, color:"#aaa" }}>
-        <a href="/privacy" style={{ color:"#aaa", textDecoration:"none", marginRight:16 }}>개인정보처리방침</a>
-        <span>© 2026 스마트 재구매 대시보드</span>
-      </div>
     </div>
   );
 }
@@ -878,6 +873,11 @@ export default function Home() {
           )}
         </>
       )}
+      {/* 푸터 */}
+      <div style={{ marginTop:40, paddingTop:16, borderTop:"1px solid #eee", textAlign:"center", fontSize:11, color:"#aaa" }}>
+        <a href="/privacy" style={{ color:"#aaa", textDecoration:"none", marginRight:16 }}>개인정보처리방침</a>
+        <span>© 2026 스마트 재구매 대시보드</span>
+      </div>
     </div>
   );
 }
