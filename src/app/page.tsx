@@ -9,6 +9,7 @@ import {
 import BarcodeScanner from "./BarcodeScanner";
 import AuthModal from "./AuthModal";
 import NameCorrectionModal from "./NameCorrectionModal";
+import AccountModal from "./AccountModal";
 import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
@@ -317,6 +318,7 @@ export default function Home() {
   const [showScanner, setShowScanner] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showCorrection, setShowCorrection] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
   const [showOnboard, setShowOnboard] = useState(false);
   const [user, setUser] = useState<User|null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -549,6 +551,7 @@ export default function Home() {
       <ToastBar toasts={toasts}/>
       {showOnboard && <OnboardingScreen onDone={handleOnboardDone}/>}
       {showAuth && <AuthModal onClose={()=>setShowAuth(false)}/>}
+      {showAccount && user && <AccountModal user={user} onClose={()=>setShowAccount(false)}/>}
       {showCorrection && <NameCorrectionModal onClose={()=>setShowCorrection(false)}/>}
       {showScanner && <BarcodeScanner onScan={handleBarcodeScan} onClose={()=>setShowScanner(false)}/>}
       {showNotify && (
@@ -569,7 +572,8 @@ export default function Home() {
             {user ? (
               <>
                 <span style={{ fontSize:11, color:"#888", maxWidth:120, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user.email}</span>
-                <button onClick={()=>setShowCorrection(true)} style={{ fontSize:11, padding:"5px 10px", borderRadius:8, border:"1px solid #ddd", background:"#fff", cursor:"pointer", fontWeight:600 }}>✏️ 품명보정</button>
+                <button onClick={()=>setShowAccount(true)} style={{ fontSize:11, padding:"5px 10px", borderRadius:8, border:"1px solid #ddd", background:"#fff", cursor:"pointer", fontWeight:600 }}>⚙️ 계정</button>
+              <button onClick={()=>setShowCorrection(true)} style={{ fontSize:11, padding:"5px 10px", borderRadius:8, border:"1px solid #ddd", background:"#fff", cursor:"pointer", fontWeight:600 }}>✏️ 품명보정</button>
                 <button onClick={()=>supabase.auth.signOut()} style={{ fontSize:11, padding:"5px 10px", borderRadius:8, border:"1px solid #fcc", background:"#fff9f9", cursor:"pointer", color:"#c00", fontWeight:600 }}>로그아웃</button>
               </>
             ) : (
