@@ -873,8 +873,20 @@ export default function Home() {
           )}
         </>
       )}
+      {/* 피드백 배너 */}
+      <div style={{ marginTop:32, padding:"14px 16px", background:"#f0faf0", borderRadius:12, border:"1px solid #c8e6c9", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:8 }}>
+        <div>
+          <div style={{ fontSize:13, fontWeight:600, color:"#2e7d32" }}>💬 사용해보셨나요?</div>
+          <div style={{ fontSize:12, color:"#555", marginTop:2 }}>솔직한 피드백이 서비스 개선에 큰 도움이 됩니다!</div>
+        </div>
+        <a href="https://forms.gle/4L9Gb6g9tt46JmnY6" target="_blank" rel="noopener noreferrer"
+          style={{ fontSize:12, padding:"8px 16px", borderRadius:8, background:"#3B6D11", color:"#fff", textDecoration:"none", fontWeight:600, whiteSpace:"nowrap" }}>
+          피드백 남기기 →
+        </a>
+      </div>
+
       {/* 푸터 */}
-      <div style={{ marginTop:40, paddingTop:16, borderTop:"1px solid #eee", textAlign:"center", fontSize:11, color:"#aaa" }}>
+      <div style={{ marginTop:24, paddingTop:16, borderTop:"1px solid #eee", textAlign:"center", fontSize:11, color:"#aaa" }}>
         <a href="/privacy" style={{ color:"#aaa", textDecoration:"none", marginRight:16 }}>개인정보처리방침</a>
         <span>© 2026 스마트 재구매 대시보드</span>
       </div>
