@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, CSSProperties } from "react";
+import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
 
 /* ══════════════════════════════════════════════════════
    TYPES
@@ -444,6 +444,15 @@ export default function BALMYGARDENDashboard() {
   const [notionToast, setNotionToast] = useState<NotionToast | null>(null);
   const [notionSaving, setNotionSaving] = useState(false);
 
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const abortRef = useRef(false);
 
   const copy = useCallback(async (text: string, id: string) => {
@@ -643,39 +652,44 @@ export default function BALMYGARDENDashboard() {
         style={{
           background: "linear-gradient(135deg,#080f22 0%,#0f0d30 100%)",
           borderBottom: "1px solid #1a2547",
-          padding: "14px 22px",
+          padding: isMobile ? "10px 14px" : "14px 22px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-          <div style={{ fontSize: "26px" }}>🌿</div>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+          <div style={{ fontSize: isMobile ? "20px" : "26px" }}>🌿</div>
           <div>
-            <div style={{ fontSize: "18px", fontWeight: "800", color: "#a5b4fc", letterSpacing: "2px" }}>
+            <div style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: "800", color: "#a5b4fc", letterSpacing: "2px" }}>
               BALMYGARDEN
             </div>
             <div style={{ fontSize: "10px", color: "#475569", marginTop: "1px" }}>
-              AI AGENCY · 9 AGENTS · 12 WORKFLOWS · v3.0
+              AI AGENCY · 9 AGENTS · v3.0
             </div>
           </div>
-          <div style={{ marginLeft: "auto", display: "flex", gap: "6px", flexWrap: "wrap" }}>
-            {Object.entries(AGENTS).map(([k, a]) => (
-              <span key={k} style={S.badge(a.color)}>
-                {a.av} {k}
-              </span>
-            ))}
-          </div>
+          {!isMobile && (
+            <div style={{ marginLeft: "auto", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              {Object.entries(AGENTS).map(([k, a]) => (
+                <span key={k} style={S.badge(a.color)}>{a.av} {k}</span>
+              ))}
+            </div>
+          )}
         </div>
-        <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+        {/* 탭 — 모바일에선 가로 스크롤 */}
+        <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap" }}>
           {[
             { id: "home", label: "🏠 홈" },
-            { id: "workflow", label: "⚡ 워크플로우" },
+            { id: "workflow", label: "⚡ 워크플로" },
             { id: "agents", label: "🤖 에이전트" },
-            { id: "chat", label: "💬 직접 대화" },
-            { id: "prompts", label: "📚 프롬프트 뱅크" },
-            { id: "content", label: "📝 콘텐츠 뱅크" },
+            { id: "chat", label: "💬 대화" },
+            { id: "prompts", label: "📚 프롬프트" },
+            { id: "content", label: "📝 콘텐츠" },
             { id: "system", label: "⚙️ 시스템" },
-            { id: "ladder", label: "📈 사업 사다리" },
+            { id: "ladder", label: "📈 사다리" },
           ].map((t) => (
-            <button key={t.id} style={S.tabBtn(tab === t.id)} onClick={() => setTab(t.id)}>
+            <button
+              key={t.id}
+              style={{ ...S.tabBtn(tab === t.id), flexShrink: 0, fontSize: isMobile ? "11px" : "12px", padding: isMobile ? "5px 10px" : "6px 14px" }}
+              onClick={() => setTab(t.id)}
+            >
               {t.label}
             </button>
           ))}
@@ -695,16 +709,16 @@ export default function BALMYGARDENDashboard() {
         </div>
       )}
 
-      <div style={{ padding: "20px 22px" }}>
+      <div style={{ padding: isMobile ? "12px 10px" : "20px 22px" }}>
         {/* ══════ HOME ══════ */}
         {tab === "home" && (
           <div>
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3,1fr)",
-                gap: "14px",
-                marginBottom: "18px",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)",
+                gap: "10px",
+                marginBottom: "14px",
               }}
             >
               {[
@@ -725,7 +739,7 @@ export default function BALMYGARDENDashboard() {
               <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>
                 🆕 v3.0 업그레이드 (2026.06.24)
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "10px" }}>
                 {[
                   { icon: "🧠", title: "학습 강화 프롬프트 6종", src: "@parky0ngnam", items: ["학습 곡선 파괴자", "실제 오류 시뮬레이터", "불가능한 언어 번역기", "개인 맞춤 학습 경로 설계자", "숨은 빈틈 탐지기", "강제 파인만 기법"], color: "#6366F1" },
                   { icon: "📣", title: "마케팅 프롬프트 7종", src: "@_business.story", items: ["고객 조사", "이메일 마케팅", "광고 카피", "브랜드 포지셔닝", "상세 페이지 심리학", "크리에이터 성장", "영상 콘텐츠 스크립트"], color: "#06B6D4" },
@@ -747,7 +761,7 @@ export default function BALMYGARDENDashboard() {
               <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>
                 ⚡ 빠른 시작 — 워크플로우 선택
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "8px" }}>
                 {WORKFLOWS.map((wf) => (
                   <button
                     key={wf.id}
@@ -766,20 +780,34 @@ export default function BALMYGARDENDashboard() {
 
         {/* ══════ WORKFLOW ══════ */}
         {tab === "workflow" && (
-          <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: "18px" }}>
-            <div>
-              <div style={{ fontSize: "11px", color: "#475569", marginBottom: "8px" }}>워크플로우</div>
-              {WORKFLOWS.map((wf) => (
-                <div
-                  key={wf.id}
-                  style={S.sideItem(wfId === wf.id)}
-                  onClick={() => { setWfId(wf.id); setChainRes([]); setAwaitCEO(false); }}
-                >
-                  <div style={{ fontSize: "12px", fontWeight: "700" }}>{wf.emoji} {wf.name}</div>
-                  <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{wf.chain.join(" → ")}</div>
-                </div>
-              ))}
-            </div>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "260px 1fr", gap: "14px" }}>
+            {/* 모바일: 드롭다운 선택 / 데스크탑: 사이드 목록 */}
+            {isMobile ? (
+              <select
+                value={wfId ?? ""}
+                onChange={(e) => { setWfId(e.target.value || null); setChainRes([]); setAwaitCEO(false); }}
+                style={{ width: "100%", padding: "10px 12px", background: "#0d1629", border: "1px solid #1e293b", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
+              >
+                <option value="">— 워크플로우 선택 —</option>
+                {WORKFLOWS.map((wf) => (
+                  <option key={wf.id} value={wf.id}>{wf.emoji} {wf.name}</option>
+                ))}
+              </select>
+            ) : (
+              <div>
+                <div style={{ fontSize: "11px", color: "#475569", marginBottom: "8px" }}>워크플로우</div>
+                {WORKFLOWS.map((wf) => (
+                  <div
+                    key={wf.id}
+                    style={S.sideItem(wfId === wf.id)}
+                    onClick={() => { setWfId(wf.id); setChainRes([]); setAwaitCEO(false); }}
+                  >
+                    <div style={{ fontSize: "12px", fontWeight: "700" }}>{wf.emoji} {wf.name}</div>
+                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{wf.chain.join(" → ")}</div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div>
               {wfId ? (() => {
@@ -876,7 +904,7 @@ export default function BALMYGARDENDashboard() {
 
         {/* ══════ AGENTS ══════ */}
         {tab === "agents" && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "14px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "12px" }}>
             {Object.entries(AGENTS).map(([k, a]) => (
               <div
                 key={k}
@@ -913,21 +941,34 @@ export default function BALMYGARDENDashboard() {
 
         {/* ══════ DIRECT CHAT ══════ */}
         {tab === "chat" && (
-          <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "18px" }}>
-            <div>
-              <div style={{ fontSize: "11px", color: "#475569", marginBottom: "8px" }}>에이전트 선택</div>
-              {Object.entries(AGENTS).map(([k, a]) => (
-                <div
-                  key={k}
-                  style={{ ...S.sideItem(chatAgent === k), borderLeft: chatAgent === k ? `3px solid ${a.color}` : undefined }}
-                  onClick={() => { setChatAgent(k); setChatMsgs([]); }}
-                >
-                  <span style={{ fontSize: "14px" }}>{a.av}</span>
-                  <span style={{ fontSize: "12px", fontWeight: "700", marginLeft: "8px", color: a.color }}>{k}</span>
-                  <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{a.role}</div>
-                </div>
-              ))}
-            </div>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "220px 1fr", gap: "14px" }}>
+            {isMobile ? (
+              <select
+                value={chatAgent ?? ""}
+                onChange={(e) => { setChatAgent(e.target.value || null); setChatMsgs([]); }}
+                style={{ width: "100%", padding: "10px 12px", background: "#0d1629", border: "1px solid #1e293b", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
+              >
+                <option value="">— 에이전트 선택 —</option>
+                {Object.entries(AGENTS).map(([k, a]) => (
+                  <option key={k} value={k}>{a.av} {k} — {a.role}</option>
+                ))}
+              </select>
+            ) : (
+              <div>
+                <div style={{ fontSize: "11px", color: "#475569", marginBottom: "8px" }}>에이전트 선택</div>
+                {Object.entries(AGENTS).map(([k, a]) => (
+                  <div
+                    key={k}
+                    style={{ ...S.sideItem(chatAgent === k), borderLeft: chatAgent === k ? `3px solid ${a.color}` : undefined }}
+                    onClick={() => { setChatAgent(k); setChatMsgs([]); }}
+                  >
+                    <span style={{ fontSize: "14px" }}>{a.av}</span>
+                    <span style={{ fontSize: "12px", fontWeight: "700", marginLeft: "8px", color: a.color }}>{k}</span>
+                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{a.role}</div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div>
               {chatAgent ? (() => {
@@ -1089,7 +1130,7 @@ export default function BALMYGARDENDashboard() {
 
         {/* ══════ SYSTEM ══════ */}
         {tab === "system" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
             <div>
               <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>🧠 메모리 (16건)</div>
               {MEMORY.map((m) => (
@@ -1130,7 +1171,7 @@ export default function BALMYGARDENDashboard() {
               <div style={{ fontSize: "14px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>
                 🎯 BALMYGARDEN 현재 단계 진단 (@platformtree_)
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px", marginBottom: "16px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "10px", marginBottom: "16px" }}>
                 {[
                   { label: "🎵 음악 (BALMYDADDY)", stage: 2, name: "기술판매", next: "제품화 (앨범 번들/굿즈/게이트웨이)", color: "#F59E0B" },
                   { label: "🗂️ 영수증 OCR 앱", stage: 3, name: "제품판매", next: "정보 상품화 (가이드/SaaS 교육)", color: "#6366F1" },
@@ -1165,7 +1206,7 @@ export default function BALMYGARDENDashboard() {
                       </div>
                     </div>
                     <div style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "8px" }}>{l.desc}</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "8px" }}>
                       <div style={{ background: "#111827", borderRadius: "6px", padding: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#22C55E", fontWeight: "700", marginBottom: "4px" }}>✓ 현재 이 단계 신호</div>
                         {l.signal.map((s, i) => <div key={i} style={{ fontSize: "10px", color: "#64748b", marginBottom: "2px" }}>· {s}</div>)}
