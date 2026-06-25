@@ -54,6 +54,7 @@ interface MemoryEntry { id: string; tag: string; txt: string; }
 interface ScheduleEntry { time: string; agent: string; task: string; }
 interface ToolEntry { name: string; use: string; fb: string; warn?: boolean; }
 interface ChainResult { key: string; ag: Agent; txt: string; done: boolean; }
+interface NotionToast { msg: string; url?: string; ok: boolean; }
 
 /* ══════════════════════════════════════════════════════
    AGENTS
@@ -439,6 +440,10 @@ export default function BALMYGARDENDashboard() {
   const [chatMsgs, setChatMsgs] = useState<DirectChatMsg[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
 
+  // Notion
+  const [notionToast, setNotionToast] = useState<NotionToast | null>(null);
+  const [notionSaving, setNotionSaving] = useState(false);
+
   const abortRef = useRef(false);
 
   const copy = useCallback(async (text: string, id: string) => {
@@ -463,6 +468,57 @@ export default function BALMYGARDENDashboard() {
       }}
     >
       {copied === id ? "✓" : "복사"}
+    </button>
+  );
+
+  /* ── Notion save helper */
+  const saveToNotion = useCallback(async (action: string, payload: unknown) => {
+    setNotionSaving(true);
+    setNotionToast(null);
+    try {
+      const res = await fetch("/api/notion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, payload }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setNotionToast({ msg: "노션에 저장됐습니다!", url: data.url, ok: true });
+    } catch (e: unknown) {
+      setNotionToast({ msg: `저장 실패: ${(e as Error).message}`, ok: false });
+    }
+    setNotionSaving(false);
+    setTimeout(() => setNotionToast(null), 5000);
+  }, []);
+
+  const NotionBtn = ({
+    action, payload, label, small,
+  }: {
+    action: string;
+    payload: unknown;
+    label?: string;
+    small?: boolean;
+  }) => (
+    <button
+      onClick={() => saveToNotion(action, payload)}
+      disabled={notionSaving}
+      style={{
+        padding: small ? "2px 8px" : "6px 14px",
+        fontSize: small ? "10px" : "12px",
+        background: notionSaving ? "#334155" : "#1e1e2e",
+        color: "#e2e8f0",
+        border: "1px solid #4a4a6a",
+        borderRadius: "6px",
+        cursor: notionSaving ? "not-allowed" : "pointer",
+        whiteSpace: "nowrap" as const,
+        flexShrink: 0,
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+      }}
+    >
+      <span style={{ fontSize: small ? "10px" : "12px" }}>N</span>
+      {label ?? "노션 저장"}
     </button>
   );
 
@@ -626,6 +682,19 @@ export default function BALMYGARDENDashboard() {
         </div>
       </div>
 
+      {/* ── NOTION TOAST */}
+      {notionToast && (
+        <div style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 9999, padding: "12px 18px", borderRadius: "10px", background: notionToast.ok ? "#1e2d1e" : "#2d1e1e", border: `1px solid ${notionToast.ok ? "#22C55E" : "#EF4444"}`, display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 4px 24px #00000077" }}>
+          <span style={{ fontSize: "14px" }}>{notionToast.ok ? "✅" : "❌"}</span>
+          <span style={{ fontSize: "13px", color: notionToast.ok ? "#86efac" : "#fca5a5" }}>{notionToast.msg}</span>
+          {notionToast.url && (
+            <a href={notionToast.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#a5b4fc", textDecoration: "underline" }}>
+              노션에서 열기 →
+            </a>
+          )}
+        </div>
+      )}
+
       <div style={{ padding: "20px 22px" }}>
         {/* ══════ HOME ══════ */}
         {tab === "home" && (
@@ -779,9 +848,18 @@ export default function BALMYGARDENDashboard() {
                         <div style={{ fontSize: "20px", marginBottom: "6px" }}>👑</div>
                         <div style={{ fontSize: "15px", fontWeight: "700", marginBottom: "4px" }}>CEO(대표이사) 최종 결재 대기</div>
                         <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "16px" }}>QA 95/100 통과 완료 · 대표이사 승인 필요</div>
-                        <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                        <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
                           <button onClick={() => setAwaitCEO(false)} style={{ padding: "10px 22px", background: "#22C55E", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>✅ 최종 승인</button>
                           <button onClick={() => { setAwaitCEO(false); setChainRes([]); }} style={{ padding: "10px 22px", background: "#EF4444", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>🔄 반려 · 재검토</button>
+                          <NotionBtn
+                            action="save_workflow"
+                            payload={{
+                              workflowName: WORKFLOWS.find((w) => w.id === wfId)?.name ?? "",
+                              input: wfInput,
+                              results: chainRes.map((r) => ({ agent: r.key, role: r.ag.role, text: r.txt, done: r.done })),
+                            }}
+                            label="📎 노션 저장"
+                          />
                         </div>
                       </div>
                     )}
@@ -884,22 +962,34 @@ export default function BALMYGARDENDashboard() {
                       )}
                     </div>
 
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <textarea
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
-                        placeholder={`${chatAgent}에게 메시지 입력 (Enter 전송, Shift+Enter 줄바꿈)`}
-                        rows={2}
-                        style={{ flex: 1, background: "#111827", border: "1px solid #1e293b", borderRadius: "8px", padding: "10px", color: "#e2e8f0", fontSize: "13px", resize: "none" }}
-                      />
-                      <button
-                        onClick={sendChat}
-                        disabled={chatLoading || !chatInput.trim()}
-                        style={{ padding: "0 20px", background: chatLoading ? "#334155" : ag.color, color: "#fff", border: "none", borderRadius: "8px", cursor: chatLoading ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "13px" }}
-                      >
-                        전송
-                      </button>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <textarea
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
+                          placeholder={`${chatAgent}에게 메시지 입력 (Enter 전송, Shift+Enter 줄바꿈)`}
+                          rows={2}
+                          style={{ flex: 1, background: "#111827", border: "1px solid #1e293b", borderRadius: "8px", padding: "10px", color: "#e2e8f0", fontSize: "13px", resize: "none" }}
+                        />
+                        <button
+                          onClick={sendChat}
+                          disabled={chatLoading || !chatInput.trim()}
+                          style={{ padding: "0 20px", background: chatLoading ? "#334155" : ag.color, color: "#fff", border: "none", borderRadius: "8px", cursor: chatLoading ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "13px" }}
+                        >
+                          전송
+                        </button>
+                      </div>
+                      {chatMsgs.length > 0 && (
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <NotionBtn
+                            action="save_chat"
+                            payload={{ agentKey: chatAgent, agentRole: ag.role, messages: chatMsgs }}
+                            label="📎 대화 노션 저장"
+                            small
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -930,6 +1020,7 @@ export default function BALMYGARDENDashboard() {
                   <span style={{ fontSize: "14px", fontWeight: "700" }}>{p.name}</span>
                   <span style={{ fontSize: "10px", color: "#475569", marginLeft: "auto" }}>{p.src}</span>
                   <CopyBtn text={p.tpl} id={p.id} />
+                  <NotionBtn action="save_prompt" payload={{ id: p.id, name: p.name, content: p.tpl, category: "학습" }} small />
                 </div>
                 <div style={{ background: "#111827", borderRadius: "8px", padding: "12px", fontSize: "12px", color: "#94a3b8", lineHeight: "1.8", whiteSpace: "pre-wrap" }}>
                   {p.tpl}
