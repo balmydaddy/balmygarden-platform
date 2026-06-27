@@ -94,11 +94,13 @@ GitHub 링크나 패키지명 제공 시 즉시 기술 평가 후 통합 방안 
   MUSE: {
     code: "A-04", av: "🎨", color: "#F59E0B", type: "Creative",
     role: "크리에이티브",
-    desc: "Suno AI · Midjourney · 릴스 · 앨범 아트",
+    desc: "Suno AI · Midjourney · 릴스 · 앨범 아트 · MUSIC OS 제작",
     sys: `당신은 MUSE, BALMYGARDEN 크리에이티브 에이전트입니다.
 음악: Suno AI로 BALMYDADDY 명의 심포닉/클래시컬 메탈·다크 판타지·복음 발라드.
 게임 아트: Midjourney 다크 판타지 컨셉 아트. 영상: Remotion·Manus AI 릴스.
-BALMYGARDEN 정체성(다크+서정+보호자 테마) 항상 유지. 응답 300자 이내.`,
+BALMYGARDEN 정체성(다크+서정+보호자 테마) 항상 유지.
+[MUSIC OS 역할] SAGE(스토리)·LYRA(가사) 완료 후 Suno AI 제작 담당. 파이프라인 순서 준수.
+PROJECT GOSARI: 세피아+봄 연두 비주얼 톤, 심포닉 발라드 방향성 우선. 응답 300자 이내.`,
   },
   AEGIS: {
     code: "A-05", av: "⚖️", color: "#EF4444", type: "Verifier",
@@ -146,6 +148,58 @@ BALMYGARDEN의 현재 사업 단계(@platformtree_ 12단계 기준) 파악 및 �
 요청 배정 시 반드시 (1) 어떤 에이전트, (2) 왜 그 에이전트인지 먼저 공개.
 블랙박스 의사결정 절대 금지. 투명 라우팅이 CONDUCTOR 핵심 원칙 (Fugu 반면교사).
 QA 게이트: 모든 결과물 95/100 통과 여부 최종 검증. 응답 300자 이내.`,
+  },
+  SAGE: {
+    code: "A-10", av: "📖", color: "#7C3AED", type: "Creative",
+    role: "스토리/세계관 설계",
+    desc: "MUSIC OS · 시나리오 · 장면 · World Building",
+    sys: `당신은 SAGE, BALMYGARDEN MUSIC OS 스토리·세계관 에이전트입니다.
+[MUSIC OS 절대 규칙] 가사는 절대로 먼저 쓰지 않는다. 반드시 이 순서를 따른다:
+아이디어 → 스토리 → 시나리오 → 장면(Scene) → (LYRA에게 전달)
+
+PROJECT GOSARI 전문:
+- 테마: 시간(Time). 핵심 메시지: "우리는 모두 누군가의 고사리였다."
+- 감정 흐름: 무관심→탄생→깨달음→후회→감사→희망
+- 핵심 심볼: 고사리·큰 손·작은 손·사진·기차·봄·집·전화·시간
+- EP 6트랙: 늦게 알았네 / 고사리 / 큰 손 / 사진 한 장 / 떠난 기차 / 봄은 또 오더라
+- 효도송 아님. 죽음 주제 아님. 부모를 이해하게 되는 이야기.
+- 감정보다 진심. 설명보다 장면(Scene).
+시나리오 출력 시 반드시 배경·인물·핵심 장면·감정 포인트 포함. 응답 400자 이내.`,
+  },
+  LYRA: {
+    code: "A-11", av: "✍️", color: "#BE185D", type: "Creative",
+    role: "가사 작성",
+    desc: "MUSIC OS · 시나리오 기반 가사 · 리뷰",
+    sys: `당신은 LYRA, BALMYGARDEN MUSIC OS 가사 에이전트입니다.
+[절대 규칙] SAGE의 시나리오·장면 없이 가사 절대 작성 금지.
+반드시 SAGE → LYRA 순서를 확인하고 시작.
+
+가사 작성 원칙:
+- 설명하지 말고 장면(Scene)으로 보여줄 것
+- 감정보다 진심을 우선
+- 전문 용어·과잉 수식어 금지
+- 한 절에 하나의 심볼/이미지 집중
+- 완성 후 반드시 자체 리뷰: 장면 선명도·감정 진정성·심볼 일관성 3항목 점수 제시
+- 리뷰 통과 기준: 각 항목 8/10 이상
+
+PROJECT GOSARI 심볼 우선 활용: 고사리·큰 손·작은 손·사진·기차·봄·집·전화·시간
+BALMYDADDY 음악 스타일: 심포닉/클래시컬 메탈, 다크판타지, 복음 발라드. 응답 500자 이내.`,
+  },
+  STROBE: {
+    code: "A-12", av: "🎬", color: "#0369A1", type: "Creative",
+    role: "MV/비주얼 디렉션",
+    desc: "MUSIC OS · 앨범아트 · MV 스토리보드 · 비주얼 패키지",
+    sys: `당신은 STROBE, BALMYGARDEN MUSIC OS 뮤직비디오·비주얼 에이전트입니다.
+담당: 앨범아트 방향성 · MV 스토리보드 · 비주얼 컨셉 · Midjourney/DALL-E 프롬프트
+
+PROJECT GOSARI 비주얼 방향:
+- 색상: 연한 세피아+봄 연두 (따뜻하고 낡은 필름 느낌)
+- 분위기: 1980~90년대 한국 가정집 질감, 손때 묻은 사진첩
+- MV 핵심 요소: 큰 손과 작은 손이 교차되는 장면, 기차창 풍경, 고사리 손 클로즈업
+- 앨범아트: 심플 + 서정적. 과잉 그래픽 금지.
+
+출력 항목: (1) 비주얼 무드 서술 (2) Midjourney 프롬프트 2안 (3) MV 핵심 신 3개
+BALMYGARDEN 정체성 (다크+서정+보호자 테마) 유지. 응답 400자 이내.`,
   },
 };
 
@@ -230,6 +284,38 @@ const WORKFLOWS: Workflow[] = [
     chain: ["REX", "SCOUT", "CONDUCTOR"],
     desc: "프로젝트 현황·크레딧·다음 주 계획",
     quickSkill: "이번 주 BALMYGARDEN 3트랙(음악/앱/게임) 진행 현황, AI 크레딧 잔여량, 완료/미완료 태스크, 다음 주 우선순위 3가지를 CEO 보고 형식으로 정리해주세요.",
+  },
+  /* ── MUSIC OS: PROJECT GOSARI ── */
+  {
+    id: "gosari_world", emoji: "🌿", cat: "음악OS", name: "고사리 EP 세계관 빌딩",
+    chain: ["SAGE", "MUSE", "AEGIS"],
+    desc: "시간 테마 세계관 → EP 6트랙 구조 설계",
+    quickSkill: "PROJECT GOSARI의 세계관을 구축해주세요. 테마 '시간', 핵심 메시지 '우리는 모두 누군가의 고사리였다'를 기반으로 EP 6트랙(늦게 알았네/고사리/큰 손/사진 한 장/떠난 기차/봄은 또 오더라)의 감정 흐름과 각 트랙 컨셉을 설계해주세요.",
+  },
+  {
+    id: "gosari_track", emoji: "✍️", cat: "음악OS", name: "고사리 트랙 파이프라인",
+    chain: ["SAGE", "LYRA", "MUSE", "AEGIS"],
+    desc: "시나리오 → 장면 → 가사 → 리뷰 → Suno 프롬프트",
+    quickSkill: "MUSIC OS 파이프라인으로 고사리 EP 트랙 1개를 완성해주세요. 트랙명과 핵심 심볼을 입력하면 SAGE가 시나리오·장면을 설계하고, LYRA가 가사를 작성·리뷰합니다. 트랙명: [트랙명 입력], 핵심 심볼: [심볼 입력]",
+  },
+  {
+    id: "music_suno_prompt", emoji: "🎵", cat: "음악OS", name: "Suno AI 음악 프롬프트 생성",
+    chain: ["LYRA", "MUSE", "CONDUCTOR"],
+    desc: "완성 가사 → Suno AI 최적 프롬프트 20~50버전 전략",
+    quickSkill: "완성된 가사를 Suno AI에서 최고 품질로 생성하기 위한 프롬프트 전략을 짜주세요. 스타일 태그 5종 · 구조 태그 · 무드 디스크립션을 포함하여 3가지 방향성(심포닉/발라드/실험적) 버전을 각각 작성해주세요. 가사: [가사 입력]",
+  },
+  {
+    id: "gosari_visual", emoji: "🎬", cat: "음악OS", name: "고사리 비주얼 패키지",
+    chain: ["STROBE", "MUSE", "AEGIS"],
+    desc: "앨범아트 방향 + MV 스토리보드 + Midjourney 프롬프트",
+    quickSkill: "PROJECT GOSARI 비주얼 패키지를 제작해주세요. (1) EP 전체 앨범아트 컨셉 (세피아+봄 연두 톤, 손때 묻은 사진첩 무드), (2) '고사리' 타이틀 트랙 MV 핵심 신 5개 스토리보드, (3) Midjourney 프롬프트 앨범아트 2안을 작성해주세요.",
+  },
+  {
+    id: "gosari_release", emoji: "🚀", cat: "음악OS", name: "고사리 EP 발매 마스터플랜",
+    chain: ["REX", "NOVA", "SCOUT", "CONDUCTOR"],
+    parallel: [["REX", "NOVA"], ["SCOUT"], ["CONDUCTOR"]],
+    desc: "DistroKid 배급 · 마케팅 · SNS · D-30 타임라인",
+    quickSkill: "PROJECT GOSARI EP 발매 마스터플랜을 D-30부터 D-Day까지 작성해주세요. DistroKid 배급 일정 · SNS 티저 콘텐츠 계획 · 발매일 마케팅 시퀀스 · 발매 후 2주 팔로업 전략을 포함해주세요.",
   },
 ];
 
@@ -454,8 +540,11 @@ const MEMORY: MemoryEntry[] = [
   { id: "M-12", tag: "마케팅", txt: "v3.0 탑재: 고객조사·이메일·광고카피·포지셔닝·상세페이지·크리에이터·영상스크립트 7종." },
   { id: "M-13", tag: "콘텐츠", txt: "훅 20개 + How-To·팁·스토리텔링 각 10개 탑재. MUSE/NOVA 우선 활용." },
   { id: "M-14", tag: "안전", txt: "ISO 45001/14001, 중대재해처벌법, 산업안전기사 준비 중. 파라텍 20개 현장." },
-  { id: "M-15", tag: "버전", txt: "Dashboard v3.1 (2026.06.24). 신규: @platformtree_ 12단계 사업 사다리 통합." },
+  { id: "M-15", tag: "버전", txt: "Dashboard v3.2 (2026.06.27). 신규: MUSIC OS v1.0 통합 — SAGE/LYRA/STROBE 에이전트 + GOSARI 워크플로우 5종." },
   { id: "M-16", tag: "12단계", txt: "@platformtree_ 사업 성장 사다리. BG 현황: 음악=2단계(기술판매), 앱/게임=3단계(제품판매). 목표: 음악→제품화, 앱→정보상품, 게임→주목확보." },
+  { id: "M-17", tag: "MUSIC OS", txt: "BALMY MUSIC OS v1.0 — 파이프라인 12단계: 아이디어→기획→스토리→가사→제작→앨범아트→MV→마케팅→배급→분석→아카이브. 담당 에이전트: SAGE(스토리)→LYRA(가사)→MUSE(제작)→STROBE(비주얼)→NOVA(마케팅)→REX(배급)." },
+  { id: "M-18", tag: "GOSARI", txt: "PROJECT GOSARI — EP 6트랙. 테마: 시간(Time). 메시지: '우리는 모두 누군가의 고사리였다.' 감정 흐름: 무관심→탄생→깨달음→후회→감사→희망. 효도송 아님. 부모를 이해하는 이야기. 장면 우선, 진심 우선." },
+  { id: "M-19", tag: "제작규칙", txt: "MUSIC OS 절대 규칙: 가사 먼저 쓰지 않는다. 반드시 아이디어→스토리→시나리오→장면→가사→리뷰→Suno 프롬프트→생성(20~50버전)→선택 순서 준수. SAGE 없이 LYRA 단독 가사 작성 금지." },
 ];
 
 const SCHEDULES: ScheduleEntry[] = [
@@ -467,6 +556,10 @@ const SCHEDULES: ScheduleEntry[] = [
   { time: "발매 D-1", agent: "REX", task: "DistroKid 배급 확인 + 플랫폼별 메타데이터 검수" },
   { time: "매월 1일", agent: "SCOUT", task: "월간 AI 도구 크레딧 현황 점검 + 신규 무료 도구 보고" },
   { time: "분기 말", agent: "AEGIS·REX", task: "법무/경영 리스크 검토 + ISO 감사 대응 체크" },
+  { time: "트랙 작업 시작", agent: "SAGE→LYRA", task: "[MUSIC OS] 시나리오·장면 설계 후 가사 착수 (순서 의무)" },
+  { time: "발매 D-30", agent: "STROBE·MUSE", task: "[GOSARI] 앨범아트 컨셉 확정 + MV 스토리보드 초안 CEO 승인" },
+  { time: "발매 D-14", agent: "LYRA·MUSE", task: "[GOSARI] Suno AI 20~50버전 생성 → 선택 → 마스터링" },
+  { time: "발매 D-7", agent: "NOVA·STROBE", task: "[GOSARI] SNS 티저 콘텐츠 + 릴스 스크립트 완성" },
 ];
 
 const TOOLS: ToolEntry[] = [
