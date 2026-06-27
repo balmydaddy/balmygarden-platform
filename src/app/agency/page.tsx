@@ -931,20 +931,56 @@ export default function BALMYGARDENDashboard() {
     setStep(-1);
     setAwaitCEO(true);
 
-    // 자동 노션 저장
+    // 자동 노션 저장 — 항상 실행, 결과 있을 때
     if (results.length > 0) {
+      const isMusicOS = wf.cat === "음악OS";
+      const pipelineStep = isMusicOS ? GOSARI_PIPELINE.find((p) => p.wfId === wf.id) : null;
+      const nextPipelineStep = pipelineStep ? GOSARI_PIPELINE.find((p) => p.step === pipelineStep.step + 1) : null;
+
+      let notionAction: string;
+      let notionPayload: unknown;
+
+      if (isMusicOS && pipelineStep) {
+        // MUSIC OS — 5섹션 구조화 포맷
+        const summary = results.map((r) => `• ${r.ag.role}: ${r.txt.slice(0, 120)}`).join("\n");
+        notionAction = "save_log";
+        notionPayload = {
+          source: "GOSARI",
+          title: `STEP ${pipelineStep.step} — ${pipelineStep.name}`,
+          content: [
+            `📌 STEP 상태: STEP ${pipelineStep.step}/12 — ${pipelineStep.name}`,
+            `\n📝 요약:\n${summary}`,
+            `\n📖 결정 사항:\n${wfInput}`,
+            `\n🔄 변경 사항:\n${results.map((r) => `${r.key}(${r.ag.role}) — ${r.done ? "완료" : "오류"}`).join(", ")}`,
+            `\n🎯 다음 액션: ${nextPipelineStep ? `STEP ${nextPipelineStep.step} — ${nextPipelineStep.name}` : "발매 완료 🎉"}`,
+          ].join(""),
+        };
+        // gosariStep 자동 진행
+        setGosariStep((prev) => Math.max(prev, pipelineStep.step));
+      } else {
+        // 일반 워크플로우
+        notionAction = "save_workflow";
+        notionPayload = {
+          workflowName: wf.name,
+          input: wfInput,
+          results: results.map((r) => ({ agent: r.key, role: r.ag.role, text: r.txt, done: r.done })),
+        };
+      }
+
       fetch("/api/notion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "save_workflow",
-          payload: {
-            workflowName: wf.name,
-            input: wfInput,
-            results: results.map((r) => ({ agent: r.key, role: r.ag.role, text: r.txt, done: r.done })),
-          },
-        }),
-      }).catch(() => {});
+        body: JSON.stringify({ action: notionAction, payload: notionPayload }),
+      })
+        .then((r) => r.json())
+        .then((d) => {
+          setNotionToast({ msg: isMusicOS ? `🌿 GOSARI STEP ${pipelineStep?.step ?? ""} Notion 저장 완료` : `📎 "${wf.name}" Notion 저장 완료`, url: d.url, ok: true });
+          setTimeout(() => setNotionToast(null), 5000);
+        })
+        .catch(() => {
+          setNotionToast({ msg: "Notion 자동 저장 실패 (토큰 확인)", ok: false });
+          setTimeout(() => setNotionToast(null), 5000);
+        });
 
       // Slack 자동 알림 (토글 ON 시)
       if (slackNotify) {
@@ -984,16 +1020,38 @@ export default function BALMYGARDENDashboard() {
     if (!chatAgent || !chatInput.trim() || chatLoading) return;
     const msg = chatInput.trim();
     setChatInput("");
-    setChatMsgs((prev) => [...prev, { role: "user", text: msg }]);
+    const userEntry: DirectChatMsg = { role: "user", text: msg };
+    setChatMsgs((prev) => [...prev, userEntry]);
     setChatLoading(true);
+    let reply = "";
     try {
-      const reply = await callAgent(chatAgent, msg);
+      reply = await callAgent(chatAgent, msg);
       setChatMsgs((prev) => [...prev, { role: "agent", text: reply }]);
     } catch (e: unknown) {
       const err = e as Error;
-      setChatMsgs((prev) => [...prev, { role: "agent", text: `⚠️ 오류: ${err.message}` }]);
+      reply = `⚠️ 오류: ${err.message}`;
+      setChatMsgs((prev) => [...prev, { role: "agent", text: reply }]);
     }
     setChatLoading(false);
+
+    // 대화 자동 노션 저장 (fire-and-forget)
+    if (reply && chatAgent) {
+      fetch("/api/notion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_chat",
+          payload: {
+            agentKey: chatAgent,
+            agentRole: AGENTS[chatAgent]?.role ?? chatAgent,
+            messages: [
+              { role: "user", text: msg },
+              { role: "agent", text: reply },
+            ],
+          },
+        }),
+      }).catch(() => {});
+    }
   }, [chatAgent, chatInput, chatLoading]);
 
   /* ── STYLE HELPERS */
