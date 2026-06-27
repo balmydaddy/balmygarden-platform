@@ -576,6 +576,40 @@ const TOOLS: ToolEntry[] = [
 ];
 
 /* ══════════════════════════════════════════════════════
+   MUSIC OS — PROJECT PIPELINE
+══════════════════════════════════════════════════════ */
+interface PipelineStep {
+  step: number;
+  name: string;
+  agent: string;
+  wfId: string;
+  desc: string;
+}
+
+interface DecisionEntry {
+  date: string;
+  step: number;
+  stepName: string;
+  decision: string;
+  tag: "결정" | "변경" | "보류";
+}
+
+const GOSARI_PIPELINE: PipelineStep[] = [
+  { step: 1,  name: "컨셉 확정",         agent: "SAGE",            wfId: "gosari_world",       desc: "EP 테마·방향성 CEO 승인" },
+  { step: 2,  name: "세계관 빌딩",        agent: "SAGE",            wfId: "gosari_world",       desc: "World Building 문서 완성" },
+  { step: 3,  name: "EP 트랙 구조 설계",  agent: "SAGE",            wfId: "gosari_world",       desc: "6트랙 컨셉·감정 흐름 확정" },
+  { step: 4,  name: "시나리오 · 장면",    agent: "SAGE",            wfId: "gosari_track",       desc: "트랙별 Scene 설계" },
+  { step: 5,  name: "가사 작성 · 리뷰",   agent: "LYRA",            wfId: "gosari_track",       desc: "가사 + 자체 리뷰 (8/10 이상)" },
+  { step: 6,  name: "Suno AI 프롬프트",   agent: "MUSE",            wfId: "music_suno_prompt",  desc: "태그·무드 3방향성 설계" },
+  { step: 7,  name: "음원 생성 · 선택",   agent: "MUSE + CEO",      wfId: "music_suno_prompt",  desc: "20~50버전 생성 → CEO 최종 선택" },
+  { step: 8,  name: "앨범 아트",          agent: "STROBE + MUSE",   wfId: "gosari_visual",      desc: "비주얼 컨셉 + Midjourney 프롬프트" },
+  { step: 9,  name: "MV 스토리보드",      agent: "STROBE",          wfId: "gosari_visual",      desc: "핵심 신 5개 스토리보드" },
+  { step: 10, name: "발매 패키지",         agent: "REX",             wfId: "gosari_release",     desc: "DistroKid 메타데이터 + 배급 신청" },
+  { step: 11, name: "마케팅 · SNS",       agent: "NOVA + SCOUT",    wfId: "gosari_release",     desc: "티저 콘텐츠 + 발매 시퀀스" },
+  { step: 12, name: "발매 · 아카이브",    agent: "REX + CONDUCTOR", wfId: "gosari_release",     desc: "D-Day 발매 + 결과 기록" },
+];
+
+/* ══════════════════════════════════════════════════════
    DIRECT CHAT — single agent
 ══════════════════════════════════════════════════════ */
 interface DirectChatMsg { role: "user" | "agent"; text: string; }
@@ -645,6 +679,13 @@ export default function BALMYGARDENDashboard() {
   // Slack
   const [slackNotify, setSlackNotify] = useState(false); // 워크플로우 완료 시 자동 알림
   const [slackConfigured, setSlackConfigured] = useState<boolean | null>(null);
+
+  // Project OS — GOSARI
+  const [gosariStep, setGosariStep] = useState(0); // 현재 완료된 스텝 (0 = 시작 전)
+  const [decisionLog, setDecisionLog] = useState<DecisionEntry[]>([]);
+  const [newDecision, setNewDecision] = useState("");
+  const [newDecisionTag, setNewDecisionTag] = useState<"결정" | "변경" | "보류">("결정");
+  const [projectSaving, setProjectSaving] = useState(false);
 
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
@@ -1032,6 +1073,7 @@ export default function BALMYGARDENDashboard() {
         <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap" }}>
           {[
             { id: "home", label: "🏠 홈" },
+            { id: "projects", label: "🌿 프로젝트" },
             { id: "workflow", label: "⚡ 워크플로" },
             { id: "agents", label: "🤖 에이전트" },
             { id: "chat", label: "💬 대화" },
@@ -1086,7 +1128,7 @@ export default function BALMYGARDENDashboard() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)",
                 gap: "10px",
                 marginBottom: "14px",
               }}
@@ -1095,6 +1137,7 @@ export default function BALMYGARDENDashboard() {
                 { emoji: "🗂️", name: "영수증 OCR 앱", status: "사전 테스팅", color: "#6366F1", detail: "Next.js 14 · Supabase · Gemini API · Vercel" },
                 { emoji: "⚔️", name: "LOD: Lord of Dynasty", status: "프로토타입 완성", color: "#8B5CF6", detail: "React 다크판타지 턴제 RPG · Harness CI/CD" },
                 { emoji: "🎵", name: "BALMYDADDY", status: "배급 중", color: "#F59E0B", detail: "DistroKid · 심포닉 메탈 · 다크판타지 · 복음" },
+                { emoji: "🌿", name: "PROJECT GOSARI", status: gosariStep === 0 ? "기획 중" : gosariStep >= 12 ? "발매 완료" : `STEP ${gosariStep}/12 진행 중`, color: "#7C3AED", detail: `EP 6트랙 · 테마: 시간 · ${gosariStep === 0 ? "시작 전" : `현재: ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`}` },
               ].map((p) => (
                 <div key={p.name} style={S.card(p.color + "44")}>
                   <div style={{ fontSize: "22px", marginBottom: "6px" }}>{p.emoji}</div>
@@ -1345,15 +1388,45 @@ export default function BALMYGARDENDashboard() {
                         <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
                           <button onClick={() => setAwaitCEO(false)} style={{ padding: "10px 22px", background: "#22C55E", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>✅ 최종 승인</button>
                           <button onClick={() => { setAwaitCEO(false); setChainRes([]); }} style={{ padding: "10px 22px", background: "#EF4444", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>🔄 반려 · 재검토</button>
-                          <NotionBtn
-                            action="save_workflow"
-                            payload={{
-                              workflowName: WORKFLOWS.find((w) => w.id === wfId)?.name ?? "",
-                              input: wfInput,
-                              results: chainRes.map((r) => ({ agent: r.key, role: r.ag.role, text: r.txt, done: r.done })),
-                            }}
-                            label="📎 노션 저장"
-                          />
+                          {(() => {
+                            const wf = WORKFLOWS.find((w) => w.id === wfId);
+                            const isMusicOS = wf?.cat === "음악OS";
+                            const currentPipelineStep = isMusicOS ? GOSARI_PIPELINE.find((p) => p.wfId === wfId) : null;
+                            const nextStep = currentPipelineStep ? GOSARI_PIPELINE.find((p) => p.step === currentPipelineStep.step + 1) : null;
+                            if (isMusicOS) {
+                              return (
+                                <button
+                                  onClick={() => {
+                                    const summary = chainRes.map((r) => `• ${r.ag.role}: ${r.txt.slice(0, 100)}`).join("\n");
+                                    const stepLabel = currentPipelineStep ? `STEP ${currentPipelineStep.step} — ${currentPipelineStep.name}` : wf?.name ?? "";
+                                    saveToNotion("save_log", {
+                                      source: "GOSARI",
+                                      title: stepLabel,
+                                      content: `📌 STEP 상태: ${stepLabel}\n\n📝 요약:\n${summary}\n\n📖 결정 사항:\n${wfInput}\n\n🔄 변경 사항:\n${chainRes.map((r) => `${r.key} 결과 저장`).join(", ")}\n\n🎯 다음 액션: ${nextStep ? `STEP ${nextStep.step} — ${nextStep.name}` : "발매 완료"}`,
+                                    });
+                                    if (currentPipelineStep && gosariStep < currentPipelineStep.step) {
+                                      setGosariStep(currentPipelineStep.step);
+                                    }
+                                  }}
+                                  disabled={notionSaving}
+                                  style={{ padding: "10px 18px", background: "#7C3AED66", color: "#c4b5fd", border: "1px solid #7C3AED", borderRadius: "8px", cursor: "pointer", fontWeight: "700", fontSize: "12px" }}
+                                >
+                                  🌿 GOSARI 로그 저장
+                                </button>
+                              );
+                            }
+                            return (
+                              <NotionBtn
+                                action="save_workflow"
+                                payload={{
+                                  workflowName: wf?.name ?? "",
+                                  input: wfInput,
+                                  results: chainRes.map((r) => ({ agent: r.key, role: r.ag.role, text: r.txt, done: r.done })),
+                                }}
+                                label="📎 노션 저장"
+                              />
+                            );
+                          })()}
                           <button
                             onClick={() => {
                               const wfName = WORKFLOWS.find((w) => w.id === wfId)?.name ?? "워크플로우";
@@ -1887,6 +1960,233 @@ export default function BALMYGARDENDashboard() {
             </div>
           </div>
         )}
+        {/* ══════ PROJECTS ══════ */}
+        {tab === "projects" && (
+          <div>
+            {/* Header */}
+            <div style={{ ...S.card("#7C3AED33"), marginBottom: "16px", padding: "20px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+                <div>
+                  <div style={{ fontSize: "18px", fontWeight: "800", color: "#a78bfa", marginBottom: "4px" }}>🌿 PROJECT GOSARI</div>
+                  <div style={{ fontSize: "12px", color: "#64748b" }}>BALMY MUSIC OS v1.0 · 첫 번째 테스트 프로젝트</div>
+                  <div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
+                    {[["테마", "시간(Time)"], ["메시지", "우리는 모두 누군가의 고사리였다"], ["트랙", "EP 6곡"]].map(([k, v]) => (
+                      <span key={k} style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "#7C3AED22", border: "1px solid #7C3AED44", color: "#c4b5fd" }}>
+                        {k}: {v}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "28px", fontWeight: "900", color: "#a78bfa" }}>{gosariStep}</div>
+                  <div style={{ fontSize: "10px", color: "#64748b" }}>/ 12 STEP</div>
+                  <div style={{ fontSize: "10px", color: gosariStep >= 12 ? "#22c55e" : "#7C3AED", marginTop: "4px", fontWeight: "700" }}>
+                    {gosariStep === 0 ? "시작 전" : gosariStep >= 12 ? "✅ 완료" : "진행 중"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 12-Step Pipeline Tracker */}
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>📌 STEP 상태 — 12단계 파이프라인</div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: "8px", marginBottom: "20px" }}>
+              {GOSARI_PIPELINE.map((p) => {
+                const done = gosariStep >= p.step;
+                const active = gosariStep + 1 === p.step;
+                const color = done ? "#22c55e" : active ? "#a78bfa" : "#334155";
+                const bg = done ? "#0d2d1a" : active ? "#1e1040" : "#0d1117";
+                return (
+                  <div
+                    key={p.step}
+                    style={{ background: bg, border: `1px solid ${color}44`, borderLeft: `3px solid ${color}`, borderRadius: "8px", padding: "10px 12px", cursor: "pointer", transition: "all 0.15s" }}
+                    onClick={() => {
+                      if (done) setGosariStep(p.step - 1);
+                      else if (active || gosariStep + 1 === p.step) setGosariStep(p.step);
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                      <span style={{ fontSize: "14px" }}>{done ? "✅" : active ? "▶️" : "○"}</span>
+                      <span style={{ fontSize: "10px", color, fontWeight: "700" }}>STEP {p.step}</span>
+                    </div>
+                    <div style={{ fontSize: "12px", fontWeight: "700", color: done ? "#86efac" : active ? "#c4b5fd" : "#475569", marginBottom: "3px" }}>{p.name}</div>
+                    <div style={{ fontSize: "10px", color: "#475569" }}>{p.agent}</div>
+                    {active && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setWfId(p.wfId); setTab("workflow"); }}
+                        style={{ marginTop: "6px", padding: "3px 8px", background: "#7C3AED", border: "none", borderRadius: "4px", color: "#fff", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
+                      >
+                        ▶ 워크플로우 시작
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Current Step Detail */}
+            {gosariStep < 12 && (
+              <div style={{ ...S.card("#7C3AED22"), marginBottom: "20px", padding: "16px", border: "1px solid #7C3AED44" }}>
+                <div style={{ fontSize: "12px", fontWeight: "700", color: "#a78bfa", marginBottom: "8px" }}>
+                  🎯 다음 액션 — STEP {gosariStep + 1}: {GOSARI_PIPELINE[gosariStep]?.name}
+                </div>
+                <div style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "10px" }}>{GOSARI_PIPELINE[gosariStep]?.desc}</div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => { setWfId(GOSARI_PIPELINE[gosariStep].wfId); setTab("workflow"); }}
+                    style={{ padding: "8px 18px", background: "#7C3AED", border: "none", borderRadius: "8px", color: "#fff", fontWeight: "700", fontSize: "12px", cursor: "pointer" }}
+                  >
+                    ▶ 워크플로우 실행
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (gosariStep < 12) setGosariStep(gosariStep + 1);
+                    }}
+                    style={{ padding: "8px 14px", background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", color: "#94a3b8", fontSize: "12px", cursor: "pointer" }}
+                  >
+                    ✓ 완료 처리
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Decision Log */}
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>📖 Decision Log</div>
+            <div style={{ ...S.card(), marginBottom: "16px", padding: "14px" }}>
+              {/* Add decision */}
+              <div style={{ display: "flex", gap: "6px", marginBottom: "12px", flexWrap: "wrap" }}>
+                <select
+                  value={newDecisionTag}
+                  onChange={(e) => setNewDecisionTag(e.target.value as "결정" | "변경" | "보류")}
+                  style={{ padding: "6px 10px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "12px" }}
+                >
+                  <option value="결정">결정</option>
+                  <option value="변경">변경</option>
+                  <option value="보류">보류</option>
+                </select>
+                <input
+                  value={newDecision}
+                  onChange={(e) => setNewDecision(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newDecision.trim()) {
+                      const entry: DecisionEntry = {
+                        date: new Date().toISOString(),
+                        step: gosariStep,
+                        stepName: GOSARI_PIPELINE[gosariStep - 1]?.name ?? "시작 전",
+                        decision: newDecision.trim(),
+                        tag: newDecisionTag,
+                      };
+                      setDecisionLog([entry, ...decisionLog]);
+                      setNewDecision("");
+                    }
+                  }}
+                  placeholder="결정/변경 사항 입력 후 Enter"
+                  style={{ flex: 1, minWidth: "180px", padding: "6px 10px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "12px" }}
+                />
+                <button
+                  onClick={() => {
+                    if (!newDecision.trim()) return;
+                    const entry: DecisionEntry = {
+                      date: new Date().toISOString(),
+                      step: gosariStep,
+                      stepName: GOSARI_PIPELINE[gosariStep - 1]?.name ?? "시작 전",
+                      decision: newDecision.trim(),
+                      tag: newDecisionTag,
+                    };
+                    setDecisionLog([entry, ...decisionLog]);
+                    setNewDecision("");
+                  }}
+                  style={{ padding: "6px 14px", background: "#7C3AED", border: "none", borderRadius: "6px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                >
+                  + 추가
+                </button>
+                {decisionLog.length > 0 && (
+                  <button
+                    disabled={projectSaving}
+                    onClick={async () => {
+                      setProjectSaving(true);
+                      const content = decisionLog.map((d) =>
+                        `[${d.tag}] STEP ${d.step} ${d.stepName} — ${d.decision} (${new Date(d.date).toLocaleString("ko-KR")})`
+                      ).join("\n");
+                      await saveToNotion("save_log", {
+                        source: "GOSARI",
+                        title: `Decision Log — STEP ${gosariStep} ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`,
+                        content: `📌 STEP 상태: STEP ${gosariStep}/12 — ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? "시작 전"}\n\n📖 결정 사항:\n${content}\n\n🎯 다음 액션: STEP ${gosariStep + 1} — ${GOSARI_PIPELINE[gosariStep]?.name ?? "완료"}`,
+                      });
+                      setProjectSaving(false);
+                    }}
+                    style={{ padding: "6px 12px", background: projectSaving ? "#334155" : "#0d2d1a", border: "1px solid #22c55e44", borderRadius: "6px", color: "#86efac", fontSize: "11px", cursor: "pointer" }}
+                  >
+                    {projectSaving ? "저장 중…" : "📎 Notion 저장"}
+                  </button>
+                )}
+              </div>
+              {/* Log list */}
+              {decisionLog.length === 0 ? (
+                <div style={{ textAlign: "center", color: "#334155", fontSize: "12px", padding: "20px" }}>
+                  결정/변경 사항을 입력하면 여기에 누적됩니다
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "320px", overflowY: "auto" }}>
+                  {decisionLog.map((d, i) => {
+                    const tagColor: Record<string, string> = { 결정: "#22c55e", 변경: "#f59e0b", 보류: "#94a3b8" };
+                    return (
+                      <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start", padding: "8px 10px", background: "#0d1117", borderRadius: "6px", border: "1px solid #1e293b" }}>
+                        <span style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: (tagColor[d.tag] ?? "#94a3b8") + "22", color: tagColor[d.tag] ?? "#94a3b8", border: `1px solid ${(tagColor[d.tag] ?? "#94a3b8")}44`, whiteSpace: "nowrap", marginTop: "1px" }}>
+                          {d.tag}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "2px" }}>STEP {d.step} {d.stepName} · {new Date(d.date).toLocaleString("ko-KR")}</div>
+                          <div style={{ fontSize: "13px", color: "#e2e8f0" }}>{d.decision}</div>
+                        </div>
+                        <button onClick={() => setDecisionLog(decisionLog.filter((_, j) => j !== i))} style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "14px", padding: "0 4px" }}>✕</button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Changelog — 완료된 스텝 목록 */}
+            {gosariStep > 0 && (
+              <>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>🔄 Changelog</div>
+                <div style={{ ...S.card(), padding: "14px" }}>
+                  {GOSARI_PIPELINE.filter((p) => gosariStep >= p.step).map((p) => (
+                    <div key={p.step} style={{ display: "flex", gap: "10px", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #1e293b" }}>
+                      <span style={{ fontSize: "14px" }}>✅</span>
+                      <span style={{ fontSize: "10px", color: "#22c55e", whiteSpace: "nowrap", fontWeight: "700" }}>STEP {p.step}</span>
+                      <span style={{ fontSize: "12px", color: "#86efac", fontWeight: "700" }}>{p.name}</span>
+                      <span style={{ fontSize: "11px", color: "#64748b" }}>{p.desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Project Bible Quick Reference */}
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginTop: "20px", marginBottom: "10px" }}>📖 Project Bible — EP 트랙 리스트</div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "8px" }}>
+              {[
+                { num: "01", title: "늦게 알았네", symbol: "전화, 시간", emotion: "후회·깨달음" },
+                { num: "02", title: "고사리",      symbol: "고사리, 큰 손, 작은 손", emotion: "탄생·보호" },
+                { num: "03", title: "큰 손",        symbol: "큰 손, 집", emotion: "감사" },
+                { num: "04", title: "사진 한 장",   symbol: "사진, 시간", emotion: "그리움·기록" },
+                { num: "05", title: "떠난 기차",    symbol: "기차, 봄", emotion: "이별·흘러감" },
+                { num: "06", title: "봄은 또 오더라", symbol: "봄, 고사리", emotion: "희망·순환" },
+              ].map((t) => (
+                <div key={t.num} style={{ ...S.card("#7C3AED11"), padding: "10px 14px", border: "1px solid #7C3AED22" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
+                    <span style={{ fontSize: "11px", color: "#7C3AED", fontWeight: "700" }}>#{t.num}</span>
+                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#e2e8f0" }}>{t.title}</span>
+                  </div>
+                  <div style={{ fontSize: "10px", color: "#64748b" }}>심볼: {t.symbol}</div>
+                  <div style={{ fontSize: "10px", color: "#a78bfa" }}>감정: {t.emotion}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ══════ HISTORY ══════ */}
         {tab === "history" && (
           <div>
