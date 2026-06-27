@@ -57,6 +57,8 @@ interface ScheduleEntry { time: string; agent: string; task: string; }
 interface ToolEntry { name: string; use: string; fb: string; warn?: boolean; }
 interface ChainResult { key: string; ag: Agent; txt: string; done: boolean; }
 interface NotionToast { msg: string; url?: string; ok: boolean; }
+interface DriveFile { id: string; name: string; mimeType: string; modifiedTime: string; webViewLink: string; }
+interface IntegrationToast { msg: string; url?: string; ok: boolean; }
 
 /* ══════════════════════════════════════════════════════
    AGENTS
@@ -538,6 +540,19 @@ export default function BALMYGARDENDashboard() {
     }
   }, []);
 
+  // Google Drive
+  const [driveToast, setDriveToast] = useState<IntegrationToast | null>(null);
+  const [driveSaving, setDriveSaving] = useState(false);
+  const [driveFiles, setDriveFiles] = useState<DriveFile[]>([]);
+  const [driveLoading, setDriveLoading] = useState(false);
+  const [driveCtx, setDriveCtx] = useState(""); // 에이전트에 주입될 Drive 파일 내용
+  const [driveCtxName, setDriveCtxName] = useState("");
+  const [drivePanel, setDrivePanel] = useState(false);
+
+  // Slack
+  const [slackNotify, setSlackNotify] = useState(false); // 워크플로우 완료 시 자동 알림
+  const [slackConfigured, setSlackConfigured] = useState<boolean | null>(null);
+
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -594,6 +609,74 @@ export default function BALMYGARDENDashboard() {
     setTimeout(() => setNotionToast(null), 5000);
   }, []);
 
+  /* ── Google Drive: 워크플로우 결과 저장 */
+  const saveToDrive = useCallback(async (title: string, content: string) => {
+    setDriveSaving(true);
+    setDriveToast(null);
+    try {
+      const res = await fetch("/api/gdrive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "save_doc", payload: { title, content } }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        if (data.setup) throw new Error("Google Drive 미설정 — .env.local에 GOOGLE_SERVICE_ACCOUNT_JSON 추가 필요");
+        throw new Error(data.error);
+      }
+      setDriveToast({ msg: "Google Drive에 저장됐습니다!", url: data.url, ok: true });
+      setTimeout(() => setDriveToast(null), 5000);
+    } catch (e: unknown) {
+      setDriveToast({ msg: (e as Error).message, ok: false });
+      setTimeout(() => setDriveToast(null), 6000);
+    }
+    setDriveSaving(false);
+  }, []);
+
+  /* ── Google Drive: 파일 목록 로드 */
+  const loadDriveFiles = useCallback(async () => {
+    setDriveLoading(true);
+    try {
+      const res = await fetch("/api/gdrive?limit=15");
+      const data = await res.json();
+      if (data.files) setDriveFiles(data.files);
+    } catch { /* silent */ }
+    setDriveLoading(false);
+  }, []);
+
+  /* ── Google Drive: 파일 읽어서 컨텍스트 주입 */
+  const injectDriveFile = useCallback(async (file: DriveFile) => {
+    try {
+      const res = await fetch("/api/gdrive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "read_file", payload: { fileId: file.id, mimeType: file.mimeType } }),
+      });
+      const data = await res.json();
+      if (data.text) {
+        setDriveCtx(data.text);
+        setDriveCtxName(file.name);
+      }
+    } catch { /* silent */ }
+  }, []);
+
+  /* ── Slack: 워크플로우 완료 알림 (fire-and-forget) */
+  const notifySlack = useCallback((workflowName: string, input: string, agentCount: number, success: boolean) => {
+    fetch("/api/slack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "notify",
+        payload: { workflowName, input, agentCount, success },
+      }),
+    }).catch(() => {});
+  }, []);
+
+  /* ── Slack 설정 확인 (마운트 시 1회) */
+  useEffect(() => {
+    fetch("/api/slack").then((r) => r.json()).then((d) => setSlackConfigured(d.configured ?? false)).catch(() => setSlackConfigured(false));
+  }, []);
+
   const NotionBtn = ({
     action, payload, label, small,
   }: {
@@ -631,10 +714,13 @@ export default function BALMYGARDENDashboard() {
     const memCtx = ctxEnabled
       ? `\n\n[BALMYGARDEN 기업 컨텍스트 — 항상 참조]\n${MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n")}`
       : "";
+    const driveCtxBlock = driveCtx
+      ? `\n\n[Google Drive 참조 문서 — ${driveCtxName}]\n${driveCtx.slice(0, 4000)}`
+      : "";
     const res = await fetch("/api/agent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ systemPrompt: ag.sys + memCtx, userMessage }),
+      body: JSON.stringify({ systemPrompt: ag.sys + memCtx + driveCtxBlock, userMessage }),
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
@@ -725,8 +811,13 @@ export default function BALMYGARDENDashboard() {
           },
         }),
       }).catch(() => {});
+
+      // Slack 자동 알림 (토글 ON 시)
+      if (slackNotify) {
+        notifySlack(wf.name, wfInput, results.length, results.every((r) => r.done));
+      }
     }
-  }, [wfId, wfInput, ctxEnabled]);
+  }, [wfId, wfInput, ctxEnabled, slackNotify, notifySlack]);
 
   /* ── Level 7: Team chain run (second parallel chain) */
   const runTeamChain = useCallback(async () => {
@@ -877,6 +968,19 @@ export default function BALMYGARDENDashboard() {
           {notionToast.url && (
             <a href={notionToast.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#a5b4fc", textDecoration: "underline" }}>
               노션에서 열기 →
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* ── DRIVE TOAST */}
+      {driveToast && (
+        <div style={{ position: "fixed", bottom: notionToast ? "80px" : "24px", right: "24px", zIndex: 9998, padding: "12px 18px", borderRadius: "10px", background: driveToast.ok ? "#1a2e1e" : "#2d1e1e", border: `1px solid ${driveToast.ok ? "#1a73e8" : "#EF4444"}`, display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 4px 24px #00000077" }}>
+          <span style={{ fontSize: "14px" }}>{driveToast.ok ? "📁" : "❌"}</span>
+          <span style={{ fontSize: "13px", color: driveToast.ok ? "#93c5fd" : "#fca5a5" }}>{driveToast.msg}</span>
+          {driveToast.url && (
+            <a href={driveToast.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#60a5fa", textDecoration: "underline" }}>
+              Drive에서 열기 →
             </a>
           )}
         </div>
@@ -1157,6 +1261,17 @@ export default function BALMYGARDENDashboard() {
                             }}
                             label="📎 노션 저장"
                           />
+                          <button
+                            onClick={() => {
+                              const wfName = WORKFLOWS.find((w) => w.id === wfId)?.name ?? "워크플로우";
+                              const content = chainRes.map((r) => `【${r.key}】${r.ag.role}\n${r.txt}`).join("\n\n---\n\n");
+                              saveToDrive(`[BALMYGARDEN] ${wfName} — ${new Date().toLocaleDateString("ko-KR")}`, `업무 요청: ${wfInput}\n\n${content}`);
+                            }}
+                            disabled={driveSaving}
+                            style={{ padding: "10px 18px", background: driveSaving ? "#334155" : "#1a73e866", color: "#fff", border: "1px solid #1a73e8", borderRadius: "8px", cursor: driveSaving ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "12px" }}
+                          >
+                            {driveSaving ? "저장 중…" : "📁 Drive 저장"}
+                          </button>
                         </div>
                       </div>
                     )}
@@ -1168,6 +1283,95 @@ export default function BALMYGARDENDashboard() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* ══ Google Drive 컨텍스트 패널 ══ */}
+          <div style={{ marginTop: "16px", ...S.card("#1a73e833") }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: drivePanel ? "12px" : "0", flexWrap: "wrap", gap: "8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "16px" }}>📁</span>
+                <div>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: "#60a5fa" }}>Google Drive 컨텍스트</div>
+                  {driveCtxName
+                    ? <div style={{ fontSize: "10px", color: "#22c55e" }}>✓ 주입됨: {driveCtxName.slice(0, 30)}</div>
+                    : <div style={{ fontSize: "10px", color: "#475569" }}>Drive 파일을 읽어 에이전트에 자동 주입</div>
+                  }
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                {driveCtxName && (
+                  <button onClick={() => { setDriveCtx(""); setDriveCtxName(""); }} style={{ padding: "4px 10px", background: "#334155", border: "1px solid #475569", borderRadius: "6px", color: "#94a3b8", fontSize: "10px", cursor: "pointer" }}>
+                    ✕ 제거
+                  </button>
+                )}
+                <button
+                  onClick={() => { setDrivePanel(!drivePanel); if (!drivePanel && driveFiles.length === 0) loadDriveFiles(); }}
+                  style={{ padding: "4px 12px", background: drivePanel ? "#1a73e822" : "#334155", border: `1px solid ${drivePanel ? "#1a73e8" : "#475569"}`, borderRadius: "6px", color: drivePanel ? "#60a5fa" : "#94a3b8", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
+                >
+                  {drivePanel ? "▲ 닫기" : "▼ 파일 선택"}
+                </button>
+              </div>
+            </div>
+            {drivePanel && (
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <button onClick={loadDriveFiles} disabled={driveLoading} style={{ padding: "4px 10px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "10px", cursor: driveLoading ? "not-allowed" : "pointer" }}>
+                    {driveLoading ? "로딩…" : "🔄 새로고침"}
+                  </button>
+                  <span style={{ fontSize: "10px", color: "#475569" }}>클릭하면 파일 내용을 에이전트 컨텍스트로 주입합니다</span>
+                </div>
+                {driveFiles.length === 0 && !driveLoading && (
+                  <div style={{ fontSize: "11px", color: "#334155", padding: "16px", textAlign: "center" }}>
+                    파일 없음 — GOOGLE_SERVICE_ACCOUNT_JSON 설정 확인
+                  </div>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxHeight: "200px", overflowY: "auto" }}>
+                  {driveFiles.map((f) => (
+                    <div
+                      key={f.id}
+                      onClick={() => injectDriveFile(f)}
+                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", background: driveCtxName === f.name ? "#1a73e822" : "#111827", borderRadius: "6px", border: `1px solid ${driveCtxName === f.name ? "#1a73e8" : "#1e293b"}`, cursor: "pointer" }}
+                    >
+                      <span style={{ fontSize: "14px" }}>
+                        {f.mimeType.includes("document") ? "📄" : f.mimeType.includes("spreadsheet") ? "📊" : f.mimeType.includes("presentation") ? "📑" : "📁"}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: "11px", color: "#e2e8f0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
+                        <div style={{ fontSize: "9px", color: "#475569" }}>{f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString("ko-KR") : ""}</div>
+                      </div>
+                      {driveCtxName === f.name && <span style={{ fontSize: "10px", color: "#22c55e" }}>✓</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ══ Slack 알림 토글 ══ */}
+          <div style={{ marginTop: "10px", padding: "10px 14px", background: slackConfigured ? "#0f2419" : "#1a1f2e", borderRadius: "10px", border: `1px solid ${slackConfigured ? (slackNotify ? "#22c55e44" : "#334155") : "#334155"}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "16px" }}>💬</span>
+              <div>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: slackConfigured ? "#4ade80" : "#64748b" }}>
+                  Slack 알림 {slackConfigured === null ? "확인 중…" : slackConfigured ? (slackNotify ? "ON" : "OFF") : "미설정"}
+                </div>
+                <div style={{ fontSize: "9px", color: "#475569" }}>
+                  {slackConfigured ? "워크플로우 완료 시 채널에 알림 전송" : ".env.local에 SLACK_BOT_TOKEN + SLACK_CHANNEL_ID 추가 필요"}
+                </div>
+              </div>
+            </div>
+            {slackConfigured ? (
+              <button
+                onClick={() => setSlackNotify(!slackNotify)}
+                style={{ padding: "4px 14px", background: slackNotify ? "#22c55e22" : "#334155", border: `1px solid ${slackNotify ? "#22c55e" : "#475569"}`, borderRadius: "20px", color: slackNotify ? "#22c55e" : "#94a3b8", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
+              >
+                {slackNotify ? "ON" : "OFF"}
+              </button>
+            ) : (
+              <span style={{ fontSize: "9px", color: "#334155", padding: "4px 10px", background: "#0f1629", borderRadius: "6px", border: "1px solid #1e293b" }}>
+                api.slack.com/apps
+              </span>
+            )}
           </div>
 
           {/* ══ Level 7: Dual Team Mode ══ */}
