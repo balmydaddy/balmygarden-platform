@@ -22,6 +22,8 @@ interface Workflow {
   name: string;
   chain: string[];
   desc: string;
+  quickSkill?: string;
+  parallel?: string[][];
 }
 
 interface LearnPrompt {
@@ -149,18 +151,84 @@ QA 게이트: 모든 결과물 95/100 통과 여부 최종 검증. 응답 300자
    WORKFLOWS
 ══════════════════════════════════════════════════════ */
 const WORKFLOWS: Workflow[] = [
-  { id: "stage_diag", emoji: "📈", cat: "전략", name: "사업 단계 진단 (12단계)", chain: ["SCOUT", "NOVA", "AEGIS", "CONDUCTOR"], desc: "platformtree_ 12단계 기준 현재 위치 → 다음 단계 전략" },
-  { id: "receipt_feat", emoji: "🗂️", cat: "개발", name: "영수증 앱 기능 개발", chain: ["ZERO", "MUSE", "NOVA", "ARIA"], desc: "OCR 신규 기능 설계 → PM 승인" },
-  { id: "lod_story", emoji: "⚔️", cat: "게임", name: "LOD 스토리/기획", chain: ["MUSE", "ZERO", "NOVA", "PHANTOM"], desc: "다크판타지 스토리·밸런스·아트 방향" },
-  { id: "music_release", emoji: "🎵", cat: "음악", name: "음원 발매 파이프라인", chain: ["MUSE", "SCOUT", "REX", "NOVA"], desc: "Suno AI → DistroKid → SNS 마케팅" },
-  { id: "marketing", emoji: "📣", cat: "마케팅", name: "마케팅 콘텐츠 제작", chain: ["SCOUT", "MUSE", "NOVA", "ARIA"], desc: "고객조사 → 광고카피 → 이메일 → 릴스" },
-  { id: "brand_pos", emoji: "🔭", cat: "전략", name: "브랜드 포지셔닝", chain: ["SCOUT", "NOVA", "AEGIS", "CONDUCTOR"], desc: "경쟁사 분석 → 포지셔닝 공백 → 차별화" },
-  { id: "knowledge", emoji: "🧠", cat: "학습", name: "지식 강화 모드", chain: ["SCOUT", "ZERO", "CONDUCTOR"], desc: "파인만·빈틈탐지·맞춤 학습경로" },
-  { id: "content_bank", emoji: "📝", cat: "콘텐츠", name: "콘텐츠 뱅크 제작", chain: ["SCOUT", "MUSE", "NOVA"], desc: "훅 문구 + 스토리텔링 + How-To 배치" },
-  { id: "legal", emoji: "⚖️", cat: "법무", name: "법무/리스크 검토", chain: ["AEGIS", "REX", "CONDUCTOR"], desc: "계약·개인정보·저작권·중대재해 검토" },
-  { id: "game_art", emoji: "🎮", cat: "게임", name: "LOD 게임 아트 생성", chain: ["MUSE", "PHANTOM", "AEGIS"], desc: "크레딧 확인 → 게임 아트 → CEO 승인" },
-  { id: "qa_gate", emoji: "✅", cat: "품질", name: "QA 게이트 검증", chain: ["AEGIS", "CONDUCTOR"], desc: "95/100 기준 최종 검증 → CEO 보고" },
-  { id: "weekly", emoji: "📊", cat: "행정", name: "주간 현황 보고", chain: ["REX", "SCOUT", "CONDUCTOR"], desc: "프로젝트 현황·크레딧·다음 주 계획" },
+  {
+    id: "stage_diag", emoji: "📈", cat: "전략", name: "사업 단계 진단 (12단계)",
+    chain: ["SCOUT", "NOVA", "AEGIS", "CONDUCTOR"],
+    parallel: [["SCOUT", "NOVA"], ["AEGIS"], ["CONDUCTOR"]],
+    desc: "platformtree_ 12단계 기준 현재 위치 → 다음 단계 전략",
+    quickSkill: "BALMYGARDEN 음악/앱/게임 3트랙의 현재 사업 단계(12단계 기준)를 진단하고, 각 트랙별 다음 단계 이동을 위한 구체적 액션 아이템 3가지씩 제시해주세요.",
+  },
+  {
+    id: "receipt_feat", emoji: "🗂️", cat: "개발", name: "영수증 앱 기능 개발",
+    chain: ["ZERO", "MUSE", "NOVA", "ARIA"],
+    parallel: [["ZERO", "MUSE"], ["NOVA"], ["ARIA"]],
+    desc: "OCR 신규 기능 설계 → PM 승인",
+    quickSkill: "영수증 OCR 앱에 추가할 핵심 기능 3가지를 제안하고, 우선순위 기준 및 기술 구현 방안을 포함해 PM 결재 기준으로 정리해주세요.",
+  },
+  {
+    id: "lod_story", emoji: "⚔️", cat: "게임", name: "LOD 스토리/기획",
+    chain: ["MUSE", "ZERO", "NOVA", "PHANTOM"],
+    desc: "다크판타지 스토리·밸런스·아트 방향",
+    quickSkill: "LOD(Lord of Dynasty) 다크판타지 턴제 RPG의 메인 스토리 3막 구조와 주요 캐릭터 2인, 첫 번째 보스 챕터 설계안을 작성해주세요.",
+  },
+  {
+    id: "music_release", emoji: "🎵", cat: "음악", name: "음원 발매 파이프라인",
+    chain: ["MUSE", "SCOUT", "REX", "NOVA"],
+    parallel: [["MUSE", "SCOUT"], ["REX"], ["NOVA"]],
+    desc: "Suno AI → DistroKid → SNS 마케팅",
+    quickSkill: "BALMYDADDY 신규 트랙 발매 파이프라인 전체(Suno AI 제작 → DistroKid 배급 → SNS 마케팅)를 D-30부터 D-Day까지 타임라인으로 작성해주세요.",
+  },
+  {
+    id: "marketing", emoji: "📣", cat: "마케팅", name: "마케팅 콘텐츠 제작",
+    chain: ["SCOUT", "MUSE", "NOVA", "ARIA"],
+    parallel: [["SCOUT", "MUSE"], ["NOVA"], ["ARIA"]],
+    desc: "고객조사 → 광고카피 → 이메일 → 릴스",
+    quickSkill: "BALMYGARDEN 타깃 고객 조사 → 광고 카피 5안 → 이메일 마케팅 시퀀스 3단계 → 인스타 릴스 스크립트 1편을 순서대로 작성해주세요.",
+  },
+  {
+    id: "brand_pos", emoji: "🔭", cat: "전략", name: "브랜드 포지셔닝",
+    chain: ["SCOUT", "NOVA", "AEGIS", "CONDUCTOR"],
+    parallel: [["SCOUT", "NOVA"], ["AEGIS"], ["CONDUCTOR"]],
+    desc: "경쟁사 분석 → 포지셔닝 공백 → 차별화",
+    quickSkill: "BALMYGARDEN의 경쟁사 3곳을 분석하고, 포지셔닝 공백을 찾아 차별화 전략과 카테고리 선언문을 작성해주세요.",
+  },
+  {
+    id: "knowledge", emoji: "🧠", cat: "학습", name: "지식 강화 모드",
+    chain: ["SCOUT", "ZERO", "CONDUCTOR"],
+    desc: "파인만·빈틈탐지·맞춤 학습경로",
+    quickSkill: "AI 에이전트 활용과 클로드 코드 7단계 운영 능력을 7일 안에 실무 수준으로 끌어올리는 맞춤 학습 경로를 설계해주세요.",
+  },
+  {
+    id: "content_bank", emoji: "📝", cat: "콘텐츠", name: "콘텐츠 뱅크 제작",
+    chain: ["SCOUT", "MUSE", "NOVA"],
+    parallel: [["SCOUT", "MUSE"], ["NOVA"]],
+    desc: "훅 문구 + 스토리텔링 + How-To 배치",
+    quickSkill: "BALMYGARDEN 인스타그램용 콘텐츠 뱅크: 저장 유도 훅 5개 + 스토리텔링 주제 5개 + How-To 아이디어 5개를 테마별로 정리해주세요.",
+  },
+  {
+    id: "legal", emoji: "⚖️", cat: "법무", name: "법무/리스크 검토",
+    chain: ["AEGIS", "REX", "CONDUCTOR"],
+    desc: "계약·개인정보·저작권·중대재해 검토",
+    quickSkill: "BALMYGARDEN 현재 사업(앱/게임/음원배급) 운영 시 발생 가능한 법적 리스크를 영역별(저작권·개인정보·중대재해)로 검토하고 대응 체크리스트를 작성해주세요.",
+  },
+  {
+    id: "game_art", emoji: "🎮", cat: "게임", name: "LOD 게임 아트 생성",
+    chain: ["MUSE", "PHANTOM", "AEGIS"],
+    desc: "크레딧 확인 → 게임 아트 → CEO 승인",
+    quickSkill: "LOD 프로토타입에 필요한 핵심 게임 아트 목록(배경 3종·캐릭터 2종·UI 요소 5종)과 Higgsfield/Midjourney 프롬프트 가이드를 작성해주세요. 크레딧 사용 승인 요청 포함.",
+  },
+  {
+    id: "qa_gate", emoji: "✅", cat: "품질", name: "QA 게이트 검증",
+    chain: ["AEGIS", "CONDUCTOR"],
+    desc: "95/100 기준 최종 검증 → CEO 보고",
+    quickSkill: "제출할 결과물을 95/100 QA 기준으로 검증해주세요. 감점 항목 명시 후 개선 방안과 CEO 보고용 최종 요약을 작성해주세요.",
+  },
+  {
+    id: "weekly", emoji: "📊", cat: "행정", name: "주간 현황 보고",
+    chain: ["REX", "SCOUT", "CONDUCTOR"],
+    desc: "프로젝트 현황·크레딧·다음 주 계획",
+    quickSkill: "이번 주 BALMYGARDEN 3트랙(음악/앱/게임) 진행 현황, AI 크레딧 잔여량, 완료/미완료 태스크, 다음 주 우선순위 3가지를 CEO 보고 형식으로 정리해주세요.",
+  },
 ];
 
 /* ══════════════════════════════════════════════════════
@@ -444,6 +512,32 @@ export default function BALMYGARDENDashboard() {
   const [notionToast, setNotionToast] = useState<NotionToast | null>(null);
   const [notionSaving, setNotionSaving] = useState(false);
 
+  // Level 2: Context injection toggle
+  const [ctxEnabled, setCtxEnabled] = useState(true);
+
+  // Level 7: Dual team mode
+  const [teamMode, setTeamMode] = useState(false);
+  const [teamWfId, setTeamWfId] = useState<string | null>(null);
+  const [teamInput, setTeamInput] = useState("");
+  const [teamRes, setTeamRes] = useState<ChainResult[]>([]);
+  const [teamRunning, setTeamRunning] = useState(false);
+
+  // Notion history
+  const [notionHistory, setNotionHistory] = useState<{ id: string; url: string; title: string; type: string; status: string; date: string }[]>([]);
+  const [histLoading, setHistLoading] = useState(false);
+  const fetchHistory = useCallback(async () => {
+    setHistLoading(true);
+    try {
+      const res = await fetch("/api/notion?limit=20");
+      const data = await res.json();
+      if (data.entries) setNotionHistory(data.entries);
+    } catch {
+      // silent
+    } finally {
+      setHistLoading(false);
+    }
+  }, []);
+
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -531,20 +625,23 @@ export default function BALMYGARDENDashboard() {
     </button>
   );
 
-  /* ── callAgent: secure server proxy */
+  /* ── callAgent: secure server proxy (Level 2: context injection) */
   const callAgent = async (agentKey: string, userMessage: string): Promise<string> => {
     const ag = AGENTS[agentKey];
+    const memCtx = ctxEnabled
+      ? `\n\n[BALMYGARDEN 기업 컨텍스트 — 항상 참조]\n${MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n")}`
+      : "";
     const res = await fetch("/api/agent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ systemPrompt: ag.sys, userMessage }),
+      body: JSON.stringify({ systemPrompt: ag.sys + memCtx, userMessage }),
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     return data.text as string;
   };
 
-  /* ── Chain execution */
+  /* ── Chain execution (Level 6: parallel groups support) */
   const runChain = useCallback(async () => {
     if (!wfId || !wfInput.trim()) return;
     const wf = WORKFLOWS.find((w) => w.id === wfId)!;
@@ -553,35 +650,109 @@ export default function BALMYGARDENDashboard() {
     setStep(0);
     setAwaitCEO(false);
     abortRef.current = false;
-    let prev = wfInput;
     const results: ChainResult[] = [];
 
-    for (let i = 0; i < wf.chain.length; i++) {
-      if (abortRef.current) break;
-      const key = wf.chain[i];
-      const ag = AGENTS[key];
-      setStep(i);
-      try {
-        const userMsg =
-          i === 0
-            ? `업무 요청: ${prev}`
-            : `이전 단계(${wf.chain[i - 1]}) 결과:\n${prev}\n\n당신의 전문 영역에서 다음 단계를 처리하세요.`;
-        const txt = await callAgent(key, userMsg);
-        results.push({ key, ag, txt, done: true });
+    if (wf.parallel) {
+      // Level 6: parallel group execution
+      let prevOutputs: string[] = [wfInput];
+      for (let gi = 0; gi < wf.parallel.length; gi++) {
+        if (abortRef.current) break;
+        const group = wf.parallel[gi];
+        setStep(gi);
+        const prevCtx = prevOutputs.join("\n\n---\n\n");
+        const groupResults = await Promise.all(
+          group.map(async (key) => {
+            const ag = AGENTS[key];
+            try {
+              const userMsg =
+                gi === 0
+                  ? `업무 요청: ${wfInput}`
+                  : `이전 에이전트 결과:\n${prevCtx}\n\n당신의 전문 영역에서 다음 단계를 처리하세요.`;
+              const txt = await callAgent(key, userMsg);
+              return { key, ag, txt, done: true } as ChainResult;
+            } catch (e: unknown) {
+              return { key, ag, txt: `⚠️ 오류: ${(e as Error).message}`, done: false } as ChainResult;
+            }
+          })
+        );
+        results.push(...groupResults);
         setChainRes([...results]);
-        prev = txt;
-        await new Promise((r) => setTimeout(r, 400));
-      } catch (e: unknown) {
-        const err = e as Error;
-        results.push({ key, ag, txt: `⚠️ 오류: ${err.message}`, done: false });
-        setChainRes([...results]);
-        break;
+        prevOutputs = groupResults.map((r) => `[${r.key}] ${r.txt}`);
+        await new Promise((r) => setTimeout(r, 300));
+      }
+    } else {
+      // Sequential execution
+      let prev = wfInput;
+      for (let i = 0; i < wf.chain.length; i++) {
+        if (abortRef.current) break;
+        const key = wf.chain[i];
+        const ag = AGENTS[key];
+        setStep(i);
+        try {
+          const userMsg =
+            i === 0
+              ? `업무 요청: ${prev}`
+              : `이전 단계(${wf.chain[i - 1]}) 결과:\n${prev}\n\n당신의 전문 영역에서 다음 단계를 처리하세요.`;
+          const txt = await callAgent(key, userMsg);
+          results.push({ key, ag, txt, done: true });
+          setChainRes([...results]);
+          prev = txt;
+          await new Promise((r) => setTimeout(r, 400));
+        } catch (e: unknown) {
+          const err = e as Error;
+          results.push({ key, ag, txt: `⚠️ 오류: ${err.message}`, done: false });
+          setChainRes([...results]);
+          break;
+        }
       }
     }
+
     setRunning(false);
     setStep(-1);
     setAwaitCEO(true);
-  }, [wfId, wfInput]);
+
+    // 자동 노션 저장
+    if (results.length > 0) {
+      fetch("/api/notion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_workflow",
+          payload: {
+            workflowName: wf.name,
+            input: wfInput,
+            results: results.map((r) => ({ agent: r.key, role: r.ag.role, text: r.txt, done: r.done })),
+          },
+        }),
+      }).catch(() => {});
+    }
+  }, [wfId, wfInput, ctxEnabled]);
+
+  /* ── Level 7: Team chain run (second parallel chain) */
+  const runTeamChain = useCallback(async () => {
+    if (!teamWfId || !teamInput.trim()) return;
+    const wf = WORKFLOWS.find((w) => w.id === teamWfId)!;
+    setTeamRunning(true);
+    setTeamRes([]);
+    const results: ChainResult[] = [];
+    let prev = teamInput;
+    for (let i = 0; i < wf.chain.length; i++) {
+      const key = wf.chain[i];
+      const ag = AGENTS[key];
+      try {
+        const userMsg = i === 0 ? `업무 요청: ${prev}` : `이전 단계(${wf.chain[i - 1]}) 결과:\n${prev}\n\n당신의 전문 영역에서 다음 단계를 처리하세요.`;
+        const txt = await callAgent(key, userMsg);
+        results.push({ key, ag, txt, done: true });
+        setTeamRes([...results]);
+        prev = txt;
+      } catch (e: unknown) {
+        results.push({ key, ag, txt: `⚠️ 오류: ${(e as Error).message}`, done: false });
+        setTeamRes([...results]);
+        break;
+      }
+    }
+    setTeamRunning(false);
+  }, [teamWfId, teamInput, ctxEnabled]);
 
   /* ── Direct chat send */
   const sendChat = useCallback(async () => {
@@ -684,6 +855,8 @@ export default function BALMYGARDENDashboard() {
             { id: "content", label: "📝 콘텐츠" },
             { id: "system", label: "⚙️ 시스템" },
             { id: "ladder", label: "📈 사다리" },
+            { id: "history", label: "📒 히스토리" },
+            { id: "guide", label: "📚 가이드" },
           ].map((t) => (
             <button
               key={t.id}
@@ -757,6 +930,50 @@ export default function BALMYGARDENDashboard() {
               </div>
             </div>
 
+            {/* 7단계 레벨 현황 */}
+            <div style={{ ...S.card(), marginBottom: "14px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc" }}>📊 클로드 코드 7단계 — BALMYGARDEN 현황</div>
+                <a href="/guide" target="_blank" rel="noreferrer" style={{ fontSize: "11px", color: "#d97757", textDecoration: "none", background: "#d9775715", border: "1px solid #d9775740", borderRadius: "20px", padding: "3px 10px" }}>📚 전체 가이드 →</a>
+              </div>
+              {[
+                { lv: 1, name: "프롬프트", pct: 100, state: "✅", note: "9 에이전트 시스템 프롬프트 완비", color: "#22c55e" },
+                { lv: 2, name: "컨텍스트", pct: ctxEnabled ? 90 : 50, state: ctxEnabled ? "✅" : "⚠️", note: ctxEnabled ? "MEMORY 16개 → 전 에이전트 자동 주입 ON" : "컨텍스트 주입 OFF", color: ctxEnabled ? "#22c55e" : "#eab308" },
+                { lv: 3, name: "도구", pct: 100, state: "✅", note: "Claude API 서버 프록시 동작", color: "#22c55e" },
+                { lv: 4, name: "MCP 연결", pct: 95, state: "✅", note: "Notion 자동 로깅 — 워크플로우/대화/로그", color: "#22c55e" },
+                { lv: 5, name: "스킬", pct: 85, state: "✅", note: "12 워크플로우 + 퀵 스킬 원클릭 런처", color: "#22c55e" },
+                { lv: 6, name: "서브에이전트", pct: 80, state: "✅", note: "병렬 그룹 실행 (Promise.all) 적용", color: "#22c55e" },
+                { lv: 7, name: "에이전트 팀", pct: 55, state: "🔧", note: "듀얼 체인 팀 모드 — 워크플로우 탭 하단", color: "#f97316" },
+              ].map((l) => (
+                <div key={l.lv} style={{ marginBottom: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
+                    <span style={{ fontSize: "11px", color: "#475569", minWidth: "16px" }}>{l.lv}</span>
+                    <span style={{ fontSize: "12px", fontWeight: "700", color: l.color, minWidth: "90px" }}>{l.state} {l.name}</span>
+                    <div style={{ flex: 1, background: "#1e293b", borderRadius: "4px", height: "6px", overflow: "hidden" }}>
+                      <div style={{ width: `${l.pct}%`, height: "100%", background: l.color, borderRadius: "4px", transition: "width 0.5s" }} />
+                    </div>
+                    <span style={{ fontSize: "10px", color: "#64748b", minWidth: "30px", textAlign: "right" }}>{l.pct}%</span>
+                  </div>
+                  <div style={{ fontSize: "10px", color: "#475569", marginLeft: "24px" }}>{l.note}</div>
+                </div>
+              ))}
+              {/* Context toggle */}
+              <div style={{ marginTop: "12px", padding: "10px 12px", background: "#111827", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: ctxEnabled ? "#22c55e" : "#64748b" }}>
+                    {ctxEnabled ? "🟢" : "⚫"} Level 2 컨텍스트 주입 {ctxEnabled ? "ON" : "OFF"}
+                  </div>
+                  <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>MEMORY 16개를 모든 에이전트 시스템 프롬프트에 자동 추가</div>
+                </div>
+                <button
+                  onClick={() => setCtxEnabled(!ctxEnabled)}
+                  style={{ padding: "5px 14px", background: ctxEnabled ? "#22c55e22" : "#334155", border: `1px solid ${ctxEnabled ? "#22c55e" : "#475569"}`, borderRadius: "20px", color: ctxEnabled ? "#22c55e" : "#94a3b8", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                >
+                  {ctxEnabled ? "ON" : "OFF"}
+                </button>
+              </div>
+            </div>
+
             <div style={S.card()}>
               <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>
                 ⚡ 빠른 시작 — 워크플로우 선택
@@ -780,6 +997,7 @@ export default function BALMYGARDENDashboard() {
 
         {/* ══════ WORKFLOW ══════ */}
         {tab === "workflow" && (
+          <>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "260px 1fr", gap: "14px" }}>
             {/* 모바일: 드롭다운 선택 / 데스크탑: 사이드 목록 */}
             {isMobile ? (
@@ -815,41 +1033,92 @@ export default function BALMYGARDENDashboard() {
                 return (
                   <>
                     <div style={{ ...S.card(), marginBottom: "14px" }}>
-                      <div style={{ fontSize: "16px", fontWeight: "700", marginBottom: "4px" }}>{wf.emoji} {wf.name}</div>
-                      <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "14px" }}>{wf.desc}</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
-                        {wf.chain.map((k, i) => {
-                          const ag = AGENTS[k];
-                          const active = running && step === i;
-                          return (
-                            <div key={k} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                              <div style={{ padding: "6px 12px", borderRadius: "8px", background: active ? ag.color : ag.color + "22", border: `1px solid ${ag.color}`, fontSize: "12px", fontWeight: "700", color: active ? "#fff" : ag.color, boxShadow: active ? `0 0 12px ${ag.color}66` : "none", transition: "all 0.3s" }}>
-                                {ag.av} {k}
-                              </div>
-                              {i < wf.chain.length - 1 && <span style={{ color: "#334155", fontSize: "14px" }}>→</span>}
-                            </div>
-                          );
-                        })}
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "16px", fontWeight: "700" }}>{wf.emoji} {wf.name}</div>
+                          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>{wf.desc}</div>
+                        </div>
+                        {wf.parallel && (
+                          <span style={{ fontSize: "10px", padding: "2px 8px", background: "#22c55e22", border: "1px solid #22c55e44", borderRadius: "10px", color: "#22c55e", flexShrink: 0 }}>
+                            ⚡ L6 병렬 실행
+                          </span>
+                        )}
                       </div>
+
+                      {/* Agent chain visualization */}
+                      <div style={{ marginBottom: "14px", marginTop: "12px" }}>
+                        {wf.parallel ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                            {wf.parallel.map((group, gi) => (
+                              <div key={gi} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                {gi > 0 && <span style={{ color: "#334155", fontSize: "14px" }}>→</span>}
+                                <div style={{ display: "flex", gap: "4px", padding: group.length > 1 ? "4px 6px" : "0", background: group.length > 1 ? "#22c55e0d" : "transparent", border: group.length > 1 ? "1px dashed #22c55e44" : "none", borderRadius: "8px" }}>
+                                  {group.map((k) => {
+                                    const ag = AGENTS[k];
+                                    const active = running && step === gi;
+                                    return (
+                                      <div key={k} style={{ padding: "5px 10px", borderRadius: "6px", background: active ? ag.color : ag.color + "22", border: `1px solid ${ag.color}`, fontSize: "11px", fontWeight: "700", color: active ? "#fff" : ag.color, boxShadow: active ? `0 0 10px ${ag.color}66` : "none", transition: "all 0.3s" }}>
+                                        {ag.av} {k}
+                                      </div>
+                                    );
+                                  })}
+                                  {group.length > 1 && <span style={{ fontSize: "9px", color: "#22c55e", alignSelf: "center", marginLeft: "2px" }}>병렬</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                            {wf.chain.map((k, i) => {
+                              const ag = AGENTS[k];
+                              const active = running && step === i;
+                              return (
+                                <div key={k} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                  <div style={{ padding: "5px 10px", borderRadius: "6px", background: active ? ag.color : ag.color + "22", border: `1px solid ${ag.color}`, fontSize: "11px", fontWeight: "700", color: active ? "#fff" : ag.color, boxShadow: active ? `0 0 10px ${ag.color}66` : "none", transition: "all 0.3s" }}>
+                                    {ag.av} {k}
+                                  </div>
+                                  {i < wf.chain.length - 1 && <span style={{ color: "#334155", fontSize: "14px" }}>→</span>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Quick Skill button */}
+                      {wf.quickSkill && (
+                        <div style={{ marginBottom: "10px" }}>
+                          <button
+                            onClick={() => setWfInput(wf.quickSkill!)}
+                            style={{ fontSize: "11px", padding: "4px 12px", background: "#d9775715", border: "1px solid #d9775740", borderRadius: "20px", color: "#d97757", cursor: "pointer" }}
+                          >
+                            ⚡ L5 퀵 스킬 — 기본 입력 불러오기
+                          </button>
+                        </div>
+                      )}
+
                       <textarea
                         value={wfInput}
                         onChange={(e) => setWfInput(e.target.value)}
                         placeholder={`${wf.name} 업무 내용을 입력하세요...`}
                         style={{ width: "100%", minHeight: "80px", background: "#111827", border: "1px solid #1e293b", borderRadius: "8px", padding: "10px", color: "#e2e8f0", fontSize: "13px", resize: "vertical", boxSizing: "border-box" }}
                       />
-                      <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                      <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap", alignItems: "center" }}>
                         <button
                           onClick={runChain}
                           disabled={running || !wfInput.trim()}
                           style={{ padding: "10px 22px", background: running ? "#334155" : "#6366F1", color: "#fff", border: "none", borderRadius: "8px", cursor: running ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "13px" }}
                         >
-                          {running ? `⏳ 실행 중… ${wf.chain[step] || ""}` : "▶ 체인 실행"}
+                          {running ? `⏳ ${wf.parallel ? `병렬 그룹 ${step + 1}/${wf.parallel.length}` : `실행 중… ${wf.chain[step] || ""}`}` : "▶ 체인 실행"}
                         </button>
                         {running && (
                           <button onClick={() => { abortRef.current = true; setRunning(false); }} style={{ padding: "10px 16px", background: "#EF4444", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}>
                             ■ 중단
                           </button>
                         )}
+                        <div style={{ marginLeft: "auto", fontSize: "11px", color: ctxEnabled ? "#22c55e" : "#475569" }}>
+                          {ctxEnabled ? "🟢 컨텍스트 ON" : "⚫ 컨텍스트 OFF"}
+                        </div>
                       </div>
                     </div>
 
@@ -900,6 +1169,101 @@ export default function BALMYGARDENDashboard() {
               )}
             </div>
           </div>
+
+          {/* ══ Level 7: Dual Team Mode ══ */}
+          <div style={{ marginTop: "20px", ...S.card("#f9731644") }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
+              <div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#f97316" }}>🏆 Level 7 — 에이전트 팀 (듀얼 체인)</div>
+                <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>두 워크플로우를 동시에 실행해 결과를 비교합니다</div>
+              </div>
+              <button
+                onClick={() => setTeamMode(!teamMode)}
+                style={{ padding: "5px 14px", background: teamMode ? "#f9731622" : "#334155", border: `1px solid ${teamMode ? "#f97316" : "#475569"}`, borderRadius: "20px", color: teamMode ? "#f97316" : "#94a3b8", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+              >
+                {teamMode ? "팀 모드 ON ▲" : "팀 모드 열기 ▼"}
+              </button>
+            </div>
+            {teamMode && (
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
+                {/* Chain A (current) */}
+                <div style={{ padding: "14px", background: "#0d1629", borderRadius: "10px", border: "1px solid #6366F144" }}>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: "#6366F1", marginBottom: "10px" }}>🔵 체인 A (현재 워크플로우)</div>
+                  {wfId ? (
+                    <>
+                      <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "8px" }}>
+                        {WORKFLOWS.find(w => w.id === wfId)?.emoji} {WORKFLOWS.find(w => w.id === wfId)?.name}
+                      </div>
+                      <div style={{ fontSize: "11px", color: wfInput ? "#e2e8f0" : "#475569" }}>
+                        {wfInput ? `"${wfInput.slice(0, 60)}..."` : "← 워크플로우 탭에서 입력 필요"}
+                      </div>
+                      {chainRes.length > 0 && (
+                        <div style={{ marginTop: "8px", fontSize: "10px", color: "#22c55e" }}>✓ {chainRes.length}개 에이전트 완료</div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ fontSize: "11px", color: "#475569" }}>← 좌측에서 워크플로우 선택</div>
+                  )}
+                </div>
+
+                {/* Chain B (team) */}
+                <div style={{ padding: "14px", background: "#0d1629", borderRadius: "10px", border: "1px solid #f9731644" }}>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: "#f97316", marginBottom: "10px" }}>🟠 체인 B (비교 워크플로우)</div>
+                  <select
+                    value={teamWfId ?? ""}
+                    onChange={(e) => { setTeamWfId(e.target.value || null); setTeamRes([]); }}
+                    style={{ width: "100%", padding: "7px 10px", background: "#111827", border: "1px solid #1e293b", borderRadius: "6px", color: "#e2e8f0", fontSize: "11px", marginBottom: "8px" }}
+                  >
+                    <option value="">— 비교 워크플로우 선택 —</option>
+                    {WORKFLOWS.map((wf) => (
+                      <option key={wf.id} value={wf.id}>{wf.emoji} {wf.name}</option>
+                    ))}
+                  </select>
+                  <textarea
+                    value={teamInput}
+                    onChange={(e) => setTeamInput(e.target.value)}
+                    placeholder="체인 B 업무 내용 (체인 A와 다르게 설정 가능)"
+                    style={{ width: "100%", minHeight: "60px", background: "#111827", border: "1px solid #1e293b", borderRadius: "6px", padding: "8px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", boxSizing: "border-box", marginBottom: "8px" }}
+                  />
+                  <button
+                    onClick={runTeamChain}
+                    disabled={teamRunning || !teamWfId || !teamInput.trim()}
+                    style={{ padding: "8px 16px", background: teamRunning ? "#334155" : "#f97316", color: "#fff", border: "none", borderRadius: "6px", cursor: teamRunning ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "11px" }}
+                  >
+                    {teamRunning ? "⏳ B 실행 중..." : "▶ 체인 B 실행"}
+                  </button>
+                  {teamRes.length > 0 && (
+                    <div style={{ marginTop: "8px", fontSize: "10px", color: "#22c55e" }}>✓ {teamRes.length}개 에이전트 완료</div>
+                  )}
+                </div>
+
+                {/* Dual results */}
+                {(chainRes.length > 0 || teamRes.length > 0) && (
+                  <div style={{ gridColumn: "1 / -1", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "10px" }}>
+                    <div>
+                      <div style={{ fontSize: "11px", fontWeight: "700", color: "#6366F1", marginBottom: "8px" }}>🔵 체인 A 결과</div>
+                      {chainRes.map((r, i) => (
+                        <div key={i} style={{ marginBottom: "6px", padding: "10px", background: "#111827", borderRadius: "8px", borderLeft: `3px solid ${r.ag.color}` }}>
+                          <div style={{ fontSize: "11px", color: r.ag.color, fontWeight: "700", marginBottom: "4px" }}>{r.ag.av} {r.key}</div>
+                          <div style={{ fontSize: "11px", color: "#94a3b8", lineHeight: "1.6" }}>{r.txt.slice(0, 200)}{r.txt.length > 200 ? "..." : ""}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "11px", fontWeight: "700", color: "#f97316", marginBottom: "8px" }}>🟠 체인 B 결과</div>
+                      {teamRes.map((r, i) => (
+                        <div key={i} style={{ marginBottom: "6px", padding: "10px", background: "#111827", borderRadius: "8px", borderLeft: `3px solid ${r.ag.color}` }}>
+                          <div style={{ fontSize: "11px", color: r.ag.color, fontWeight: "700", marginBottom: "4px" }}>{r.ag.av} {r.key}</div>
+                          <div style={{ fontSize: "11px", color: "#94a3b8", lineHeight: "1.6" }}>{r.txt.slice(0, 200)}{r.txt.length > 200 ? "..." : ""}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </>
         )}
 
         {/* ══════ AGENTS ══════ */}
@@ -1223,6 +1587,117 @@ export default function BALMYGARDENDashboard() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+        {/* ══════ HISTORY ══════ */}
+        {tab === "history" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc" }}>📒 노션 활동 히스토리</div>
+              <button
+                onClick={fetchHistory}
+                disabled={histLoading}
+                style={{ padding: "5px 14px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "12px", cursor: histLoading ? "not-allowed" : "pointer" }}
+              >
+                {histLoading ? "로딩 중…" : "🔄 새로고침"}
+              </button>
+              <span style={{ fontSize: "11px", color: "#475569" }}>워크플로우·대화·로그가 자동으로 기록됩니다</span>
+            </div>
+            {notionHistory.length === 0 && !histLoading && (
+              <div style={{ textAlign: "center", color: "#334155", padding: "40px", fontSize: "13px" }}>
+                새로고침 버튼을 눌러 최근 기록을 불러오세요
+              </div>
+            )}
+            {notionHistory.map((e) => {
+              const typeColor: Record<string, string> = { "워크플로우": "#6366F1", "대화": "#06B6D4", "프롬프트": "#F59E0B", "로그": "#10B981" };
+              const color = typeColor[e.type] ?? "#64748b";
+              return (
+                <div key={e.id} style={{ ...S.card(color + "33"), marginBottom: "8px", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "10px", padding: "2px 7px", borderRadius: "4px", background: color + "22", color, border: `1px solid ${color}44`, whiteSpace: "nowrap" }}>
+                    {e.type}
+                  </span>
+                  <span style={{ fontSize: "13px", flex: 1, color: "#e2e8f0" }}>{e.title}</span>
+                  <span style={{ fontSize: "10px", color: "#475569", whiteSpace: "nowrap" }}>{e.date ? new Date(e.date).toLocaleString("ko-KR") : ""}</span>
+                  <a href={e.url} target="_blank" rel="noreferrer" style={{ fontSize: "11px", color: "#a5b4fc", whiteSpace: "nowrap", textDecoration: "none" }}>
+                    열기 →
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ══════ GUIDE ══════ */}
+        {tab === "guide" && (
+          <div>
+            <div style={{ ...S.card("#d9775730"), marginBottom: "16px", padding: "20px" }}>
+              <div style={{ fontSize: "16px", fontWeight: "800", color: "#d97757", marginBottom: "4px" }}>📚 클로드 코드 7단계 가이드</div>
+              <div style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "16px" }}>ⓒ @3dragon_pd — BALMYGARDEN Agency 가이드로 채택 · 활용 중</div>
+              <a
+                href="/guide"
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "inline-block", padding: "10px 22px", background: "#d97757", color: "#000", fontWeight: "800", borderRadius: "8px", textDecoration: "none", fontSize: "13px", marginBottom: "16px" }}
+              >
+                📖 전체 가이드 열기 (새 탭) →
+              </a>
+              <div style={{ fontSize: "12px", color: "#64748b" }}>가이드 페이지에서 각 레벨별 설명, 복붙 예시, 체크리스트, 참고 링크를 확인할 수 있습니다.</div>
+            </div>
+
+            {/* Agency Level Assessment */}
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>📊 BALMYGARDEN Agency — 7단계 달성 현황</div>
+            <div style={{ display: "grid", gap: "10px" }}>
+              {[
+                { lv: 1, emoji: "💬", name: "프롬프트", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["ARIA·PHANTOM·ZERO·MUSE·AEGIS·NOVA·REX·SCOUT·CONDUCTOR", "9개 에이전트 각각 전문화된 시스템 프롬프트", "300자 이내 핵심만, BALMYGARDEN 컨텍스트 내장"], next: "—" },
+                { lv: 2, emoji: "📎", name: "컨텍스트", pct: ctxEnabled ? 90 : 50, state: ctxEnabled ? "✅ 활성" : "⚠️ 비활성", color: ctxEnabled ? "#22c55e" : "#eab308", impl: ["MEMORY 16개 항목 (기업/앱/게임/CEO/QA/크레딧/Fugu 등)", ctxEnabled ? "전 에이전트 API 호출 시 자동 주입 ON" : "컨텍스트 주입 현재 OFF", "홈 탭에서 ON/OFF 토글 가능"], next: "Notion 기록을 실시간 컨텍스트로 주입 (Phase 2)" },
+                { lv: 3, emoji: "🛠️", name: "도구", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["Claude API — claude-sonnet-4-6", "/api/agent 서버 프록시 (API키 노출 없음)", "파일 읽기/쓰기 · 체인 실행 · 병렬 처리"], next: "스트리밍 응답 (실시간 타이핑 효과)" },
+                { lv: 4, emoji: "🔌", name: "MCP 연결", pct: 95, state: "✅ 완료", color: "#22c55e", impl: ["Notion 자동 로깅 — save_workflow / save_log / save_chat", "GET /api/notion — 히스토리 조회", "워크플로우 완료 시 + 대화 시 자동 fire-and-forget 저장"], next: "Google Drive · Slack 연동 (Phase 2)" },
+                { lv: 5, emoji: "⚡", name: "스킬", pct: 85, state: "✅ 적용", color: "#22c55e", impl: ["12개 워크플로우 = 12개 스킬", "각 워크플로우별 퀵 스킬 — 원클릭 기본 입력 세팅", "카테고리별 분류 (전략/개발/게임/음악/마케팅/법무 등)"], next: "/명령어 슬래시 커맨드 스타일 런처 (Phase 2)" },
+                { lv: 6, emoji: "🪄", name: "서브에이전트", pct: 80, state: "✅ 적용", color: "#22c55e", impl: ["병렬 그룹 실행 (Promise.all)", "8개 워크플로우에 parallel 그룹 정의", "예: 사업 단계 진단 = [SCOUT+NOVA 병렬] → [AEGIS] → [CONDUCTOR]", "시각적 병렬 표시 (녹색 점선 박스)"], next: "독립 에이전트 인스턴스 분리 실행 (Worker API)" },
+                { lv: 7, emoji: "🏆", name: "에이전트 팀", pct: 55, state: "🔧 베타", color: "#f97316", impl: ["듀얼 체인 팀 모드 — 워크플로우 탭 하단", "체인 A(메인) + 체인 B(비교)를 동시 실행", "결과 사이드바이사이드 비교 뷰"], next: "영구 에이전트 멀티인스턴스 · 에이전트간 메시지 패싱" },
+              ].map((l) => (
+                <div key={l.lv} style={{ background: "#0d1629", borderRadius: "12px", border: `1px solid ${l.color}33`, borderLeft: `4px solid ${l.color}`, padding: "16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "20px" }}>{l.emoji}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                        <span style={{ color: l.color, fontWeight: "800", fontSize: "14px" }}>Level {l.lv}</span>
+                        <span style={{ fontSize: "13px", fontWeight: "700" }}>{l.name}</span>
+                        <span style={{ fontSize: "10px", padding: "2px 8px", background: l.color + "22", color: l.color, borderRadius: "10px", border: `1px solid ${l.color}44` }}>{l.state}</span>
+                      </div>
+                    </div>
+                    <div style={{ background: "#1e293b", borderRadius: "4px", height: "6px", width: "80px", overflow: "hidden" }}>
+                      <div style={{ width: `${l.pct}%`, height: "100%", background: l.color, borderRadius: "4px" }} />
+                    </div>
+                    <span style={{ fontSize: "11px", color: l.color, fontWeight: "700", minWidth: "32px" }}>{l.pct}%</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "8px" }}>
+                    {l.impl.map((s, i) => (
+                      <div key={i} style={{ fontSize: "11px", color: "#94a3b8", paddingLeft: "8px", borderLeft: `2px solid ${l.color}33` }}>· {s}</div>
+                    ))}
+                  </div>
+                  {l.next !== "—" && (
+                    <div style={{ fontSize: "10px", color: "#475569" }}>▶ 다음 단계: {l.next}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ ...S.card("#6366F133"), marginTop: "16px", padding: "16px" }}>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "8px" }}>🚀 v3.x 로드맵 — Phase 2 업그레이드</div>
+              {[
+                "스트리밍 응답 (Claude API streaming → 실시간 타이핑)",
+                "Notion → 실시간 컨텍스트 주입 (최근 N개 로그 자동 포함)",
+                "슬래시 커맨드 스타일 /스킬명 런처",
+                "에이전트 독립 인스턴스 — 각자 대화 히스토리 유지",
+                "Google Drive · Slack MCP 연동",
+                "영수증 앱 하위 프로젝트 연동 (monorepo apps/receipt)",
+              ].map((item, i) => (
+                <div key={i} style={{ fontSize: "12px", color: "#94a3b8", padding: "4px 0", display: "flex", gap: "8px" }}>
+                  <span style={{ color: "#6366F1" }}>{i + 1}.</span> {item}
+                </div>
+              ))}
             </div>
           </div>
         )}

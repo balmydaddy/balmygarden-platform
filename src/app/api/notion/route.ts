@@ -1,18 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Client, type BlockObjectRequest } from "@notionhq/client";
+import { Client, type BlockObjectRequest, type PageObjectResponse } from "@notionhq/client";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const DB_ID = process.env.NOTION_DATABASE_ID ?? "";
 
-/* ──────────────────────────────────────────
-  POST /api/notion
-  body: { action, payload }
+/* GET /api/notion?limit=20 — 최근 Notion 기록 조회 (에이전트 컨텍스트용) */
+export async function GET(req: NextRequest) {
+  if (!process.env.NOTION_API_KEY || !DB_ID) {
+    return NextResponse.json({ error: "env 미설정" }, { status: 500 });
+  }
+  const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") ?? "20"), 50);
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const res = await (notion.databases as any).query({
+      database_id: DB_ID,
+      sorts: [{ property: "Date", direction: "descending" }],
+      page_size: limit,
+    });
+    const entries = (res.results as unknown[]).map((p) => {
+      const page = p as PageObjectResponse;
+      const props = page.properties as Record<string, { type: string; title?: { plain_text: string }[]; select?: { name: string }; date?: { start: string } }>;
+      return {
+        id: page.id,
+        url: page.url,
+        title: props.Name?.title?.[0]?.plain_text ?? "",
+        type: props.Type?.select?.name ?? "",
+        status: props.Status?.select?.name ?? "",
+        date: props.Date?.date?.start ?? "",
+      };
+    });
+    return NextResponse.json({ entries });
+  } catch (e: unknown) {
+    const err = e as Error;
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
 
-  actions:
-    "save_workflow" — 워크플로우 체인 결과 저장
-    "save_chat"     — 1:1 에이전트 대화 저장
-    "save_prompt"   — 프롬프트/훅 즐겨찾기 저장
-────────────────────────────────────────── */
 export async function POST(req: NextRequest) {
   if (!process.env.NOTION_API_KEY || !DB_ID) {
     return NextResponse.json(
@@ -107,6 +130,26 @@ export async function POST(req: NextRequest) {
         children,
       });
 
+      return NextResponse.json({ url: (page as { url: string }).url });
+    }
+
+    if (action === "save_log") {
+      const { source, title, content } = payload as {
+        source: string;
+        title: string;
+        content: string;
+      };
+      const children: BlockObjectRequest[] = paragraphs(content);
+      const page = await notion.pages.create({
+        parent: { database_id: DB_ID },
+        properties: {
+          Name: { title: [{ text: { content: `[${source}] ${title}` } }] },
+          Type: { select: { name: "로그" } },
+          Status: { select: { name: "기록됨" } },
+          Date: { date: { start: new Date().toISOString() } },
+        },
+        children,
+      });
       return NextResponse.json({ url: (page as { url: string }).url });
     }
 
