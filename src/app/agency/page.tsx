@@ -53,7 +53,7 @@ interface LadderStep {
 }
 
 interface MemoryEntry { id: string; tag: string; txt: string; }
-interface ScheduleEntry { time: string; agent: string; task: string; }
+interface ScheduleEntry { time: string; agent: string; task: string; wfId?: string; chatAgent?: string; cat?: string; }
 interface ToolEntry { name: string; use: string; fb: string; warn?: boolean; }
 interface ChainResult { key: string; ag: Agent; txt: string; done: boolean; }
 interface NotionToast { msg: string; url?: string; ok: boolean; }
@@ -548,18 +548,18 @@ const MEMORY: MemoryEntry[] = [
 ];
 
 const SCHEDULES: ScheduleEntry[] = [
-  { time: "매일 07:00", agent: "SCOUT", task: "Higgsfield 크레딧 잔여량 + 무료 AI 도구 업데이트 체크" },
-  { time: "매일 08:00", agent: "REX", task: "일일 업무 우선순위 정리 (앱/게임/음악 3트랙)" },
-  { time: "매주 월 09:00", agent: "CONDUCTOR", task: "주간 에이전트 업무 배분 + QA 스케줄 수립" },
-  { time: "매주 금 17:00", agent: "REX·SCOUT", task: "주간 성과 보고 + 다음 주 계획 초안 CEO 제출" },
-  { time: "발매 D-7", agent: "NOVA·MUSE", task: "마케팅 콘텐츠 + 릴스 스크립트 완성" },
-  { time: "발매 D-1", agent: "REX", task: "DistroKid 배급 확인 + 플랫폼별 메타데이터 검수" },
-  { time: "매월 1일", agent: "SCOUT", task: "월간 AI 도구 크레딧 현황 점검 + 신규 무료 도구 보고" },
-  { time: "분기 말", agent: "AEGIS·REX", task: "법무/경영 리스크 검토 + ISO 감사 대응 체크" },
-  { time: "트랙 작업 시작", agent: "SAGE→LYRA", task: "[MUSIC OS] 시나리오·장면 설계 후 가사 착수 (순서 의무)" },
-  { time: "발매 D-30", agent: "STROBE·MUSE", task: "[GOSARI] 앨범아트 컨셉 확정 + MV 스토리보드 초안 CEO 승인" },
-  { time: "발매 D-14", agent: "LYRA·MUSE", task: "[GOSARI] Suno AI 20~50버전 생성 → 선택 → 마스터링" },
-  { time: "발매 D-7", agent: "NOVA·STROBE", task: "[GOSARI] SNS 티저 콘텐츠 + 릴스 스크립트 완성" },
+  { time: "매일 07:00", agent: "SCOUT",      task: "Higgsfield 크레딧 잔여량 + 무료 AI 도구 업데이트 체크", chatAgent: "SCOUT",    cat: "daily" },
+  { time: "매일 08:00", agent: "REX",        task: "일일 업무 우선순위 정리 (앱/게임/음악 3트랙)",           chatAgent: "REX",      cat: "daily" },
+  { time: "매주 월 09:00", agent: "CONDUCTOR", task: "주간 에이전트 업무 배분 + QA 스케줄 수립",            wfId: "weekly",        cat: "weekly" },
+  { time: "매주 금 17:00", agent: "REX·SCOUT", task: "주간 성과 보고 + 다음 주 계획 초안 CEO 제출",         wfId: "weekly",        cat: "weekly" },
+  { time: "매월 1일", agent: "SCOUT",        task: "월간 AI 도구 크레딧 현황 점검 + 신규 무료 도구 보고",   chatAgent: "SCOUT",    cat: "monthly" },
+  { time: "분기 말", agent: "AEGIS·REX",     task: "법무/경영 리스크 검토 + ISO 감사 대응 체크",            wfId: "legal",         cat: "quarterly" },
+  { time: "발매 D-30", agent: "STROBE·MUSE", task: "[GOSARI] 앨범아트 컨셉 확정 + MV 스토리보드 초안",     wfId: "gosari_visual", cat: "gosari" },
+  { time: "발매 D-14", agent: "LYRA·MUSE",   task: "[GOSARI] Suno AI 20~50버전 생성 → 선택 → 마스터링",    wfId: "music_suno_prompt", cat: "gosari" },
+  { time: "발매 D-7 (일반)", agent: "NOVA·MUSE", task: "마케팅 콘텐츠 + 릴스 스크립트 완성",               wfId: "music_release", cat: "release" },
+  { time: "발매 D-7 (GOSARI)", agent: "NOVA·STROBE", task: "[GOSARI] SNS 티저 콘텐츠 + 릴스 스크립트",    wfId: "gosari_release", cat: "gosari" },
+  { time: "발매 D-1", agent: "REX",          task: "DistroKid 배급 확인 + 플랫폼별 메타데이터 검수",        chatAgent: "REX",      cat: "release" },
+  { time: "트랙 작업 시작", agent: "SAGE→LYRA", task: "[MUSIC OS] 시나리오·장면 설계 후 가사 착수",         wfId: "gosari_track",  cat: "gosari" },
 ];
 
 const TOOLS: ToolEntry[] = [
@@ -1132,6 +1132,7 @@ export default function BALMYGARDENDashboard() {
           {[
             { id: "home", label: "🏠 홈" },
             { id: "projects", label: "🌿 프로젝트" },
+            { id: "schedule", label: "⏰ 예약" },
             { id: "workflow", label: "⚡ 워크플로" },
             { id: "agents", label: "🤖 에이전트" },
             { id: "chat", label: "💬 대화" },
@@ -2018,6 +2019,99 @@ export default function BALMYGARDENDashboard() {
             </div>
           </div>
         )}
+        {/* ══════ SCHEDULE ══════ */}
+        {tab === "schedule" && (() => {
+          const catLabel: Record<string, { label: string; color: string; emoji: string }> = {
+            daily:     { label: "매일", color: "#06B6D4", emoji: "☀️" },
+            weekly:    { label: "매주", color: "#6366F1", emoji: "📅" },
+            monthly:   { label: "매월", color: "#10B981", emoji: "🗓️" },
+            quarterly: { label: "분기", color: "#F59E0B", emoji: "📊" },
+            release:   { label: "발매", color: "#EF4444", emoji: "🎵" },
+            gosari:    { label: "GOSARI", color: "#7C3AED", emoji: "🌿" },
+          };
+          const cats = ["daily", "weekly", "monthly", "quarterly", "gosari", "release"];
+          return (
+            <div>
+              {/* Header */}
+              <div style={{ ...S.card("#06B6D422"), marginBottom: "16px", padding: "16px 20px" }}>
+                <div style={{ fontSize: "15px", fontWeight: "800", color: "#67e8f9", marginBottom: "4px" }}>⏰ 작업 예약 (Claude Routines)</div>
+                <div style={{ fontSize: "11px", color: "#64748b" }}>
+                  정해진 루틴마다 자동 실행 · Notion 저장 · ALINN 6단계 기준
+                </div>
+                <div style={{ marginTop: "10px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                  {cats.map((c) => {
+                    const ct = catLabel[c];
+                    const count = SCHEDULES.filter((s) => s.cat === c).length;
+                    return (
+                      <span key={c} style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "10px", background: ct.color + "22", border: `1px solid ${ct.color}44`, color: ct.color }}>
+                        {ct.emoji} {ct.label} {count}건
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {cats.map((cat) => {
+                const items = SCHEDULES.filter((s) => s.cat === cat);
+                if (items.length === 0) return null;
+                const ct = catLabel[cat];
+                return (
+                  <div key={cat} style={{ marginBottom: "20px" }}>
+                    <div style={{ fontSize: "12px", fontWeight: "700", color: ct.color, marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span>{ct.emoji}</span>
+                      <span>{ct.label} 루틴</span>
+                      <span style={{ fontSize: "10px", color: "#334155", fontWeight: "400" }}>— {items.length}개 작업</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {items.map((s, i) => (
+                        <div key={i} style={{ ...S.card(ct.color + "33"), padding: "12px 14px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                          {/* Time badge */}
+                          <div style={{ background: ct.color + "22", border: `1px solid ${ct.color}44`, borderRadius: "6px", padding: "4px 10px", whiteSpace: "nowrap" }}>
+                            <div style={{ fontSize: "10px", color: ct.color, fontWeight: "700" }}>{s.time}</div>
+                          </div>
+                          {/* Agent badge */}
+                          <div style={{ fontSize: "10px", color: "#94a3b8", background: "#1e293b", padding: "3px 8px", borderRadius: "4px", whiteSpace: "nowrap" }}>
+                            {s.agent}
+                          </div>
+                          {/* Task */}
+                          <div style={{ flex: 1, fontSize: "12px", color: "#e2e8f0", minWidth: "120px" }}>{s.task}</div>
+                          {/* Action button */}
+                          {s.wfId ? (
+                            <button
+                              onClick={() => { setWfId(s.wfId!); setTab("workflow"); }}
+                              style={{ padding: "6px 14px", background: ct.color, border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: "pointer", whiteSpace: "nowrap" }}
+                            >
+                              ▶ 워크플로우
+                            </button>
+                          ) : s.chatAgent ? (
+                            <button
+                              onClick={() => { setChatAgent(s.chatAgent!); setChatMsgs([]); setTab("chat"); }}
+                              style={{ padding: "6px 14px", background: "#1e293b", border: `1px solid ${ct.color}`, borderRadius: "6px", color: ct.color, fontSize: "11px", fontWeight: "700", cursor: "pointer", whiteSpace: "nowrap" }}
+                            >
+                              💬 에이전트 대화
+                            </button>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Claude Routines 안내 */}
+              <div style={{ ...S.card("#F59E0B22"), padding: "14px 16px", border: "1px solid #F59E0B33" }}>
+                <div style={{ fontSize: "12px", fontWeight: "700", color: "#fbbf24", marginBottom: "6px" }}>💡 Claude Routines 자동화 팁 (ALINN 6단계)</div>
+                <div style={{ fontSize: "11px", color: "#94a3b8", lineHeight: "1.7" }}>
+                  • 위 "▶ 워크플로우" 버튼으로 수동 즉시 실행 가능<br />
+                  • 클라우드 자동화: Claude Code 웹 환경 → CronJob으로 예약 실행<br />
+                  • Notion에 결과 자동 전달 — 워크플로우 완료 시 자동 저장됨<br />
+                  • 매일 08:00 REX 루틴 → "3트랙 우선순위 정리" 직접 대화로 시작
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* ══════ PROJECTS ══════ */}
         {tab === "projects" && (
           <div>
