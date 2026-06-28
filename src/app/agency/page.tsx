@@ -767,19 +767,50 @@ interface ChangelogEntry {
   agent: string;
 }
 
+interface ReviewEntry {
+  id: string;
+  version: string;
+  track: string;
+  good: string;
+  bad: string;
+  improve: string;
+  next: string;
+  agent: string;
+  date: string;
+}
+
+interface ProductionMemory {
+  id: string;
+  track: string;
+  category: string;
+  score: number;
+  reason: string;
+  date: string;
+}
+
+interface ConflictEntry {
+  id: string;
+  topic: string;
+  opinions: { agent: string; text: string }[];
+  decision: string;
+  date: string;
+}
+
 const GOSARI_PIPELINE: PipelineStep[] = [
-  { step: 1,  name: "컨셉 확정",         agent: "SAGE",            wfId: "gosari_world",       desc: "EP 테마·방향성 CEO 승인" },
-  { step: 2,  name: "세계관 빌딩",        agent: "SAGE",            wfId: "gosari_world",       desc: "World Building 문서 완성" },
-  { step: 3,  name: "EP 트랙 구조 설계",  agent: "SAGE",            wfId: "gosari_world",       desc: "6트랙 컨셉·감정 흐름 확정" },
-  { step: 4,  name: "시나리오 · 장면",    agent: "SAGE",            wfId: "gosari_track",       desc: "트랙별 Scene 설계" },
-  { step: 5,  name: "가사 작성 · 리뷰",   agent: "LYRA",            wfId: "gosari_track",       desc: "가사 + 자체 리뷰 (8/10 이상)" },
-  { step: 6,  name: "Suno AI 프롬프트",   agent: "MUSE",            wfId: "music_suno_prompt",  desc: "태그·무드 3방향성 설계" },
-  { step: 7,  name: "음원 생성 · 선택",   agent: "MUSE + CEO",      wfId: "music_suno_prompt",  desc: "20~50버전 생성 → CEO 최종 선택" },
-  { step: 8,  name: "앨범 아트",          agent: "STROBE + MUSE",   wfId: "gosari_visual",      desc: "비주얼 컨셉 + Midjourney 프롬프트" },
-  { step: 9,  name: "MV 스토리보드",      agent: "STROBE",          wfId: "gosari_visual",      desc: "핵심 신 5개 스토리보드" },
-  { step: 10, name: "발매 패키지",         agent: "REX",             wfId: "gosari_release",     desc: "DistroKid 메타데이터 + 배급 신청" },
-  { step: 11, name: "마케팅 · SNS",       agent: "NOVA + SCOUT",    wfId: "gosari_release",     desc: "티저 콘텐츠 + 발매 시퀀스" },
-  { step: 12, name: "발매 · 아카이브",    agent: "REX + CONDUCTOR", wfId: "gosari_release",     desc: "D-Day 발매 + 결과 기록" },
+  { step: 1,  name: "Production OS 검증",  agent: "CONDUCTOR + AEGIS",  wfId: "gosari_world",       desc: "Creative Bible + QG 시스템 완성 확인" },
+  { step: 2,  name: "Creative Bible 승인",  agent: "SAGE + CEO",          wfId: "gosari_world",       desc: "창작 철학·Style Guide CEO 서명" },
+  { step: 3,  name: "컨셉 확정",            agent: "SAGE",                wfId: "gosari_world",       desc: "EP 테마·방향성 CEO 승인" },
+  { step: 4,  name: "세계관 빌딩",          agent: "SAGE",                wfId: "gosari_world",       desc: "World Building 문서 완성" },
+  { step: 5,  name: "EP 트랙 구조 설계",    agent: "SAGE",                wfId: "gosari_world",       desc: "6트랙 컨셉·감정 흐름 확정" },
+  { step: 6,  name: "시나리오·장면",        agent: "SAGE",                wfId: "gosari_track",       desc: "트랙별 Scene 설계" },
+  { step: 7,  name: "가사 작성·리뷰",      agent: "LYRA",                wfId: "gosari_track",       desc: "가사 + 자체 리뷰 (8/10 이상)" },
+  { step: 8,  name: "Suno AI 프롬프트",    agent: "MUSE",                wfId: "music_suno_prompt",  desc: "태그·무드 3방향성 설계" },
+  { step: 9,  name: "음원 생성·선택",       agent: "MUSE + CEO",          wfId: "music_suno_prompt",  desc: "20~50버전 생성 → CEO 최종 선택" },
+  { step: 10, name: "앨범 아트",            agent: "STROBE + MUSE",       wfId: "gosari_visual",      desc: "비주얼 컨셉 + Midjourney 프롬프트" },
+  { step: 11, name: "MV 스토리보드",        agent: "STROBE",              wfId: "gosari_visual",      desc: "핵심 신 5개 스토리보드" },
+  { step: 12, name: "발매 패키지",           agent: "REX",                 wfId: "gosari_release",     desc: "DistroKid 메타데이터 + 배급 신청" },
+  { step: 13, name: "마케팅·SNS",           agent: "NOVA + SCOUT",        wfId: "gosari_release",     desc: "티저 콘텐츠 + 발매 시퀀스" },
+  { step: 14, name: "발매·아카이브",         agent: "REX + CONDUCTOR",     wfId: "gosari_release",     desc: "D-Day 발매 + 결과 기록" },
 ];
 
 /* ══════════════════════════════════════════════════════
@@ -929,6 +960,88 @@ export default function BALMYGARDENDashboard() {
     setQgScores(emptyQGScore());
     setQgFeedback("");
   };
+
+  // STUDIO v4.0 sub-tabs
+  const [studioTab, setStudioTab] = useState<"채점" | "리뷰" | "PM" | "토론">("채점");
+
+  // CEO Approval Gate
+  const [conductorApproval, setConductorApproval] = useState("");
+  const [conductorApprovalLoading, setConductorApprovalLoading] = useState(false);
+  const [ceoApproved, setCeoApproved] = useState(false);
+
+  // Review system
+  const [reviews, setReviews] = useState<ReviewEntry[]>([]);
+  const [reviewVersion, setReviewVersion] = useState("v0.1");
+  const [reviewTrack, setReviewTrack] = useState("늦게 알았네");
+  const [reviewGood, setReviewGood] = useState("");
+  const [reviewBad, setReviewBad] = useState("");
+  const [reviewImprove, setReviewImprove] = useState("");
+  const [reviewNext, setReviewNext] = useState("");
+  const [reviewAgent, setReviewAgent] = useState("LYRA");
+  const [reviewGenerating, setReviewGenerating] = useState(false);
+
+  // Production Memory
+  const [productionMemories, setProductionMemories] = useState<ProductionMemory[]>([]);
+  const [pmTrack, setPmTrack] = useState("늦게 알았네");
+  const [pmCategory, setPmCategory] = useState("Hook");
+  const [pmScore, setPmScore] = useState(95);
+  const [pmReason, setPmReason] = useState("");
+  const [pmCounter, setPmCounter] = useState(1);
+
+  // Creative Conflict
+  const [conflictTopic, setConflictTopic] = useState("");
+  const [conflictAgents, setConflictAgents] = useState<string[]>(["LYRA", "NOVA", "SAGE"]);
+  const [conflictRunning, setConflictRunning] = useState(false);
+  const [conflictOpinions, setConflictOpinions] = useState<{ agent: string; text: string }[]>([]);
+  const [conflictDecision, setConflictDecision] = useState("");
+  const [conflictDecisionLoading, setConflictDecisionLoading] = useState(false);
+  const [conflictHistory, setConflictHistory] = useState<ConflictEntry[]>([]);
+
+  const runConflict = useCallback(async () => {
+    if (!conflictTopic.trim() || conflictRunning || conflictAgents.length === 0) return;
+    setConflictRunning(true);
+    setConflictOpinions([]);
+    setConflictDecision("");
+    const results = await Promise.all(
+      conflictAgents.map(async (key) => {
+        try {
+          const txt = await callAgent(key, `창작 토론: "${conflictTopic}" — ${AGENTS[key].role} 관점에서 입장 표명. 130자 이내.`);
+          return { agent: key, text: txt };
+        } catch {
+          return { agent: key, text: "응답 실패" };
+        }
+      })
+    );
+    setConflictOpinions(results);
+    setConflictRunning(false);
+  }, [conflictTopic, conflictRunning, conflictAgents]);
+
+  const runConflictDecision = useCallback(async () => {
+    if (!conflictOpinions.length || conflictDecisionLoading) return;
+    setConflictDecisionLoading(true);
+    const summary = conflictOpinions.map((o) => `[${o.agent}] ${o.text}`).join("\n\n");
+    try {
+      const decision = await callAgent(
+        "CONDUCTOR",
+        `창작 토론 주제: "${conflictTopic}"\n\n에이전트 의견:\n${summary}\n\n최종 결정 + 이유 + Decision Log 형식으로. 250자 이내.`
+      );
+      setConflictDecision(decision);
+      setConflictHistory((prev) => [
+        { id: Date.now().toString(), topic: conflictTopic, opinions: conflictOpinions, decision, date: new Date().toISOString() },
+        ...prev,
+      ]);
+      setDecisionLog((prev) => [{
+        date: new Date().toISOString(),
+        step: gosariStep,
+        stepName: "Creative Conflict",
+        decision: `[토론] ${conflictTopic}: ${decision.slice(0, 80)}…`,
+        tag: "결정" as const,
+      }, ...prev]);
+    } catch (e) {
+      setConflictDecision(`오류: ${(e as Error).message}`);
+    }
+    setConflictDecisionLoading(false);
+  }, [conflictOpinions, conflictDecisionLoading, conflictTopic, gosariStep]);
 
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
@@ -1383,7 +1496,7 @@ export default function BALMYGARDENDashboard() {
             { id: "content", label: "📝 콘텐츠" },
             { id: "system", label: "⚙️ 시스템" },
             { id: "ladder", label: "📈 사다리" },
-            { id: "qg", label: "🎯 QG" },
+            { id: "qg", label: "🎬 STUDIO" },
             { id: "history", label: "📒 히스토리" },
             { id: "guide", label: "📚 가이드" },
           ].map((t) => (
@@ -1440,7 +1553,7 @@ export default function BALMYGARDENDashboard() {
                 { emoji: "🗂️", name: "영수증 OCR 앱", status: "사전 테스팅", color: "#6366F1", detail: "Next.js 14 · Supabase · Gemini API · Vercel" },
                 { emoji: "⚔️", name: "LOD: Lord of Dynasty", status: "프로토타입 완성", color: "#8B5CF6", detail: "React 다크판타지 턴제 RPG · Harness CI/CD" },
                 { emoji: "🎵", name: "BALMYDADDY", status: "배급 중", color: "#F59E0B", detail: "DistroKid · 심포닉 메탈 · 다크판타지 · 복음" },
-                { emoji: "🌿", name: "PROJECT GOSARI", status: gosariStep === 0 ? "기획 중" : gosariStep >= 12 ? "발매 완료" : `STEP ${gosariStep}/12 진행 중`, color: "#7C3AED", detail: `EP 6트랙 · 테마: 시간 · ${gosariStep === 0 ? "시작 전" : `현재: ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`}` },
+                { emoji: "🌿", name: "PROJECT GOSARI", status: gosariStep === 0 ? "OS 구축 중" : gosariStep >= 14 ? "발매 완료" : `STEP ${gosariStep}/14 진행 중`, color: "#7C3AED", detail: `EP 6트랙 · 테마: 시간 · ${gosariStep === 0 ? "Creative Bible 준비 중" : `현재: ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`}` },
               ].map((p) => (
                 <div key={p.name} style={S.card(p.color + "44")}>
                   <div style={{ fontSize: "22px", marginBottom: "6px" }}>{p.emoji}</div>
@@ -2655,15 +2768,35 @@ export default function BALMYGARDENDashboard() {
           </div>
         )}
 
-        {/* ══════ QUALITY GATE ══════ */}
+        {/* ══════ STUDIO (v4.0) ══════ */}
         {tab === "qg" && (
           <div>
             {/* 헤더 */}
             <div style={{ ...S.card("#7C3AED44"), marginBottom: "16px", padding: "16px 20px" }}>
-              <div style={{ fontSize: "15px", fontWeight: "800", color: "#a78bfa", marginBottom: "4px" }}>🎯 BALMY MUSIC OS — Quality Gate System</div>
-              <div style={{ fontSize: "11px", color: "#64748b" }}>QG-01~12 · 8개 평가 항목 · 전항목 90점 이상 = PASS · 하나라도 미달 = FAIL → 개선 루프</div>
+              <div style={{ fontSize: "15px", fontWeight: "800", color: "#a78bfa", marginBottom: "4px" }}>🎬 BALMY MUSIC OS v4.0 — AI 크리에이티브 스튜디오</div>
+              <div style={{ fontSize: "11px", color: "#64748b" }}>Quality Gate · Producer Review · Production Memory · Creative Conflict — 창작 품질 루프 통합 관제</div>
             </div>
 
+            {/* 서브탭 네비게이션 */}
+            <div style={{ display: "flex", gap: "6px", marginBottom: "16px", flexWrap: "wrap" }}>
+              {(["채점", "리뷰", "PM", "토론"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setStudioTab(t)}
+                  style={{
+                    padding: "6px 16px", fontSize: "12px", fontWeight: "700", borderRadius: "6px", cursor: "pointer", border: "none",
+                    background: studioTab === t ? "#7C3AED" : "#1e293b",
+                    color: studioTab === t ? "#fff" : "#64748b",
+                  }}
+                >
+                  {t === "채점" ? "🎯 채점" : t === "리뷰" ? "📝 리뷰" : t === "PM" ? "🧠 PM" : "⚔️ 토론"}
+                </button>
+              ))}
+            </div>
+
+            {/* ── 채점 서브탭 ── */}
+            {studioTab === "채점" && (
+            <>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
               {/* 왼쪽: 채점 패널 */}
               <div>
@@ -2897,7 +3030,7 @@ export default function BALMYGARDENDashboard() {
             </div>
 
             {/* 게이트 전체 현황 */}
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>QG 전체 현황 — QG-01~12</div>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px", marginTop: "4px" }}>QG 전체 현황 — QG-01~12</div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "8px" }}>
               {GOSARI_GATES.map((g) => {
                 const passed = qgHistory.filter((h) => h.gate === g.gate && h.pass).length;
@@ -2928,6 +3061,356 @@ export default function BALMYGARDENDashboard() {
                 );
               })}
             </div>
+            </>)} {/* end 채점 서브탭 */}
+
+            {/* ── 리뷰 서브탭 ── */}
+            {studioTab === "리뷰" && (
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
+                {/* 왼쪽: 리뷰 입력 */}
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>프로듀서 리뷰 작성</div>
+                  <div style={{ ...S.card(), marginBottom: "10px" }}>
+                    <div style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>버전</div>
+                        <input value={reviewVersion} onChange={(e) => setReviewVersion(e.target.value)}
+                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", boxSizing: "border-box" }} />
+                      </div>
+                      <div style={{ flex: 2 }}>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>트랙</div>
+                        <select value={reviewTrack} onChange={(e) => setReviewTrack(e.target.value)}
+                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          {GOSARI_TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>담당</div>
+                        <select value={reviewAgent} onChange={(e) => setReviewAgent(e.target.value)}
+                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          {["LYRA", "MUSE", "SAGE", "STROBE", "NOVA", "CONDUCTOR"].map((a) => <option key={a} value={a}>{a}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    {(["good", "bad", "improve", "next"] as const).map((field) => {
+                      const labels = { good: "좋았던 점", bad: "부족한 점", improve: "개선 방향", next: "다음 수정" };
+                      const vals = { good: reviewGood, bad: reviewBad, improve: reviewImprove, next: reviewNext };
+                      const setters = { good: setReviewGood, bad: setReviewBad, improve: setReviewImprove, next: setReviewNext };
+                      return (
+                        <div key={field} style={{ marginBottom: "8px" }}>
+                          <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>{labels[field]}</div>
+                          <textarea value={vals[field]} onChange={(e) => setters[field](e.target.value)}
+                            placeholder={`${labels[field]}을 입력하세요`}
+                            style={{ width: "100%", padding: "6px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "50px", boxSizing: "border-box" }} />
+                        </div>
+                      );
+                    })}
+                    <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
+                      <button
+                        disabled={reviewGenerating}
+                        onClick={async () => {
+                          setReviewGenerating(true);
+                          try {
+                            const txt = await callAgent(reviewAgent,
+                              `트랙 "${reviewTrack}" ${reviewVersion} 프로듀서 리뷰를 작성해. 좋았던점/부족한점/개선방향/다음수정 4항목으로. 각 50자 이내.`);
+                            const lines = txt.split("\n").filter((l) => l.trim());
+                            if (lines.length >= 4) {
+                              setReviewGood(lines[0].replace(/^[^:：]+[:：]\s*/, ""));
+                              setReviewBad(lines[1].replace(/^[^:：]+[:：]\s*/, ""));
+                              setReviewImprove(lines[2].replace(/^[^:：]+[:：]\s*/, ""));
+                              setReviewNext(lines[3].replace(/^[^:：]+[:：]\s*/, ""));
+                            } else {
+                              setReviewGood(txt);
+                            }
+                          } catch (e) {
+                            setReviewGood(`오류: ${(e as Error).message}`);
+                          }
+                          setReviewGenerating(false);
+                        }}
+                        style={{ flex: 1, padding: "8px", background: reviewGenerating ? "#1e293b" : "#7C3AED", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: reviewGenerating ? "not-allowed" : "pointer" }}
+                      >
+                        {reviewGenerating ? "AI 생성 중…" : `${reviewAgent} 자동 생성`}
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (!reviewGood.trim() && !reviewBad.trim()) return;
+                          const entry: ReviewEntry = {
+                            id: Date.now().toString(),
+                            version: reviewVersion, track: reviewTrack,
+                            good: reviewGood, bad: reviewBad, improve: reviewImprove, next: reviewNext,
+                            agent: reviewAgent, date: new Date().toISOString(),
+                          };
+                          setReviews((prev) => [entry, ...prev]);
+                          setReviewGood(""); setReviewBad(""); setReviewImprove(""); setReviewNext("");
+                        }}
+                        style={{ flex: 1, padding: "8px", background: "#0369A1", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 오른쪽: 리뷰 히스토리 */}
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>리뷰 히스토리</div>
+                  {reviews.length === 0 ? (
+                    <div style={{ ...S.card(), textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>리뷰 기록 없음</div>
+                  ) : (
+                    reviews.map((r) => (
+                      <div key={r.id} style={{ ...S.card("#0369A133"), marginBottom: "8px", padding: "10px 14px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", flexWrap: "wrap" }}>
+                          <span style={{ ...S.badge("#0369A1"), fontSize: "10px" }}>{r.version}</span>
+                          <span style={{ fontSize: "11px", color: "#94a3b8" }}>{r.track}</span>
+                          <span style={{ fontSize: "10px", color: "#64748b" }}>by {r.agent}</span>
+                          <span style={{ fontSize: "9px", color: "#475569", marginLeft: "auto" }}>{new Date(r.date).toLocaleDateString("ko-KR")}</span>
+                        </div>
+                        {[{ label: "✅ 좋았던 점", val: r.good, color: "#22C55E" },
+                          { label: "❌ 부족한 점", val: r.bad, color: "#EF4444" },
+                          { label: "🔄 개선 방향", val: r.improve, color: "#F59E0B" },
+                          { label: "➡️ 다음 수정", val: r.next, color: "#06B6D4" }].map((item) => item.val && (
+                            <div key={item.label} style={{ marginBottom: "4px" }}>
+                              <span style={{ fontSize: "9px", color: item.color, fontWeight: "700" }}>{item.label}</span>
+                              <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "1px" }}>{item.val}</div>
+                            </div>
+                          ))}
+                        <button onClick={() => setReviews((prev) => prev.filter((x) => x.id !== r.id))}
+                          style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}>삭제</button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── PM (Production Memory) 서브탭 ── */}
+            {studioTab === "PM" && (
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
+                {/* 왼쪽: PM 등록 */}
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>Production Memory 등록</div>
+                  <div style={{ ...S.card(), marginBottom: "10px" }}>
+                    <div style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
+                      <div style={{ flex: 2 }}>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>트랙</div>
+                        <select value={pmTrack} onChange={(e) => setPmTrack(e.target.value)}
+                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          {GOSARI_TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+                      <div style={{ flex: 2 }}>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>카테고리</div>
+                        <select value={pmCategory} onChange={(e) => setPmCategory(e.target.value)}
+                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          {["Hook", "Structure", "Lyric", "Melody", "Mood", "Prompt", "Visual", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>점수</div>
+                        <input type="number" min={0} max={100} value={pmScore} onChange={(e) => setPmScore(Number(e.target.value))}
+                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", boxSizing: "border-box" }} />
+                      </div>
+                    </div>
+                    <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>성공 이유 / 패턴</div>
+                    <textarea value={pmReason} onChange={(e) => setPmReason(e.target.value)}
+                      placeholder="어떤 결정·방식이 성공했는지 기록"
+                      style={{ width: "100%", padding: "6px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "80px", boxSizing: "border-box", marginBottom: "8px" }} />
+                    <button
+                      onClick={() => {
+                        if (!pmReason.trim()) return;
+                        const id = `PM-${String(pmCounter).padStart(3, "0")}`;
+                        setProductionMemories((prev) => [{ id, track: pmTrack, category: pmCategory, score: pmScore, reason: pmReason, date: new Date().toISOString() }, ...prev]);
+                        setPmCounter((n) => n + 1);
+                        setPmReason("");
+                      }}
+                      style={{ width: "100%", padding: "8px", background: "#0369A1", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                    >
+                      PM 기록 저장
+                    </button>
+                  </div>
+                  <div style={{ ...S.card("#F59E0B22"), padding: "10px 14px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: "700", color: "#F59E0B", marginBottom: "4px" }}>Production Memory 원칙</div>
+                    <div style={{ fontSize: "10px", color: "#94a3b8", lineHeight: "1.6" }}>
+                      성공 패턴을 PM-001 형식으로 기록.<br/>
+                      다음 트랙에 재사용 가능한 결정·기술만 저장.<br/>
+                      점수 90+ 사례 우선 보존.
+                    </div>
+                  </div>
+                </div>
+
+                {/* 오른쪽: PM 목록 */}
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>
+                    성공 패턴 라이브러리 ({productionMemories.length}개)
+                  </div>
+                  {productionMemories.length === 0 ? (
+                    <div style={{ ...S.card(), textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>PM 기록 없음 — 왼쪽에서 성공 패턴 등록</div>
+                  ) : (
+                    productionMemories.map((pm) => (
+                      <div key={pm.id} style={{ ...S.card("#F59E0B22"), marginBottom: "8px", padding: "10px 14px", borderLeft: "3px solid #F59E0B" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px", flexWrap: "wrap" }}>
+                          <span style={{ fontSize: "10px", fontWeight: "700", color: "#F59E0B" }}>{pm.id}</span>
+                          <span style={{ ...S.badge("#0369A1"), fontSize: "9px" }}>{pm.category}</span>
+                          <span style={{ fontSize: "10px", color: "#94a3b8" }}>{pm.track}</span>
+                          <span style={{ fontSize: "10px", fontWeight: "700", color: pm.score >= 90 ? "#22C55E" : "#EF4444", marginLeft: "auto" }}>{pm.score}점</span>
+                        </div>
+                        <div style={{ fontSize: "11px", color: "#94a3b8" }}>{pm.reason}</div>
+                        <div style={{ fontSize: "9px", color: "#475569", marginTop: "4px" }}>{new Date(pm.date).toLocaleDateString("ko-KR")}</div>
+                        <button onClick={() => setProductionMemories((prev) => prev.filter((x) => x.id !== pm.id))}
+                          style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}>삭제</button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── 토론 (Creative Conflict) 서브탭 ── */}
+            {studioTab === "토론" && (
+              <div>
+                <div style={{ ...S.card("#EF444422"), marginBottom: "14px", padding: "14px 18px" }}>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#fca5a5", marginBottom: "4px" }}>⚔️ Creative Conflict — 에이전트 토론 시스템</div>
+                  <div style={{ fontSize: "10px", color: "#64748b" }}>에이전트별 창작 의견 병렬 수집 → CONDUCTOR 최종 결정 → Decision Log 자동 기록</div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
+                  {/* 왼쪽: 토론 설정 */}
+                  <div>
+                    <div style={{ ...S.card(), marginBottom: "10px" }}>
+                      <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>토론 주제</div>
+                      <textarea
+                        value={conflictTopic}
+                        onChange={(e) => setConflictTopic(e.target.value)}
+                        placeholder="예: 1번 트랙의 시작을 피아노로 열어야 하는가, 보컬로 열어야 하는가"
+                        style={{ width: "100%", padding: "8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "6px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "70px", boxSizing: "border-box", marginBottom: "8px" }}
+                      />
+                      <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>참여 에이전트 선택</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "10px" }}>
+                        {["LYRA", "MUSE", "SAGE", "NOVA", "STROBE", "CONDUCTOR", "ARIA", "PHANTOM"].map((ag) => (
+                          <button
+                            key={ag}
+                            onClick={() => setConflictAgents((prev) =>
+                              prev.includes(ag) ? prev.filter((a) => a !== ag) : [...prev, ag]
+                            )}
+                            style={{
+                              padding: "3px 10px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", border: "none",
+                              background: conflictAgents.includes(ag) ? (AGENTS[ag]?.color ?? "#334155") : "#1e293b",
+                              color: conflictAgents.includes(ag) ? "#fff" : "#64748b",
+                              fontWeight: conflictAgents.includes(ag) ? "700" : "400",
+                            }}
+                          >
+                            {ag}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        onClick={runConflict}
+                        disabled={conflictRunning || !conflictTopic.trim() || conflictAgents.length === 0}
+                        style={{ width: "100%", padding: "9px", background: conflictRunning || !conflictTopic.trim() ? "#1e293b" : "#EF4444", border: "none", borderRadius: "6px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: conflictRunning || !conflictTopic.trim() ? "not-allowed" : "pointer", marginBottom: "8px" }}
+                      >
+                        {conflictRunning ? "에이전트 토론 중…" : "⚔️ 토론 시작"}
+                      </button>
+                      {conflictOpinions.length > 0 && (
+                        <button
+                          onClick={runConflictDecision}
+                          disabled={conflictDecisionLoading}
+                          style={{ width: "100%", padding: "9px", background: conflictDecisionLoading ? "#1e293b" : "#7C3AED", border: "none", borderRadius: "6px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: conflictDecisionLoading ? "not-allowed" : "pointer" }}
+                        >
+                          {conflictDecisionLoading ? "CONDUCTOR 결정 중…" : "CONDUCTOR 최종 결정"}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* 에이전트 의견 */}
+                    {conflictOpinions.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: "12px", fontWeight: "700", color: "#a5b4fc", marginBottom: "8px" }}>에이전트 의견</div>
+                        {conflictOpinions.map((op) => (
+                          <div key={op.agent} style={{ ...S.card((AGENTS[op.agent]?.color ?? "#334155") + "22"), marginBottom: "6px", padding: "8px 12px", borderLeft: `3px solid ${AGENTS[op.agent]?.color ?? "#334155"}` }}>
+                            <div style={{ fontSize: "10px", fontWeight: "700", color: AGENTS[op.agent]?.color ?? "#64748b", marginBottom: "3px" }}>{AGENTS[op.agent]?.av} {op.agent}</div>
+                            <div style={{ fontSize: "11px", color: "#94a3b8" }}>{op.text}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* CONDUCTOR 결정 */}
+                    {conflictDecision && (
+                      <div style={{ ...S.card("#7C3AED44"), marginTop: "10px", padding: "12px 16px", borderLeft: "3px solid #7C3AED" }}>
+                        <div style={{ fontSize: "11px", fontWeight: "700", color: "#a78bfa", marginBottom: "6px" }}>CONDUCTOR 최종 결정</div>
+                        <div style={{ fontSize: "12px", color: "#e2e8f0", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>{conflictDecision}</div>
+                      </div>
+                    )}
+
+                    {/* CEO Approval Gate */}
+                    {conflictDecision && (
+                      <div style={{ ...S.card("#22C55E22"), marginTop: "10px", padding: "12px 16px" }}>
+                        <div style={{ fontSize: "11px", fontWeight: "700", color: "#86efac", marginBottom: "6px" }}>CEO Approval Gate</div>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "8px" }}>
+                          CONDUCTOR 결정 → CEO 최종 승인 (예술성 + 사업성 이중 확인)
+                        </div>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <button
+                            onClick={async () => {
+                              setConductorApprovalLoading(true);
+                              try {
+                                const txt = await callAgent("CONDUCTOR",
+                                  `CEO 보고용 결정 요약:\n\n주제: ${conflictTopic}\n결정: ${conflictDecision}\n\n사업적 관점 + 예술적 관점 각 1줄. CEO 승인 요청 형식으로. 100자 이내.`);
+                                setConductorApproval(txt);
+                              } catch (e) {
+                                setConductorApproval(`오류: ${(e as Error).message}`);
+                              }
+                              setConductorApprovalLoading(false);
+                            }}
+                            disabled={conductorApprovalLoading}
+                            style={{ flex: 1, padding: "7px", background: conductorApprovalLoading ? "#1e293b" : "#0369A1", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: conductorApprovalLoading ? "not-allowed" : "pointer" }}
+                          >
+                            {conductorApprovalLoading ? "준비 중…" : "CEO 보고서 생성"}
+                          </button>
+                          <button
+                            onClick={() => setCeoApproved(true)}
+                            style={{ flex: 1, padding: "7px", background: ceoApproved ? "#22C55E" : "#1e293b", border: `1px solid ${ceoApproved ? "#22C55E" : "#334155"}`, borderRadius: "6px", color: ceoApproved ? "#fff" : "#64748b", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                          >
+                            {ceoApproved ? "CEO 승인 완료" : "CEO 승인"}
+                          </button>
+                        </div>
+                        {conductorApproval && (
+                          <div style={{ marginTop: "8px", padding: "8px 10px", background: "#0d1117", borderRadius: "6px", fontSize: "11px", color: "#94a3b8", lineHeight: "1.6" }}>
+                            {conductorApproval}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 오른쪽: 토론 히스토리 */}
+                  <div>
+                    <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>토론 히스토리 ({conflictHistory.length}건)</div>
+                    {conflictHistory.length === 0 ? (
+                      <div style={{ ...S.card(), textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>토론 기록 없음</div>
+                    ) : (
+                      conflictHistory.map((c) => (
+                        <div key={c.id} style={{ ...S.card("#EF444422"), marginBottom: "8px", padding: "10px 14px" }}>
+                          <div style={{ fontSize: "11px", fontWeight: "700", color: "#fca5a5", marginBottom: "4px" }}>{c.topic}</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", marginBottom: "6px" }}>
+                            {c.opinions.map((op) => (
+                              <span key={op.agent} style={{ fontSize: "9px", padding: "1px 6px", borderRadius: "3px", background: (AGENTS[op.agent]?.color ?? "#334155") + "33", color: AGENTS[op.agent]?.color ?? "#64748b" }}>{op.agent}</span>
+                            ))}
+                          </div>
+                          {c.decision && (
+                            <div style={{ fontSize: "10px", color: "#a78bfa", padding: "4px 8px", background: "#1e1033", borderRadius: "4px" }}>
+                              결정: {c.decision.slice(0, 120)}{c.decision.length > 120 ? "…" : ""}
+                            </div>
+                          )}
+                          <div style={{ fontSize: "9px", color: "#475569", marginTop: "4px" }}>{new Date(c.date).toLocaleString("ko-KR")}</div>
+                          <button onClick={() => setConflictHistory((prev) => prev.filter((x) => x.id !== c.id))}
+                            style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}>삭제</button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

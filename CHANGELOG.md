@@ -4,6 +4,19 @@
 
 ---
 
+## v4.0 — 2026.06.28
+
+- [신규] MUSIC OS v4.0 "AI 크리에이티브 스튜디오" — QG탭을 STUDIO탭으로 전면 개편
+- [신규] STUDIO 4개 서브탭: 채점(QG) · 리뷰(Producer Review) · PM(Production Memory) · 토론(Creative Conflict)
+- [신규] Creative Bible (창작 철학 기준 문서) — 테마/감정/심볼/철학/금지어/청중/비주얼/음악방향
+- [신규] Style Guide — 언어 비율(생활어70%/시20%/은유10%), 금지/허용 표현, Suno 태그 기준
+- [신규] Producer Review 시스템 — 버전별 AI 리뷰(좋았던점/부족한점/개선방향/다음수정)
+- [신규] Production Memory — PM-001 형식 성공 패턴 라이브러리
+- [신규] Creative Conflict — 에이전트 병렬 토론 + CONDUCTOR 결정 + CEO Approval Gate
+- [신규] GOSARI 파이프라인 12단계 → 14단계 (STEP 1: OS검증, STEP 2: Creative Bible 승인 추가)
+- [수정] 홈 탭 GOSARI 현황: 12→14단계, "기획 중"→"OS 구축 중"
+- **담당**: ZERO
+
 ## v3.2 — 2026.06.27
 
 - [신규] MUSIC OS v1.0 파이프라인 탭 (12단계 + GOSARI 파이프라인)

@@ -153,6 +153,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: (page as { url: string }).url });
     }
 
+    if (action === "save_review") {
+      const { version, track, good, bad, improve, next, agent } = payload as {
+        version: string; track: string; good: string; bad: string;
+        improve: string; next: string; agent: string;
+      };
+      const children: BlockObjectRequest[] = [
+        heading(`트랙: ${track} — ${version} / 담당: ${agent}`),
+        heading("✅ 좋았던 점"), ...paragraphs(good || "(없음)"),
+        heading("❌ 부족한 점"), ...paragraphs(bad || "(없음)"),
+        heading("🔄 개선 방향"), ...paragraphs(improve || "(없음)"),
+        heading("➡️ 다음 수정"), ...paragraphs(next || "(없음)"),
+      ];
+      const page = await notion.pages.create({
+        parent: { database_id: DB_ID },
+        properties: {
+          Name: { title: [{ text: { content: `[리뷰] ${track} ${version} by ${agent}` } }] },
+          Type: { select: { name: "리뷰" } },
+          Status: { select: { name: "기록됨" } },
+          Date: { date: { start: new Date().toISOString() } },
+        },
+        children,
+      });
+      return NextResponse.json({ url: (page as { url: string }).url });
+    }
+
     return NextResponse.json({ error: "알 수 없는 action입니다." }, { status: 400 });
   } catch (e: unknown) {
     const err = e as Error;

@@ -29,6 +29,10 @@
 | M-18 | GOSARI | PROJECT GOSARI EP 6트랙. 테마: 시간. 효도송 아님. 장면 우선, 진심 우선. |
 | M-19 | 제작규칙 | MUSIC OS 절대 규칙: 가사 먼저 쓰지 않는다. SAGE 없이 LYRA 단독 작성 금지. |
 | M-20 | QG | Quality Gate 12단계 × 8항목(감정전달력·기억성·독창성·스토리·상업성·가창성·제작성·브랜딩). 전항목 90+ = PASS. FAIL 시 담당 에이전트 개선 루프. |
+| M-21 | v4.0 | MUSIC OS v4.0 = "AI 크리에이티브 스튜디오". QG탭→STUDIO탭(채점/리뷰/PM/토론 4서브탭). GOSARI 파이프라인 12→14단계. |
+| M-22 | Creative | Creative Bible + Style Guide 확정 필수. SAGE+CEO 서명 전 LYRA 작성 불가. MUSIC OS 절대 순서: OS검증→Bible승인→컨셉→세계관→트랙→시나리오→가사→Suno→음원선택→비주얼→MV→발매패키지→마케팅→발매아카이브. |
+| M-23 | Review | Production Memory = PM-001 형식. 성공 패턴 90점+ 사례만 저장. 다음 트랙 재사용 기준. |
+| M-24 | Conflict | Creative Conflict: 에이전트 병렬 토론 → CONDUCTOR 결정 → DecisionLog 자동 기록 → CEO Approval Gate (이중 승인). |
 
 ---
 
@@ -58,4 +62,4 @@
 
 ---
 
-_Last updated: 2026.06.28 — Dashboard v3.2.1_
+_Last updated: 2026.06.28 — Dashboard v4.0_
