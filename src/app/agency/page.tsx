@@ -56,6 +56,11 @@ interface MemoryEntry { id: string; tag: string; txt: string; }
 interface ScheduleEntry { time: string; agent: string; task: string; wfId?: string; chatAgent?: string; cat?: string; }
 interface ToolEntry { name: string; use: string; fb: string; warn?: boolean; }
 interface ChainResult { key: string; ag: Agent; txt: string; done: boolean; }
+interface AutomationPrompt {
+  id: string; num: number; cat: string; catColor: string;
+  name: string; tools: string; star: boolean;
+  items: { title: string; desc: string }[];
+}
 interface NotionToast { msg: string; url?: string; ok: boolean; }
 interface DriveFile { id: string; name: string; mimeType: string; modifiedTime: string; webViewLink: string; }
 interface IntegrationToast { msg: string; url?: string; ok: boolean; }
@@ -285,6 +290,25 @@ const WORKFLOWS: Workflow[] = [
     desc: "프로젝트 현황·크레딧·다음 주 계획",
     quickSkill: "이번 주 BALMYGARDEN 3트랙(음악/앱/게임) 진행 현황, AI 크레딧 잔여량, 완료/미완료 태스크, 다음 주 우선순위 3가지를 CEO 보고 형식으로 정리해주세요.",
   },
+  /* ── 자동화 파이프라인 ── */
+  {
+    id: "reels_auto", emoji: "🎬", cat: "콘텐츠", name: "글→릴스 영상 자동화",
+    chain: ["MUSE", "STROBE", "NOVA"],
+    desc: "블로그/글 → 컷 분할 → Higgsfield 프롬프트 → SNS 배포",
+    quickSkill: "BALMYGARDEN 콘텐츠를 릴스 영상으로 자동 변환해주세요. 입력 글을 5~7개 컷으로 나누고, 컷마다 화면 구성·자막·Higgsfield 영상 생성 프롬프트(영문)를 표로 만들어주세요. 마지막으로 Instagram/TikTok 배포용 캡션과 해시태그를 작성해주세요. 입력 글: [글 붙여넣기]",
+  },
+  {
+    id: "trend_research", emoji: "📊", cat: "리서치", name: "트렌드 리서치 자동화",
+    chain: ["SCOUT", "NOVA", "CONDUCTOR"],
+    desc: "키워드 수집 → 트렌드 분석 → Notion 저장 → 콘텐츠 적용",
+    quickSkill: "BALMYGARDEN 3트랙(음악/앱/게임) 관련 이번 주 트렌드를 리서치해주세요. 각 트랙별 '지금 뜨는 키워드 3개'와 '활용 가능한 콘텐츠 아이디어 2개'를 정리하고, 업계 주간 다이제스트 형식으로 CEO 보고용 요약을 작성해주세요.",
+  },
+  {
+    id: "meeting_notes", emoji: "📋", cat: "행정", name: "회의록 자동 정리",
+    chain: ["CONDUCTOR", "ZERO", "REX"],
+    desc: "녹취록 → 결정/할일/보류 구조화 → Notion 저장",
+    quickSkill: "회의록을 구조화해서 정리해주세요. [결정된 것 / 할 일(담당자-마감일-내용) / 보류·확인 필요] 세 섹션으로 나누고, 담당자별 액션아이템 리스트와 불참자용 3줄 요약을 별도로 만들어주세요. 회의 녹취록: [녹취록 붙여넣기]",
+  },
   /* ── MUSIC OS: PROJECT GOSARI ── */
   {
     id: "gosari_world", emoji: "🌿", cat: "음악OS", name: "고사리 EP 세계관 빌딩",
@@ -441,6 +465,125 @@ const MARKETING_PROMPTS: MarketingPrompt[] = [
       "이 주제를 5초마다 패턴 인터럽트가 들어가는 숏폼 스크립트로 만들어줘.",
       "이 스크립트를 더 대화체이고 창업자 중심의 톤으로 다시 작성해줘.",
       "결론을 너무 빨리 공개하지 않으면서 궁금증을 유발하는 인스타/유튜브 인트로를 만들어줘.",
+    ],
+  },
+];
+
+/* ══════════════════════════════════════════════════════
+   자동화 프롬프트 60 (누끼토끼 정리 / 업무 자동화)
+══════════════════════════════════════════════════════ */
+const AUTOMATION_PROMPTS: AutomationPrompt[] = [
+  /* ── 메일·커뮤니케이션 ── */
+  {
+    id: "A-01", num: 1, cat: "메일·커뮤니케이션", catColor: "#06B6D4",
+    name: "이메일 자동화", tools: "Zapier + Gmail + Claude", star: true,
+    items: [
+      { title: "받은 메일 자동 분류 + 답장 초안", desc: "새 메일을 [긴급·계약·클레임=긴급 / 단순 문의=일반 / 광고·뉴스레터=보관]으로 분류. 긴급은 핵심 3줄 요약과 정중한 답장 초안만 만들고, 광고는 '보관' 라벨만. 금액·날기는 단정 말고 '확인 후 안내'로." },
+      { title: "발송 전 답장 검수", desc: "내가 쓴 답장 초안을 붙여넣으면 ① 무례하거나 오해 살 표현 ② 오타·비문 ③ 빠진 첨부·날짜·금액을 점검해서, 고친 버전과 '무엇을 왜 고쳤는지'를 함께 보여줘. 내용은 바꾸지 말고 톤만 다듬어." },
+      { title: "장문 메일 3줄 요약", desc: "긴 메일을 붙여넣으면 핵심을 3줄로 요약하고, 그 안에서 '내가 결정하거나 회신해야 할 것'만 따로 체크리스트로 뽑아줘. 단순 정보 전달이나 인사말은 빼고 행동할 것 위주로." },
+      { title: "반복 문의 FAQ 매칭", desc: "새 문의가 오면 내가 저장해 둔 [FAQ 목록]과 대조해 가장 가까운 답변을 골라 상황에 맞게 다듬은 답장 초안을 만들어. 맞는 FAQ가 없으면 '직접 확인 필요'로 표시하고 넘어가." },
+    ],
+  },
+  {
+    id: "A-06", num: 6, cat: "메일·커뮤니케이션", catColor: "#06B6D4",
+    name: "정기 리포트 자동 발송", tools: "Gmail + Claude + Sheets", star: false,
+    items: [
+      { title: "주간 실적 보고 메일", desc: "매주 월요일, 실적 시트의 지난주 매출·방문·문의 수를 집계하고 전주 대비 증감률을 계산해. '가장 큰 변화 한 가지'와 그 이유를 한 문장으로 뽑아 대표 보고용 메일 초안을 만들어 Gmail 임시보관함에 저장해(발송은 내가)." },
+      { title: "월간 정산 요약", desc: "이번 달 매출·지출·순익을 항목별로 집계하고 지난달과 비교해 높고 준 것을 짚어줘. 마지막에 '다음 달 줄일 비용'과 '더 키울 항목'을 근거와 함께 한 가지씩 제안해." },
+      { title: "광고 성과(ROAS) 리포트", desc: "채널별([메타/구글/...]) 광고비·전환·매출을 모아 ROAS를 계산해. 효율이 낮아 줄일 채널과 더 태울 채널을 한눈에 보이게 표로 정리하고, 다음 주 예산 배분안을 제안해." },
+    ],
+  },
+  {
+    id: "A-09", num: 9, cat: "메일·커뮤니케이션", catColor: "#06B6D4",
+    name: "팀 메시지 요약", tools: "Slack + Claude", star: false,
+    items: [
+      { title: "오늘 대화 분류", desc: "지정 채널의 오늘 대화를 [결정 / 요청 / 질문]으로 분류해. 나를 멘션했거나 내가 답해야 할 항목은 맨 위에 '내 차례'로 모으고, 잡담·인사는 빼고 3분이면 읽을 분량으로 하루 끝에 보고해." },
+      { title: "안 읽은 메시지 정리", desc: "내가 자리 비운 동안 쌓인 안 읽은 메시지를 채널별로 모아 '중요 / 참고 / 무시해도 됨'으로 나눠 핵심만 알려줘. 중요 항목엔 내가 할 행동을 한 줄로 붙여." },
+      { title: "스레드 결론 추출", desc: "이 긴 스레드를 읽고 '최종 결론, 누가 무엇을 하기로 했는지, 아직 안 정해진 것' 세 가지를 3줄로 정리해줘." },
+      { title: "주간 팀 활동 요약", desc: "이번 주 팀 채널들의 활동을 모아 '주요 결정 / 완료된 일 / 다음 주 과제'로 정리한 주간 요약 리포트를 만들어줘." },
+    ],
+  },
+  /* ── 일정·문서·파일 ── */
+  {
+    id: "A-02", num: 2, cat: "일정·문서·파일", catColor: "#10B981",
+    name: "회의록 자동 정리", tools: "Claude + Notion", star: true,
+    items: [
+      { title: "녹취록 → 구조화 정리", desc: "회의 녹취록·메모를 붙여넣으면 [결정된 것 / 할 일 / 보류(확인 필요)] 세 덩어리로 나눠. 할 일은 '담당자 — 마감일 — 내용' 형식으로, 날짜가 없으면 '미정'으로. 끝나면 Notion '회의록' DB에 '[날짜] [안건]' 페이지로 저장해." },
+      { title: "회의 전 사전 브리핑", desc: "오늘 [안건]으로 회의하기 전에 Notion '회의록' DB에서 관련 지난 회의록과 미결 안건을 찾아, '지난번 결정 / 아직 안 된 것 / 오늘 정할 것' 세 가지로 정리해줘." },
+      { title: "담당자별 액션아이템", desc: "회의록에서 할 일만 전부 뽑아 담당자별로 묶고, 각 항목에 마감일과 우선순위(상/중/하)를 붙여 To-do 리스트로 만들어줘." },
+      { title: "불참자용 3줄 브리핑", desc: "이 회의록을 참석 못 한 팀원이 30초에 파악할 수 있게 '무엇을 정했고, 당신이 할 일은 무엇인지' 중심으로 3줄로 요약해줘." },
+    ],
+  },
+  {
+    id: "A-03", num: 3, cat: "일정·문서·파일", catColor: "#10B981",
+    name: "일정 자동 관리", tools: "Claude + Google Calendar", star: false,
+    items: [
+      { title: "말로 하는 일정 등록", desc: "'다음 주 화 3시 김대표 미팅'처럼 말하면 Google 캘린더에 등록하고, 앞뒤로 이동·준비 시간 30분을 함께 잡아. 같은 날 일정과 겹치면 등록 전에 먼저 알려줘." },
+      { title: "빈 시간 찾아 슬롯 제안", desc: "이번 주(또는 [기간]) 캘린더에서 [1시간]짜리 미팅을 넣을 빈 시간대를 3개 찾아줘. 점심시간과 기존 일정 앞뒤 30분은 빼고 제안해." },
+      { title: "매일 아침 일정 브리핑", desc: "매일 오전 8시에 오늘 일정을 시간순으로 정리하고, 각 일정에 필요한 준비물·이동시간·미리 볼 자료를 한 줄씩 붙여서 알려줘." },
+      { title: "마감일 역산 배치", desc: "[프로젝트]의 최종 마감이 [날짜]야. 거기서 거꾸로 계산해 필요한 중간 단계와 각 단계 마감일을 캘린더에 배치하고, 무리한 일정은 미리 경고해줘." },
+    ],
+  },
+  {
+    id: "A-11", num: 11, cat: "일정·문서·파일", catColor: "#10B981",
+    name: "파일 자동 정리", tools: "Claude + Google Drive", star: false,
+    items: [
+      { title: "미분류 폴더 정리·이동", desc: "드라이브 '미분류' 폴더의 파일을 이름·확장자·날짜로 분류해 '[클라이언트] / [연도] / [중류]' 폴더로 옮겨. 중복은 최신만 남기고, 실제로 옮기기 전에 '무엇을 어디로' 목록을 먼저 보여줘." },
+      { title: "파일명 일괄 변경", desc: "[폴더]의 파일명을 '[날짜]_[클라이언트]_[중류]_[버전]' 규칙으로 일괄 변경할 계획을 만들어. 바꾸기 전 'before → after' 목록을 먼저 보여주고 내 확인을 받아." },
+      { title: "중복·오래된 파일 정리", desc: "[폴더]에서 내용이 같거나 비슷한 중복 파일과 6개월 이상 안 열린 파일을 찾아 '삭제 후보' 목록으로 정리해줘. 지우진 말고 제안만 해." },
+      { title: "폴더 구조 목차화", desc: "[폴더] 구조를 훑어 어떤 폴더에 무엇이 있는지 한눈에 보는 목차 문서를 만들어줘. 비어 있거나 정체불명인 폴더는 따로 표시해." },
+    ],
+  },
+  /* ── 리서치·데이터 ── */
+  {
+    id: "A-04", num: 4, cat: "리서치·데이터", catColor: "#6366F1",
+    name: "웹 리서치 자동화", tools: "Playwright + Claude", star: true,
+    items: [
+      { title: "사실만 추려 요약 + 적용점", desc: "[주제 또는 URL]을 직접 열어 본문을 읽고, 광고·홍보는 빼고 사실·수치만 추려 출처와 함께 5줄로 요약해. 자료끼리 모순되면 그 부분을 짚고, 마지막에 '내 비즈니스([업종])에 적용할 점' 3가지를 제안해." },
+      { title: "경쟁사 사이트 분석", desc: "[경쟁사 URL]을 열어 강점/약점/나와 다른 점을 각각 3가지씩 정리하고, 그들이 강조하는 핵심 메시지와 가격 정책을 표로 만들어줘." },
+      { title: "주제별 자료 비교표", desc: "[주제]에 대한 최신 자료 5개를 찾아 각각 핵심 주장·근거·출처를 정리하고, 공통점과 의견이 갈리는 지점을 비교표로 만들어줘." },
+      { title: "약관 독소조항 추출", desc: "[약관/계약서]를 읽고 나에게 불리할 수 있는 조항(자동연장·면책조건·위약금만 보고, 법인의 제한조건)만 따로 표로 정리해. 초보도 이해할 수 있게 쉬운 말로." },
+    ],
+  },
+  {
+    id: "A-13", num: 13, cat: "리서치·데이터", catColor: "#6366F1",
+    name: "데이터 집계·분석", tools: "Claude + Sheets", star: false,
+    items: [
+      { title: "집계 + 의미 해석", desc: "시트의 원본 데이터로 항목별 합계·평균·증감률을 계산하고, 결과마다 '이게 왜 중요한지' 한 줄씩 붙여. 평소와 크게 다른 이상치 3개는 원인 가설까지, 끝에 '다음에 확인할 것' 액션 하나를 남겨줘." },
+      { title: "설문 응답 분석", desc: "[설문 응답]을 분석해 핵심 인사이트 3가지를 뽑고, 자유응답은 주제별로 묶어 빈도순으로 정리해. 어떤 차트로 보여주면 좋을지도 제안해줘." },
+      { title: "매출 패턴·이상치", desc: "[매출 데이터]에서 요일·시간·상품별 패턴과 평소와 다른 이상치를 찾아, '잘 팔리는 조합'과 '문제 구간'을 짚어줘." },
+      { title: "고객 세그먼트 분류", desc: "[고객 명단/구매이력]을 구매빈도·금액·최근성 기준으로 3~4개 그룹으로 나누고, 각 그룹에 맞는 접근법을 한 줄씩 제안해줘." },
+    ],
+  },
+  {
+    id: "A-14", num: 14, cat: "리서치·데이터", catColor: "#6366F1",
+    name: "트렌드 리서치 자동화", tools: "Apify + Claude + Notion", star: false,
+    items: [
+      { title: "최신글 수집·정리", desc: "등록한 키워드로 최신 글·영상을 매주 수집하고 중복은 제거해. 반복 주제를 '지금 뜨는 것 3 / 지는 것 1'로 묶고 근거 한 줄과 출처를 첨부해, Notion '트렌드' DB에 주차별 카드로 쌓아줘." },
+      { title: "키워드 인기도 추적", desc: "[해시태그/키워드 목록]의 최근 노출·언급 추이를 추적해, 상승 중인 것과 하락 중인 것을 그래프용 표로 정리해줘." },
+      { title: "경쟁 콘텐츠 모니터링", desc: "[경쟁 브랜드 계정]의 최근 게시물을 모아 자주 다루는 주제·형식·반응 좋은 것을 정리하고, 내가 참고할 포인트를 짚어줘." },
+      { title: "업계 주간 다이제스트", desc: "[업계] 관련 이번 주 뉴스·이슈를 모아 '꼭 알아야 할 것 5개'로 요약하고, 각각 나에게 주는 시사점을 한 줄씩 붙여줘." },
+    ],
+  },
+  /* ── 콘텐츠·디자인 ── */
+  {
+    id: "A-07", num: 7, cat: "콘텐츠·디자인", catColor: "#F59E0B",
+    name: "영상 → 요약·대본", tools: "YouTube + Claude", star: true,
+    items: [
+      { title: "영상 요약 + 블로그 초안", desc: "유튜브 링크를 주면 자막 기반으로 흐름을 7줄로 요약하고, 인용할 문장 3개를 타임스탬프와 함께 뽑아. 전문 용어는 쉽게 풀고, 마지막에 이 내용을 누끼토끼 톤의 블로그 도입 한 단락으로 변환해줘." },
+      { title: "긴 영상 → 숏폼 3개", desc: "내 [긴 영상 대본]을 독립적으로 봐도 되는 숏폼 3개로 쪼개. 각각 훅(첫 3초)-본문-마무리 구조로 다시 써줘." },
+      { title: "경쟁 채널 인사이트", desc: "[경쟁 채널 영상] 5개를 분석해 공통된 주제·구성·훅 패턴을 찾아, 내가 따라 할 기획 포인트 3가지를 제안해줘." },
+      { title: "챕터·타임스탬프 생성", desc: "영상 자막을 바탕으로 내용이 바뀌는 지점마다 챕터를 나누고, '타임스탬프 + 챕터 제목' 목록을 영상 설명란에 넣게 정리해줘." },
+    ],
+  },
+  {
+    id: "A-12", num: 12, cat: "콘텐츠·디자인", catColor: "#F59E0B",
+    name: "글 → 릴스 영상", tools: "Claude + Higgsfield", star: true,
+    items: [
+      { title: "대본 → 컷 분할·생성", desc: "릴스 대본을 5~7개 컷으로 나누고, 컷마다 '화면에 보일 것 / 자막 / 영상 생성 프롬프트(영문)'를 표로, 세로 9:16으로 고정해. 그 프롬프트를 Higgsfield에 넣어 컷별 영상을 만들고 대본 순서대로 이어 붙여줘." },
+      { title: "블로그 → 릴스 대본", desc: "[블로그 글]에서 가장 흥미로운 포인트 하나를 골라 30초 릴스 대본으로 바꿔. 첫 3초 훅, 본문 3컷, 마무리 CTA 구조로 써줘." },
+      { title: "제품 설명 → 광고 컷", desc: "[제품 설명]을 보고 '문제 제기 → 제품 등장 → 핵심 혜택 3컷 → 행동 유도' 흐름의 광고 컷 구성과 영상 프롬프트를 만들어줘." },
+      { title: "후기 → 숏폼 스토리", desc: "[고객 후기]를 1인칭 스토리 릴스로 바꿔. '이런 고민이 있었다 → 써봤다 → 이렇게 달라졌다' 흐름의 컷과 자막으로 구성해줘." },
     ],
   },
 ];
@@ -1229,6 +1372,27 @@ export default function BALMYGARDENDashboard() {
               </div>
             </div>
 
+            {/* 도구 연결 현황 */}
+            <div style={{ ...S.card(), marginBottom: "14px" }}>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>🔌 도구 연결 현황</div>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(5,1fr)", gap: "8px" }}>
+                {[
+                  { name: "Notion", icon: "📒", status: "연결됨", color: "#10B981", note: "자동 로깅 ON" },
+                  { name: "Google Drive", icon: "📁", status: "연결됨", color: "#1a73e8", note: "읽기 가능" },
+                  { name: "Slack", icon: "💬", status: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "연결됨" : "미연결", color: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "#22C55E" : "#475569", note: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "알림 ON" : "Bot Token 필요" },
+                  { name: "Zapier MCP", icon: "⚡", status: "대기", color: "#F59E0B", note: "9,000+ 앱 허브" },
+                  { name: "Higgsfield", icon: "🎬", status: "제한됨", color: "#7C3AED", note: "LOD 전용 (CEO 승인)" },
+                ].map((t) => (
+                  <div key={t.name} style={{ padding: "10px", background: "#111827", borderRadius: "8px", borderLeft: `3px solid ${t.color}` }}>
+                    <div style={{ fontSize: "16px", marginBottom: "4px" }}>{t.icon}</div>
+                    <div style={{ fontSize: "11px", fontWeight: "700", color: t.color }}>{t.name}</div>
+                    <div style={{ fontSize: "10px", color: t.color === "#475569" ? "#475569" : "#64748b", marginTop: "2px" }}>● {t.status}</div>
+                    <div style={{ fontSize: "9px", color: "#334155", marginTop: "3px" }}>{t.note}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* 7단계 레벨 현황 */}
             <div style={{ ...S.card(), marginBottom: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
@@ -1839,13 +2003,64 @@ export default function BALMYGARDENDashboard() {
         {/* ══════ PROMPTS ══════ */}
         {tab === "prompts" && (
           <div>
-            <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
-              {["학습", "마케팅", "훅"].map((t) => (
+            <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
+              {["자동화", "학습", "마케팅", "훅"].map((t) => (
                 <button key={t} style={S.tabBtn(promptTab === t)} onClick={() => setPromptTab(t)}>
-                  {t === "학습" ? "🧠 학습 강화" : t === "마케팅" ? "📣 마케팅" : "💡 훅 문구"}
+                  {t === "자동화" ? "⚡ 자동화60" : t === "학습" ? "🧠 학습 강화" : t === "마케팅" ? "📣 마케팅" : "💡 훅 문구"}
                 </button>
               ))}
             </div>
+
+            {promptTab === "자동화" && (() => {
+              const cats = AUTOMATION_PROMPTS.map(p => p.cat).filter((v, i, a) => a.indexOf(v) === i);
+              const catColors: Record<string, string> = {};
+              AUTOMATION_PROMPTS.forEach(p => { catColors[p.cat] = p.catColor; });
+              return (
+                <div>
+                  <div style={{ ...S.card("#06B6D422"), marginBottom: "16px", padding: "14px 18px" }}>
+                    <div style={{ fontSize: "14px", fontWeight: "800", color: "#67e8f9", marginBottom: "4px" }}>⚡ 업무 자동화 프롬프트 (누끼토끼 정리)</div>
+                    <div style={{ fontSize: "11px", color: "#64748b" }}>4개 카테고리 · ★ = 대표 프롬프트 · Claude Cowork 최적화</div>
+                    <div style={{ marginTop: "8px", padding: "8px 10px", background: "#2d1e0e", border: "1px solid #F59E0B44", borderRadius: "6px", fontSize: "10px", color: "#fbbf24" }}>
+                      ⚠️ 안전 규칙: 발송·결제·삭제처럼 되돌릴 수 없는 일은 자동화 금지. 항상 초안까지만 생성 후 CEO 확인.
+                    </div>
+                  </div>
+                  {cats.map((cat) => {
+                    const catPrompts = AUTOMATION_PROMPTS.filter(p => p.cat === cat);
+                    const color = catColors[cat];
+                    return (
+                      <div key={cat} style={{ marginBottom: "20px" }}>
+                        <div style={{ fontSize: "12px", fontWeight: "700", color, marginBottom: "10px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ padding: "2px 10px", background: color + "22", border: `1px solid ${color}44`, borderRadius: "10px" }}>{cat}</span>
+                          <span style={{ fontSize: "10px", color: "#334155" }}>{catPrompts.length}개 프롬프트</span>
+                        </div>
+                        {catPrompts.map((p) => (
+                          <div key={p.id} style={{ ...S.card(color + "18"), marginBottom: "10px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                              <span style={S.badge(color)}>{p.id}</span>
+                              {p.star && <span style={{ fontSize: "10px", color: "#F59E0B", fontWeight: "700" }}>★ 대표</span>}
+                              <span style={{ fontSize: "13px", fontWeight: "700", color }}>{p.name}</span>
+                              <span style={{ fontSize: "10px", color: "#475569", marginLeft: "auto" }}>{p.tools}</span>
+                            </div>
+                            <div style={{ display: "grid", gap: "6px" }}>
+                              {p.items.map((item, i) => (
+                                <div key={i} style={{ background: "#111827", borderRadius: "8px", padding: "10px 12px" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                                    {i === 0 && p.star && <span style={{ fontSize: "9px", color: "#F59E0B", fontWeight: "700" }}>★</span>}
+                                    <span style={{ fontSize: "11px", fontWeight: "700", color, flex: 1 }}>{item.title}</span>
+                                    <CopyBtn text={item.desc} id={`${p.id}-${i}`} small />
+                                  </div>
+                                  <div style={{ fontSize: "11px", color: "#64748b", lineHeight: "1.6" }}>{item.desc}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
             {promptTab === "학습" && LEARN_PROMPTS.map((p) => (
               <div key={p.id} style={{ ...S.card(), marginBottom: "12px" }}>
