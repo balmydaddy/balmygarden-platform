@@ -737,6 +737,36 @@ interface DecisionEntry {
   tag: "결정" | "변경" | "보류";
 }
 
+interface QGScore {
+  감정전달력: number;
+  기억성: number;
+  독창성: number;
+  스토리: number;
+  상업성: number;
+  가창성: number;
+  제작성: number;
+  브랜딩: number;
+}
+
+interface QGEntry {
+  id: string;
+  gate: number;
+  gateName: string;
+  track: string;
+  scores: QGScore;
+  pass: boolean;
+  date: string;
+  feedback: string;
+}
+
+interface ChangelogEntry {
+  version: string;
+  date: string;
+  type: "신규" | "수정" | "삭제" | "보류";
+  desc: string;
+  agent: string;
+}
+
 const GOSARI_PIPELINE: PipelineStep[] = [
   { step: 1,  name: "컨셉 확정",         agent: "SAGE",            wfId: "gosari_world",       desc: "EP 테마·방향성 CEO 승인" },
   { step: 2,  name: "세계관 빌딩",        agent: "SAGE",            wfId: "gosari_world",       desc: "World Building 문서 완성" },
@@ -751,6 +781,41 @@ const GOSARI_PIPELINE: PipelineStep[] = [
   { step: 11, name: "마케팅 · SNS",       agent: "NOVA + SCOUT",    wfId: "gosari_release",     desc: "티저 콘텐츠 + 발매 시퀀스" },
   { step: 12, name: "발매 · 아카이브",    agent: "REX + CONDUCTOR", wfId: "gosari_release",     desc: "D-Day 발매 + 결과 기록" },
 ];
+
+/* ══════════════════════════════════════════════════════
+   QUALITY GATE SYSTEM
+══════════════════════════════════════════════════════ */
+const GOSARI_GATES = [
+  { gate: 1,  name: "컨셉 게이트",          agent: "SAGE + CONDUCTOR",    desc: "EP 테마·방향성 + 세계관 일관성 검증" },
+  { gate: 2,  name: "세계관 게이트",         agent: "SAGE + AEGIS",        desc: "World Building 완성도 + 법무 리스크" },
+  { gate: 3,  name: "트랙 구조 게이트",      agent: "SAGE + CONDUCTOR",    desc: "6트랙 컨셉·감정 흐름 승인" },
+  { gate: 4,  name: "시나리오 게이트",        agent: "SAGE + LYRA",         desc: "Scene 설계 완성 + LYRA 인수인계" },
+  { gate: 5,  name: "가사 품질 게이트",      agent: "LYRA + AEGIS",        desc: "가사 자체 리뷰 8/10 이상 (장면·감정·심볼)" },
+  { gate: 6,  name: "Suno 프롬프트 게이트",  agent: "MUSE + CONDUCTOR",    desc: "태그·무드 3방향성 완성" },
+  { gate: 7,  name: "음원 선택 게이트",      agent: "MUSE + CEO",          desc: "20~50버전 생성 → CEO 최종 선택" },
+  { gate: 8,  name: "비주얼 게이트",         agent: "STROBE + MUSE",       desc: "앨범아트 컨셉 + MV 스토리보드" },
+  { gate: 9,  name: "MV 스토리보드 게이트",  agent: "STROBE + AEGIS",      desc: "핵심 신 5개 완성 + 비주얼 QA" },
+  { gate: 10, name: "발매 패키지 게이트",    agent: "REX + AEGIS",         desc: "DistroKid 메타데이터 검수" },
+  { gate: 11, name: "마케팅 게이트",         agent: "NOVA + SCOUT",        desc: "티저 콘텐츠 + 발매 시퀀스 완성" },
+  { gate: 12, name: "최종 품질 게이트",      agent: "CONDUCTOR + AEGIS",   desc: "전체 QA 95/100 통과 → CEO 보고" },
+];
+
+const QG_CATEGORIES: (keyof QGScore)[] = [
+  "감정전달력", "기억성", "독창성", "스토리", "상업성", "가창성", "제작성", "브랜딩",
+];
+
+const QG_CATEGORY_AGENT: Record<string, string> = {
+  감정전달력: "LYRA",
+  기억성: "MUSE",
+  독창성: "SAGE",
+  스토리: "SAGE",
+  상업성: "NOVA",
+  가창성: "LYRA",
+  제작성: "MUSE",
+  브랜딩: "CONDUCTOR",
+};
+
+const GOSARI_TRACKS = ["늦게 알았네", "고사리", "큰 손", "사진 한 장", "떠난 기차", "봄은 또 오더라"];
 
 /* ══════════════════════════════════════════════════════
    DIRECT CHAT — single agent
@@ -829,6 +894,41 @@ export default function BALMYGARDENDashboard() {
   const [newDecision, setNewDecision] = useState("");
   const [newDecisionTag, setNewDecisionTag] = useState<"결정" | "변경" | "보류">("결정");
   const [projectSaving, setProjectSaving] = useState(false);
+
+  // Quality Gate System
+  const emptyQGScore = (): QGScore => ({ 감정전달력: 0, 기억성: 0, 독창성: 0, 스토리: 0, 상업성: 0, 가창성: 0, 제작성: 0, 브랜딩: 0 });
+  const [activeQG, setActiveQG] = useState(12);
+  const [qgTrack, setQgTrack] = useState("늦게 알았네");
+  const [qgScores, setQgScores] = useState<QGScore>(emptyQGScore());
+  const [qgFeedback, setQgFeedback] = useState("");
+  const [qgHistory, setQgHistory] = useState<QGEntry[]>([]);
+  const [changelog, setChangelog] = useState<ChangelogEntry[]>([
+    { version: "v3.2", date: "2026-06-27", type: "신규", desc: "MUSIC OS v1.0 + GOSARI 프로젝트 탭 + 예약 탭 + 자동 Notion 저장", agent: "ZERO" },
+    { version: "v3.1", date: "2026-06-25", type: "수정", desc: "병렬 에이전트 실행 + 팀 모드 + Google Drive 연동", agent: "ZERO" },
+    { version: "v3.0", date: "2026-06-24", type: "신규", desc: "9 에이전트 시스템 + MCP Notion 로깅 + 7단계 가이드", agent: "ZERO" },
+  ]);
+  const [newChangelogDesc, setNewChangelogDesc] = useState("");
+  const [newChangelogType, setNewChangelogType] = useState<"신규" | "수정" | "삭제" | "보류">("신규");
+  const [newChangelogAgent, setNewChangelogAgent] = useState("ZERO");
+
+  const qgTotal = (s: QGScore) => Math.round(Object.values(s).reduce((a, b) => a + b, 0) / QG_CATEGORIES.length);
+  const qgPass = (s: QGScore) => Object.values(s).every((v) => v >= 90);
+  const submitQG = () => {
+    const gate = GOSARI_GATES.find((g) => g.gate === activeQG)!;
+    const entry: QGEntry = {
+      id: Date.now().toString(),
+      gate: activeQG,
+      gateName: gate.name,
+      track: qgTrack,
+      scores: { ...qgScores },
+      pass: qgPass(qgScores),
+      date: new Date().toISOString(),
+      feedback: qgFeedback,
+    };
+    setQgHistory((prev) => [entry, ...prev]);
+    setQgScores(emptyQGScore());
+    setQgFeedback("");
+  };
 
   // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
@@ -1283,6 +1383,7 @@ export default function BALMYGARDENDashboard() {
             { id: "content", label: "📝 콘텐츠" },
             { id: "system", label: "⚙️ 시스템" },
             { id: "ladder", label: "📈 사다리" },
+            { id: "qg", label: "🎯 QG" },
             { id: "history", label: "📒 히스토리" },
             { id: "guide", label: "📚 가이드" },
           ].map((t) => (
@@ -2550,6 +2651,282 @@ export default function BALMYGARDENDashboard() {
                   <div style={{ fontSize: "10px", color: "#a78bfa" }}>감정: {t.emotion}</div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════ QUALITY GATE ══════ */}
+        {tab === "qg" && (
+          <div>
+            {/* 헤더 */}
+            <div style={{ ...S.card("#7C3AED44"), marginBottom: "16px", padding: "16px 20px" }}>
+              <div style={{ fontSize: "15px", fontWeight: "800", color: "#a78bfa", marginBottom: "4px" }}>🎯 BALMY MUSIC OS — Quality Gate System</div>
+              <div style={{ fontSize: "11px", color: "#64748b" }}>QG-01~12 · 8개 평가 항목 · 전항목 90점 이상 = PASS · 하나라도 미달 = FAIL → 개선 루프</div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+              {/* 왼쪽: 채점 패널 */}
+              <div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>채점 입력</div>
+
+                {/* 게이트 선택 */}
+                <div style={{ ...S.card(), marginBottom: "10px" }}>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>게이트 선택 (QG-01~12)</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                    {GOSARI_GATES.map((g) => (
+                      <button
+                        key={g.gate}
+                        onClick={() => setActiveQG(g.gate)}
+                        style={{
+                          padding: "3px 8px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", border: "none",
+                          background: activeQG === g.gate ? "#7C3AED" : "#1e293b",
+                          color: activeQG === g.gate ? "#fff" : "#64748b",
+                          fontWeight: activeQG === g.gate ? "700" : "400",
+                        }}
+                      >
+                        QG-{String(g.gate).padStart(2, "0")}
+                      </button>
+                    ))}
+                  </div>
+                  {(() => {
+                    const g = GOSARI_GATES.find((x) => x.gate === activeQG)!;
+                    return (
+                      <div style={{ marginTop: "10px", padding: "8px 10px", background: "#111827", borderRadius: "6px" }}>
+                        <div style={{ fontSize: "12px", fontWeight: "700", color: "#a78bfa" }}>QG-{String(g.gate).padStart(2, "0")} {g.name}</div>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>담당: {g.agent}</div>
+                        <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "2px" }}>{g.desc}</div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* 트랙 선택 */}
+                <div style={{ ...S.card(), marginBottom: "10px" }}>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>트랙 선택</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                    {GOSARI_TRACKS.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setQgTrack(t)}
+                        style={{
+                          padding: "3px 8px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", border: "none",
+                          background: qgTrack === t ? "#0369A1" : "#1e293b",
+                          color: qgTrack === t ? "#fff" : "#64748b",
+                        }}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 8개 항목 채점 */}
+                <div style={{ ...S.card(), marginBottom: "10px" }}>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "10px" }}>8개 평가 항목 (0~100점, 전항목 90+ = PASS)</div>
+                  {QG_CATEGORIES.map((cat) => {
+                    const score = qgScores[cat];
+                    const ok = score >= 90;
+                    const color = score === 0 ? "#334155" : ok ? "#22C55E" : "#EF4444";
+                    return (
+                      <div key={cat} style={{ marginBottom: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
+                          <span style={{ fontSize: "11px", minWidth: "64px", color: "#94a3b8" }}>{cat}</span>
+                          <span style={{ fontSize: "9px", color: "#475569", minWidth: "50px" }}>담당: {QG_CATEGORY_AGENT[cat]}</span>
+                          <div style={{ flex: 1, background: "#1e293b", borderRadius: "3px", height: "5px", overflow: "hidden" }}>
+                            <div style={{ width: `${score}%`, height: "100%", background: color, transition: "width 0.3s, background 0.3s" }} />
+                          </div>
+                          <input
+                            type="number" min={0} max={100}
+                            value={score === 0 ? "" : score}
+                            onChange={(e) => {
+                              const v = Math.min(100, Math.max(0, Number(e.target.value) || 0));
+                              setQgScores((prev) => ({ ...prev, [cat]: v }));
+                            }}
+                            placeholder="0"
+                            style={{
+                              width: "44px", padding: "2px 4px", background: "#111827",
+                              border: `1px solid ${color}`, borderRadius: "4px",
+                              color: "#e2e8f0", fontSize: "11px", textAlign: "center",
+                            }}
+                          />
+                          <span style={{ fontSize: "10px", color, minWidth: "28px", fontWeight: "700" }}>
+                            {score === 0 ? "—" : ok ? "✓" : "✗"}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* 총점 및 PASS/FAIL */}
+                  <div style={{ marginTop: "12px", padding: "10px 12px", borderRadius: "8px", background: qgPass(qgScores) ? "#0d2e14" : Object.values(qgScores).every((v) => v === 0) ? "#111827" : "#2d1010", border: `1px solid ${qgPass(qgScores) ? "#22C55E" : Object.values(qgScores).every((v) => v === 0) ? "#1e293b" : "#EF4444"}` }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ fontSize: "20px", fontWeight: "800", color: qgPass(qgScores) ? "#22C55E" : Object.values(qgScores).every((v) => v === 0) ? "#475569" : "#EF4444" }}>
+                          {Object.values(qgScores).every((v) => v === 0) ? "미입력" : qgPass(qgScores) ? "PASS" : "FAIL"}
+                        </div>
+                        <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
+                          평균 {qgTotal(qgScores)}점 · 미달 항목: {QG_CATEGORIES.filter((c) => qgScores[c] > 0 && qgScores[c] < 90).join(", ") || "없음"}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: "28px", fontWeight: "900", color: "#a78bfa" }}>{qgTotal(qgScores)}</div>
+                        <div style={{ fontSize: "9px", color: "#475569" }}>/ 100</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* FAIL 시 피드백 */}
+                {!qgPass(qgScores) && Object.values(qgScores).some((v) => v > 0) && (
+                  <div style={{ ...S.card("#EF444422"), marginBottom: "10px" }}>
+                    <div style={{ fontSize: "11px", color: "#fca5a5", marginBottom: "6px" }}>개선 루프 — 피드백 입력</div>
+                    <textarea
+                      value={qgFeedback}
+                      onChange={(e) => setQgFeedback(e.target.value)}
+                      placeholder={`미달 항목: ${QG_CATEGORIES.filter((c) => qgScores[c] > 0 && qgScores[c] < 90).join(", ")} — 구체적 개선 방향을 입력하세요`}
+                      style={{ width: "100%", padding: "8px", background: "#0d1117", border: "1px solid #EF444444", borderRadius: "6px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "60px", boxSizing: "border-box" }}
+                    />
+                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "4px" }}>
+                      담당 에이전트: {QG_CATEGORIES.filter((c) => qgScores[c] > 0 && qgScores[c] < 90).map((c) => QG_CATEGORY_AGENT[c]).filter((v, i, a) => a.indexOf(v) === i).join(", ")} → 수정 후 재평가
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={submitQG}
+                  disabled={Object.values(qgScores).every((v) => v === 0)}
+                  style={{ width: "100%", padding: "10px", background: Object.values(qgScores).every((v) => v === 0) ? "#1e293b" : "#7C3AED", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: Object.values(qgScores).every((v) => v === 0) ? "not-allowed" : "pointer" }}
+                >
+                  QG 평가 기록 저장
+                </button>
+              </div>
+
+              {/* 오른쪽: 평가 히스토리 + CHANGELOG */}
+              <div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>평가 기록</div>
+                {qgHistory.length === 0 ? (
+                  <div style={{ ...S.card(), marginBottom: "10px", textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>
+                    평가 기록 없음 — 왼쪽에서 채점 후 저장
+                  </div>
+                ) : (
+                  <div style={{ marginBottom: "10px" }}>
+                    {qgHistory.map((e) => (
+                      <div key={e.id} style={{ ...S.card(e.pass ? "#22C55E33" : "#EF444433"), marginBottom: "6px", padding: "10px 14px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}>
+                          <span style={{ fontSize: "11px", fontWeight: "800", color: e.pass ? "#22C55E" : "#EF4444" }}>{e.pass ? "PASS" : "FAIL"}</span>
+                          <span style={{ ...S.badge("#7C3AED") }}>QG-{String(e.gate).padStart(2, "0")}</span>
+                          <span style={{ fontSize: "11px", color: "#94a3b8" }}>{e.gateName}</span>
+                          <span style={{ fontSize: "10px", color: "#475569", marginLeft: "auto" }}>{new Date(e.date).toLocaleString("ko-KR")}</span>
+                        </div>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "4px" }}>트랙: {e.track} · 평균 {qgTotal(e.scores)}점</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "3px" }}>
+                          {QG_CATEGORIES.map((c) => (
+                            <span key={c} style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "3px", background: e.scores[c] >= 90 ? "#22C55E22" : "#EF444422", color: e.scores[c] >= 90 ? "#86efac" : "#fca5a5", border: `1px solid ${e.scores[c] >= 90 ? "#22C55E44" : "#EF444444"}` }}>
+                              {c} {e.scores[c]}
+                            </span>
+                          ))}
+                        </div>
+                        {e.feedback && (
+                          <div style={{ fontSize: "10px", color: "#fca5a5", marginTop: "4px", padding: "4px 6px", background: "#2d1010", borderRadius: "4px" }}>
+                            개선 피드백: {e.feedback}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => setQgHistory((prev) => prev.filter((x) => x.id !== e.id))}
+                          style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* CHANGELOG */}
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px", marginTop: "4px" }}>CHANGELOG</div>
+                <div style={{ ...S.card(), marginBottom: "10px" }}>
+                  <div style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
+                    <input
+                      value={newChangelogDesc}
+                      onChange={(e) => setNewChangelogDesc(e.target.value)}
+                      placeholder="변경 내용 입력"
+                      style={{ flex: 1, minWidth: "120px", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}
+                    />
+                    <select
+                      value={newChangelogType}
+                      onChange={(e) => setNewChangelogType(e.target.value as "신규" | "수정" | "삭제" | "보류")}
+                      style={{ padding: "5px 6px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}
+                    >
+                      {(["신규", "수정", "삭제", "보류"] as const).map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <select
+                      value={newChangelogAgent}
+                      onChange={(e) => setNewChangelogAgent(e.target.value)}
+                      style={{ padding: "5px 6px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}
+                    >
+                      {Object.keys(AGENTS).map((k) => <option key={k} value={k}>{k}</option>)}
+                    </select>
+                    <button
+                      onClick={() => {
+                        if (!newChangelogDesc.trim()) return;
+                        const lastVer = changelog[0]?.version ?? "v3.2";
+                        const parts = lastVer.replace("v", "").split(".");
+                        const next = `v${parts[0]}.${Number(parts[1]) + 1}`;
+                        setChangelog((prev) => [{ version: next, date: new Date().toISOString().slice(0, 10), type: newChangelogType, desc: newChangelogDesc.trim(), agent: newChangelogAgent }, ...prev]);
+                        setNewChangelogDesc("");
+                      }}
+                      style={{ padding: "5px 10px", background: "#6366F1", border: "none", borderRadius: "5px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                    >
+                      추가
+                    </button>
+                  </div>
+                  {changelog.map((c, i) => {
+                    const typeColor: Record<string, string> = { 신규: "#22C55E", 수정: "#06B6D4", 삭제: "#EF4444", 보류: "#F59E0B" };
+                    return (
+                      <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start", padding: "6px 0", borderBottom: "1px solid #1e293b" }}>
+                        <span style={{ fontSize: "10px", color: "#a78bfa", fontWeight: "700", minWidth: "34px" }}>{c.version}</span>
+                        <span style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "3px", background: (typeColor[c.type] ?? "#94a3b8") + "22", color: typeColor[c.type] ?? "#94a3b8", border: `1px solid ${(typeColor[c.type] ?? "#94a3b8")}44`, whiteSpace: "nowrap", marginTop: "1px" }}>{c.type}</span>
+                        <span style={{ flex: 1, fontSize: "11px", color: "#94a3b8" }}>{c.desc}</span>
+                        <span style={{ fontSize: "9px", color: "#475569", whiteSpace: "nowrap" }}>{c.agent}</span>
+                        <span style={{ fontSize: "9px", color: "#334155", whiteSpace: "nowrap" }}>{c.date}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* 게이트 전체 현황 */}
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>QG 전체 현황 — QG-01~12</div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "8px" }}>
+              {GOSARI_GATES.map((g) => {
+                const passed = qgHistory.filter((h) => h.gate === g.gate && h.pass).length;
+                const failed = qgHistory.filter((h) => h.gate === g.gate && !h.pass).length;
+                const status = passed > 0 ? "pass" : failed > 0 ? "fail" : "pending";
+                const color = status === "pass" ? "#22C55E" : status === "fail" ? "#EF4444" : "#334155";
+                return (
+                  <div
+                    key={g.gate}
+                    onClick={() => setActiveQG(g.gate)}
+                    style={{ ...S.card(color + "44"), cursor: "pointer", borderLeft: `3px solid ${color}` }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+                      <span style={{ fontSize: "10px", fontWeight: "700", color }}>QG-{String(g.gate).padStart(2, "0")}</span>
+                      <span style={{ fontSize: "10px", fontWeight: "700", color: "#e2e8f0" }}>{g.name}</span>
+                      <span style={{ marginLeft: "auto", fontSize: "11px" }}>
+                        {status === "pass" ? "✅" : status === "fail" ? "❌" : "⏳"}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: "9px", color: "#475569" }}>{g.agent}</div>
+                    <div style={{ fontSize: "9px", color: "#334155", marginTop: "2px" }}>{g.desc}</div>
+                    {(passed > 0 || failed > 0) && (
+                      <div style={{ fontSize: "9px", color: "#64748b", marginTop: "4px" }}>
+                        PASS {passed}회 / FAIL {failed}회
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

@@ -5,7 +5,7 @@
 
 ---
 
-## 핵심 메모리 (19개 항목)
+## 핵심 메모리 (20개 항목)
 
 | ID | 태그 | 내용 |
 |----|------|------|
@@ -28,6 +28,7 @@
 | M-17 | MUSIC OS | BALMY MUSIC OS v1.0 파이프라인 12단계. 담당: SAGE→LYRA→MUSE→STROBE→NOVA→REX. |
 | M-18 | GOSARI | PROJECT GOSARI EP 6트랙. 테마: 시간. 효도송 아님. 장면 우선, 진심 우선. |
 | M-19 | 제작규칙 | MUSIC OS 절대 규칙: 가사 먼저 쓰지 않는다. SAGE 없이 LYRA 단독 작성 금지. |
+| M-20 | QG | Quality Gate 12단계 × 8항목(감정전달력·기억성·독창성·스토리·상업성·가창성·제작성·브랜딩). 전항목 90+ = PASS. FAIL 시 담당 에이전트 개선 루프. |
 
 ---
 
@@ -57,4 +58,4 @@
 
 ---
 
-_Last updated: 2026.06.28 — Dashboard v3.2_
+_Last updated: 2026.06.28 — Dashboard v3.2.1_
