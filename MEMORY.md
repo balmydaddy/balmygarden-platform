@@ -35,7 +35,9 @@
 | M-24 | Conflict | Creative Conflict: 에이전트 병렬 토론 → CONDUCTOR 결정 → DecisionLog 자동 기록 → CEO Approval Gate (이중 승인). |
 | M-25 | GOSARI | GOSARI Creative Bible: 장르=Modern Emotional Trot. North Star="눈물을 강요하지 말고, 기억을 깨워라." QG 97.25 PASS. |
 | M-26 | GOSARI | Core Emotion 순서: 공감→미소→회상→먹먹함→감사→희망. 먹먹함=결과, 감사=목적. 필수요소: 손·사진·집·밥·전화·시간·아이·부모·일상. |
-| M-27 | GOSARI | 현재 진행 상태: 컨셉PASS·세계관90%·감정흐름PASS·Creative Bible Draft v0.1. 다음 = STEP 5 Track 1 Scene Board (SAGE 담당). |
+| M-27 | GOSARI | 현재 진행 상태: Creative Bible PASS·Scene Board PASS(97.6). 다음 = STEP 6 Track 1 작사 (LYRA 담당). |
+| M-28 | GOSARI | T01 Scene Board 10장면 (06-B 추가). 06-B = 새벽 양육 장면. "그날도 엄마는 이랬겠구나" → 가사 직접 서술 금지. 장면으로 전달. |
+| M-29 | LYRA규칙 | T01 작사 규칙: ① Scene 순서 변경 불가 ② 장면 추가·삭제 불가 ③ 06-B 핵심감정 설명형 서술 금지 ④ Required Elements Symbol 해당 Scene 포함 필수. |
 
 ---
 

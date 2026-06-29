@@ -28,6 +28,9 @@
 | 2026.06.29 | [결정] | STEP 2 | 필수 요소 9개: 손·사진·집·밥·전화·시간·아이·부모·일상 | 구체성 확보, 추상 금지 | 가사 작성 체크리스트 기준 |
 | 2026.06.29 | [결정] | STEP 2 | QG 97.25 PASS → Creative Bible Draft v0.1 확정 | CEO 서명 전 CONDUCTOR 최종 확인 대기 | STEP 3~5 진행 가능 |
 | 2026.06.29 | [결정] | STEP 5 | Track 1 "늦게 알았네" — Scene Board 먼저 (가사 이전) | MUSIC OS 절대규칙 준수 | LYRA 작성 전 SAGE Scene Board 완료 필수 |
+| 2026.06.29 | [결정] | STEP 5 | Scene Board 9장면 확정 (Scene 01~09) + CONDUCTOR 제안 Scene 06-B 채택 | Core Theme 연결 강화 필요 | 총 10개 장면. 06-B = "새벽 3시 양육 장면" — '부모가 되는 순간 부모를 이해함' 핵심 폭발점 |
+| 2026.06.29 | [결정] | STEP 5 | Scene 06-B 핵심 감정 "그날도 엄마는 이랬겠구나" → 가사에 직접 등장 금지 | "장면이 말하게 한다" 원칙 | LYRA는 장면으로만 전달, 설명형 서술 절대 금지 |
+| 2026.06.29 | [결정] | STEP 5 | QG 97.6 PASS → LYRA 인수인계 조건 충족 | Scene Board 완성도 확인 | STEP 6 LYRA 작사 착수 가능 상태 |
 
 ---
 
