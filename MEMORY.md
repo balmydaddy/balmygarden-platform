@@ -33,6 +33,9 @@
 | M-22 | Creative | Creative Bible + Style Guide 확정 필수. SAGE+CEO 서명 전 LYRA 작성 불가. MUSIC OS 절대 순서: OS검증→Bible승인→컨셉→세계관→트랙→시나리오→가사→Suno→음원선택→비주얼→MV→발매패키지→마케팅→발매아카이브. |
 | M-23 | Review | Production Memory = PM-001 형식. 성공 패턴 90점+ 사례만 저장. 다음 트랙 재사용 기준. |
 | M-24 | Conflict | Creative Conflict: 에이전트 병렬 토론 → CONDUCTOR 결정 → DecisionLog 자동 기록 → CEO Approval Gate (이중 승인). |
+| M-25 | GOSARI | GOSARI Creative Bible: 장르=Modern Emotional Trot. North Star="눈물을 강요하지 말고, 기억을 깨워라." QG 97.25 PASS. |
+| M-26 | GOSARI | Core Emotion 순서: 공감→미소→회상→먹먹함→감사→희망. 먹먹함=결과, 감사=목적. 필수요소: 손·사진·집·밥·전화·시간·아이·부모·일상. |
+| M-27 | GOSARI | 현재 진행 상태: 컨셉PASS·세계관90%·감정흐름PASS·Creative Bible Draft v0.1. 다음 = STEP 5 Track 1 Scene Board (SAGE 담당). |
 
 ---
 
@@ -62,4 +65,4 @@
 
 ---
 
-_Last updated: 2026.06.28 — Dashboard v4.0_
+_Last updated: 2026.06.29 — Dashboard v4.0_
