@@ -37,7 +37,9 @@
 | M-26 | GOSARI | Core Emotion 순서: 공감→미소→회상→먹먹함→감사→희망. 먹먹함=결과, 감사=목적. 필수요소: 손·사진·집·밥·전화·시간·아이·부모·일상. |
 | M-27 | GOSARI | 현재 진행 상태: Creative Bible PASS·Scene Board PASS(97.6). 다음 = STEP 6 Track 1 작사 (LYRA 담당). |
 | M-28 | GOSARI | T01 Scene Board 10장면 (06-B 추가). 06-B = 새벽 양육 장면. "그날도 엄마는 이랬겠구나" → 가사 직접 서술 금지. 장면으로 전달. |
-| M-29 | LYRA규칙 | T01 작사 규칙: ① Scene 순서 변경 불가 ② 장면 추가·삭제 불가 ③ 06-B 핵심감정 설명형 서술 금지 ④ Required Elements Symbol 해당 Scene 포함 필수. |
+| M-29 | LYRA규칙 | T01 작사 규칙: ① Scene 순서 변경 불가 ② 장면 추가·삭제 불가 ③ 06-B 핵심감정 설명형 서술 금지 ④ Required Elements Symbol 해당 Scene 포함 필수 ⑤ Scene 08 이후 대화 가사 금지 ⑥ Cinema Test 통과 후 착수. |
+| M-30 | CinemaTest | MUSIC OS 신규 규칙. 눈 감고 장면이 보이는가? 3항목 Pass(장면 시각화/감정 설명 없이 전달/소리 꺼도 이야기) → LYRA 착수. Fail → SAGE 재작업. |
+| M-31 | T01QG | Scene Board v0.2 QG 98.5 PASS+. Commercial Impact 신규 항목. Scene 08 "상대 목소리 없음" = 청자가 부모 목소리 상상 → 공감 범위 무한 확장 설계. |
 
 ---
 
@@ -67,4 +69,4 @@
 
 ---
 
-_Last updated: 2026.06.29 — Dashboard v4.0_
+_Last updated: 2026.06.29 — Dashboard v4.0 / Cinema Test 추가_
