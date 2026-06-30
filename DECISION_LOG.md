@@ -35,7 +35,12 @@
 | 2026.06.29 | [결정] | STEP 5 | Scene 08 첫 마디 = "엄마… 그냥 전화했어." or "아버지… 별일 없죠?" — 가사에 포함 가능 | 사람은 첫 마디를 기억한다 | 제목 '늦게 알았네'가 후렴과 만나는 연결점 완성 |
 | 2026.06.29 | [결정] | STEP 5 | QG 재평가 → 98.5 PASS+ (Commercial Impact 신규 항목 추가) | v0.1 97.6에서 Scene 08 강화로 재평가 | LYRA 인수인계 조건 최종 확정 |
 | 2026.06.29 | [결정] | OS | Cinema Test = BALMY MUSIC OS 신규 규칙 — 작사 착수 전 3항목 전부 Pass 필수 | '고사리' 경쟁 상대는 트로트 아닌 단편영화 | 모든 이후 트랙·프로젝트에 적용 |
+| 2026.06.30 | [결정] | STEP 5.5 | Producer Blueprint = SAGE와 LYRA 사이 신규 STEP 추가 | 가사 쓰기 전 음악 구조 설계 부재 → Hook·침묵·다이나믹·심볼 타이밍 미확정 상태로 착수 방지 | GOSARI 파이프라인 14→15단계 확장 |
+| 2026.06.30 | [결정] | STEP 5.5 | Production Rule P-07 신규 제정 — "Lyrics를 작성하기 전에 반드시 Producer Blueprint를 먼저 완성한다" | MUSIC OS 절대 규칙 체계화 | SAGE→Producer Blueprint(CONDUCTOR)→LYRA 순서 확정 |
+| 2026.06.30 | [결정] | STEP 5.5 | GOSARI_SONG_BLUEPRINT_T01.md 생성 — Hook Placement·Silence Design·Dynamic Curve·Symbol Timing·Hook Frequency·Breath Point·Cinema Test++ | T01 "늦게 알았네" LYRA 인수인계 조건 완성 | LYRA 착수 직전 8개 체크리스트 확인 필수 |
+| 2026.06.30 | [결정] | STEP 5.5 | "Scene 08이 가장 조용한 순간" = 클라이맥스 설계 원칙 확정 | 감사는 폭발이 아니라 고요함에서 온다 | 동적 곡선 8단계 중 Scene 08 = 50% 최저점 |
+| 2026.06.30 | [결정] | STEP 5.5 | Cinema Test++ 4항목 추가 — Hook 독립 감동/침묵 독립 감동/Symbol 감정 일치/Final Hook 행동 유발 | Scene Board Cinema Test 통과 이후 Producer 단계 추가 검증 | LYRA 착수 전 총 10개 검증 항목 (기존 7+3 추가) |
 
 ---
 
-_Last updated: 2026.06.29 — Dashboard v4.0_
+_Last updated: 2026.06.30 — Dashboard v4.0 / STEP 5.5 Producer Blueprint_

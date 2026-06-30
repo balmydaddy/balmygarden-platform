@@ -40,6 +40,10 @@
 | M-29 | LYRA규칙 | T01 작사 규칙: ① Scene 순서 변경 불가 ② 장면 추가·삭제 불가 ③ 06-B 핵심감정 설명형 서술 금지 ④ Required Elements Symbol 해당 Scene 포함 필수 ⑤ Scene 08 이후 대화 가사 금지 ⑥ Cinema Test 통과 후 착수. |
 | M-30 | CinemaTest | MUSIC OS 신규 규칙. 눈 감고 장면이 보이는가? 3항목 Pass(장면 시각화/감정 설명 없이 전달/소리 꺼도 이야기) → LYRA 착수. Fail → SAGE 재작업. |
 | M-31 | T01QG | Scene Board v0.2 QG 98.5 PASS+. Commercial Impact 신규 항목. Scene 08 "상대 목소리 없음" = 청자가 부모 목소리 상상 → 공감 범위 무한 확장 설계. |
+| M-32 | P-07 | Production Rule P-07: "Lyrics 작성 전 Producer Blueprint 먼저 완성". SAGE→CONDUCTOR(Blueprint)→LYRA 순서 절대 규칙. 블루프린트 없이 LYRA 착수 금지. |
+| M-33 | 파이프라인 | GOSARI 파이프라인 15단계 확정. STEP 6(시나리오)→STEP 7(Producer Blueprint, CONDUCTOR)→STEP 8(가사, LYRA). 기존 7→14단계 전부 +1 이동. |
+| M-34 | Blueprint | GOSARI_SONG_BLUEPRINT_T01.md = T01 "늦게 알았네" Producer Blueprint. Hook Placement/Silence Design/Dynamic Curve/Symbol Timing/Breath Point/Cinema Test++ 포함. QG 97.6 PASS. |
+| M-35 | 설계원칙 | "Scene 08이 가장 조용한 순간이어야 한다. 감사는 폭발이 아니라 고요함에서 온다." Dynamic Curve 최저점=Scene 08(50%). Final Hook="엄마… 그냥 전화했어." = 전체 가사의 도착점. |
 
 ---
 
@@ -69,4 +73,4 @@
 
 ---
 
-_Last updated: 2026.06.29 — Dashboard v4.0 / Cinema Test 추가_
+_Last updated: 2026.06.30 — Dashboard v4.0 / STEP 5.5 Producer Blueprint + P-07_

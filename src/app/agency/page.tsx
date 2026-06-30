@@ -803,14 +803,15 @@ const GOSARI_PIPELINE: PipelineStep[] = [
   { step: 4,  name: "세계관 빌딩",          agent: "SAGE",                wfId: "gosari_world",       desc: "World Building 문서 완성" },
   { step: 5,  name: "EP 트랙 구조 설계",    agent: "SAGE",                wfId: "gosari_world",       desc: "6트랙 컨셉·감정 흐름 확정" },
   { step: 6,  name: "시나리오·장면",        agent: "SAGE",                wfId: "gosari_track",       desc: "트랙별 Scene 설계" },
-  { step: 7,  name: "가사 작성·리뷰",      agent: "LYRA",                wfId: "gosari_track",       desc: "가사 + 자체 리뷰 (8/10 이상)" },
-  { step: 8,  name: "Suno AI 프롬프트",    agent: "MUSE",                wfId: "music_suno_prompt",  desc: "태그·무드 3방향성 설계" },
-  { step: 9,  name: "음원 생성·선택",       agent: "MUSE + CEO",          wfId: "music_suno_prompt",  desc: "20~50버전 생성 → CEO 최종 선택" },
-  { step: 10, name: "앨범 아트",            agent: "STROBE + MUSE",       wfId: "gosari_visual",      desc: "비주얼 컨셉 + Midjourney 프롬프트" },
-  { step: 11, name: "MV 스토리보드",        agent: "STROBE",              wfId: "gosari_visual",      desc: "핵심 신 5개 스토리보드" },
-  { step: 12, name: "발매 패키지",           agent: "REX",                 wfId: "gosari_release",     desc: "DistroKid 메타데이터 + 배급 신청" },
-  { step: 13, name: "마케팅·SNS",           agent: "NOVA + SCOUT",        wfId: "gosari_release",     desc: "티저 콘텐츠 + 발매 시퀀스" },
-  { step: 14, name: "발매·아카이브",         agent: "REX + CONDUCTOR",     wfId: "gosari_release",     desc: "D-Day 발매 + 결과 기록" },
+  { step: 7,  name: "Producer Blueprint",  agent: "CONDUCTOR",           wfId: "gosari_track",       desc: "Hook·침묵·다이나믹·심볼 타이밍 설계 (P-07)" },
+  { step: 8,  name: "가사 작성·리뷰",      agent: "LYRA",                wfId: "gosari_track",       desc: "가사 + 자체 리뷰 (8/10 이상)" },
+  { step: 9,  name: "Suno AI 프롬프트",    agent: "MUSE",                wfId: "music_suno_prompt",  desc: "태그·무드 3방향성 설계" },
+  { step: 10, name: "음원 생성·선택",       agent: "MUSE + CEO",          wfId: "music_suno_prompt",  desc: "20~50버전 생성 → CEO 최종 선택" },
+  { step: 11, name: "앨범 아트",            agent: "STROBE + MUSE",       wfId: "gosari_visual",      desc: "비주얼 컨셉 + Midjourney 프롬프트" },
+  { step: 12, name: "MV 스토리보드",        agent: "STROBE",              wfId: "gosari_visual",      desc: "핵심 신 5개 스토리보드" },
+  { step: 13, name: "발매 패키지",           agent: "REX",                 wfId: "gosari_release",     desc: "DistroKid 메타데이터 + 배급 신청" },
+  { step: 14, name: "마케팅·SNS",           agent: "NOVA + SCOUT",        wfId: "gosari_release",     desc: "티저 콘텐츠 + 발매 시퀀스" },
+  { step: 15, name: "발매·아카이브",         agent: "REX + CONDUCTOR",     wfId: "gosari_release",     desc: "D-Day 발매 + 결과 기록" },
 ];
 
 /* ══════════════════════════════════════════════════════
@@ -1553,7 +1554,7 @@ export default function BALMYGARDENDashboard() {
                 { emoji: "🗂️", name: "영수증 OCR 앱", status: "사전 테스팅", color: "#6366F1", detail: "Next.js 14 · Supabase · Gemini API · Vercel" },
                 { emoji: "⚔️", name: "LOD: Lord of Dynasty", status: "프로토타입 완성", color: "#8B5CF6", detail: "React 다크판타지 턴제 RPG · Harness CI/CD" },
                 { emoji: "🎵", name: "BALMYDADDY", status: "배급 중", color: "#F59E0B", detail: "DistroKid · 심포닉 메탈 · 다크판타지 · 복음" },
-                { emoji: "🌿", name: "PROJECT GOSARI", status: gosariStep === 0 ? "OS 구축 중" : gosariStep >= 14 ? "발매 완료" : `STEP ${gosariStep}/14 진행 중`, color: "#7C3AED", detail: `EP 6트랙 · 테마: 시간 · ${gosariStep === 0 ? "Creative Bible 준비 중" : `현재: ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`}` },
+                { emoji: "🌿", name: "PROJECT GOSARI", status: gosariStep === 0 ? "OS 구축 중" : gosariStep >= 15 ? "발매 완료" : `STEP ${gosariStep}/15 진행 중`, color: "#7C3AED", detail: `EP 6트랙 · 테마: 시간 · ${gosariStep === 0 ? "Creative Bible 준비 중" : `현재: ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`}` },
               ].map((p) => (
                 <div key={p.name} style={S.card(p.color + "44")}>
                   <div style={{ fontSize: "22px", marginBottom: "6px" }}>{p.emoji}</div>
@@ -2568,8 +2569,8 @@ export default function BALMYGARDENDashboard() {
               </div>
             </div>
 
-            {/* 12-Step Pipeline Tracker */}
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>📌 STEP 상태 — 12단계 파이프라인</div>
+            {/* 15-Step Pipeline Tracker */}
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>📌 STEP 상태 — 15단계 파이프라인</div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: "8px", marginBottom: "20px" }}>
               {GOSARI_PIPELINE.map((p) => {
                 const done = gosariStep >= p.step;
@@ -2691,7 +2692,7 @@ export default function BALMYGARDENDashboard() {
                       await saveToNotion("save_log", {
                         source: "GOSARI",
                         title: `Decision Log — STEP ${gosariStep} ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`,
-                        content: `📌 STEP 상태: STEP ${gosariStep}/12 — ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? "시작 전"}\n\n📖 결정 사항:\n${content}\n\n🎯 다음 액션: STEP ${gosariStep + 1} — ${GOSARI_PIPELINE[gosariStep]?.name ?? "완료"}`,
+                        content: `📌 STEP 상태: STEP ${gosariStep}/15 — ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? "시작 전"}\n\n📖 결정 사항:\n${content}\n\n🎯 다음 액션: STEP ${gosariStep + 1} — ${GOSARI_PIPELINE[gosariStep]?.name ?? "완료"}`,
                       });
                       setProjectSaving(false);
                     }}
