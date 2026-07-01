@@ -86,11 +86,27 @@
 
 ---
 
+## LYRA 작사 순서 (MUSIC OS 확정 규칙)
+
+> 가사는 앞에서부터 쓰지 않는다. Hook → Bridge → Verse → Intro → Outro 순서.
+
+```
+1. Hook → 2. Final Hook → 3. Bridge → 4. Verse 1 → 5. Verse 2
+→ 6. Intro → 7. Outro → 8. 리듬·운율 검토 → 9. Quality Gate
+```
+
+---
+
 ## 버전별 Style Review 체크리스트
 
 초안 완성 후 LYRA 자체 검토 기준:
 
-- [ ] Cinema Test 3항목 통과 확인 (착수 전)
+**착수 전 (Pre-writing)**
+- [ ] Cinema Test 3항목 통과 확인
+- [ ] Producer Blueprint Emotion Map 숙지
+- [ ] Hook Protection Rule 확인 (후렴 핵심 단어 벌스 사용 금지)
+
+**작성 중 (Writing)**
 - [ ] 생활어 70% 유지되는가
 - [ ] 금지 표현 없는가
 - [ ] 1줄 최대 14음절 이내인가
@@ -99,6 +115,12 @@
 - [ ] Creative Bible Core Emotion과 일치하는가
 - [ ] Scene 08 유형 장면: 상대 반응을 가사에 쓰지 않았는가
 
+**완성 후 (Post-writing)**
+- [ ] Keyword Density 초과 없는가 (P-09 기준)
+- [ ] Emotion Map 강도와 가사 강도가 일치하는가 (P-08)
+- [ ] Hook 핵심 단어가 Chorus 이전 벌스에 없는가 (P-10)
+- [ ] 전체 운율·리듬 검토 완료
+
 ---
 
-_Last updated: 2026.06.29 — MUSIC OS v4.0_
+_Last updated: 2026.07.01 — MUSIC OS v4.0 / P-08+P-09+P-10_

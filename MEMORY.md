@@ -44,6 +44,12 @@
 | M-33 | 파이프라인 | GOSARI 파이프라인 15단계 확정. STEP 6(시나리오)→STEP 7(Producer Blueprint, CONDUCTOR)→STEP 8(가사, LYRA). 기존 7→14단계 전부 +1 이동. |
 | M-34 | Blueprint | GOSARI_SONG_BLUEPRINT_T01.md = T01 "늦게 알았네" Producer Blueprint. Hook Placement/Silence Design/Dynamic Curve/Symbol Timing/Breath Point/Cinema Test++ 포함. QG 97.6 PASS. |
 | M-35 | 설계원칙 | "Scene 08이 가장 조용한 순간이어야 한다. 감사는 폭발이 아니라 고요함에서 온다." Dynamic Curve 최저점=Scene 08(50%). Final Hook="엄마… 그냥 전화했어." = 전체 가사의 도착점. |
+| M-36 | OS선언 | BALMY MUSIC OS = "음악 프로덕션 시스템" (선언 2026-07-01). CEO Vision→Creative Bible→Scene Board→Producer Blueprint→QG→LYRA = 실제 음반사 Pre-production 구조. Production Ready 99.2. |
+| M-37 | P-08 | Emotion Map: Intro=20, Verse1=35, Pre=45, Chorus1=70, Verse2=60, 06-B=85, Chorus2=80, Bridge=90, FinalHook=95, Outro=100. 강도 90+ = 가장 단순한 언어. |
+| M-38 | P-09 | Keyword Density: "늦게 알았네"=6회, 손=4회, 아이=5회, 부모=3회, 고사리=1~2회(Final Hook/Outro 전용·이전 절대금지), 밥·집·사진·전화=각 1~2회. |
+| M-39 | P-10 | Hook Protection Rule: 후렴 핵심 단어("늦게", "알았네", "늦게 알았네")는 Chorus 1 이전 벌스에서 절대 사용 금지. 폭발력 보호 원칙. |
+| M-40 | LYRA순서 | LYRA 작사 순서: 1.Hook→2.Final Hook→3.Bridge→4.Verse1→5.Verse2→6.Intro→7.Outro→8.리듬검토→9.QG. 후렴 먼저 완성 후 벌스 설계. Version 0.1부터 시작. |
+| M-41 | AgentRole | Agent Role Matrix: SAGE=세계관(가사작성금지), CONDUCTOR=프로듀싱(직접작사금지), LYRA=작사(세계관변경금지), MUSE=Suno(스토리변경금지), NOVA=시장성(감정선변경금지). |
 
 ---
 
@@ -73,4 +79,4 @@
 
 ---
 
-_Last updated: 2026.06.30 — Dashboard v4.0 / STEP 5.5 Producer Blueprint + P-07_
+_Last updated: 2026.07.01 — MUSIC OS Production System 선언 / P-08+P-09+P-10_

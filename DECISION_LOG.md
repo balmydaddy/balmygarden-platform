@@ -40,7 +40,14 @@
 | 2026.06.30 | [결정] | STEP 5.5 | GOSARI_SONG_BLUEPRINT_T01.md 생성 — Hook Placement·Silence Design·Dynamic Curve·Symbol Timing·Hook Frequency·Breath Point·Cinema Test++ | T01 "늦게 알았네" LYRA 인수인계 조건 완성 | LYRA 착수 직전 8개 체크리스트 확인 필수 |
 | 2026.06.30 | [결정] | STEP 5.5 | "Scene 08이 가장 조용한 순간" = 클라이맥스 설계 원칙 확정 | 감사는 폭발이 아니라 고요함에서 온다 | 동적 곡선 8단계 중 Scene 08 = 50% 최저점 |
 | 2026.06.30 | [결정] | STEP 5.5 | Cinema Test++ 4항목 추가 — Hook 독립 감동/침묵 독립 감동/Symbol 감정 일치/Final Hook 행동 유발 | Scene Board Cinema Test 통과 이후 Producer 단계 추가 검증 | LYRA 착수 전 총 10개 검증 항목 (기존 7+3 추가) |
+| 2026.07.01 | [결정] | OS | BALMY MUSIC OS 선언: "작사 시스템" → "음악 프로덕션 시스템" | CEO Vision→Creative Bible→Scene Board→Producer Blueprint→QG→LYRA 구조 = 실제 음반사 Pre-production과 동일 | 전 에이전트·전 트랙에 적용 |
+| 2026.07.01 | [결정] | P-08 | Emotion Map 신규 제정 — 섹션별 감정 강도 수치화 (Intro 20 → Outro 100) | 가사 강도 설계 기준 부재 해결 | LYRA 착수 전 Emotion Map 숙지 필수 |
+| 2026.07.01 | [결정] | P-09 | Keyword Density 신규 제정 — 심볼별 최대 사용 횟수 제한 | "고사리" = 1~2회, 희귀할수록 강하다 | LYRA 완성 후 Keyword Density 체크 필수 |
+| 2026.07.01 | [결정] | P-10 | Hook Protection Rule 신규 제정 — 후렴 핵심 단어 벌스 선사용 절대 금지 | Chorus 1 "늦게 알았네" 첫 등장 시 폭발력 보호 | LYRA 작성 중 실시간 적용 |
+| 2026.07.01 | [결정] | LYRA | LYRA 작사 순서 확정: Hook→Final Hook→Bridge→Verse1→Verse2→Intro→Outro→리듬검토→QG | 후렴 없는 상태에서 벌스를 쓰면 방향이 없는 가사가 된다 | 모든 이후 트랙에 적용 |
+| 2026.07.01 | [결정] | OS | Agent Role Matrix 확정 — SAGE(세계관)/CONDUCTOR(프로듀싱)/LYRA(작사)/MUSE(Suno)/NOVA(시장성) 역할·금지사항 | 역할 중복으로 인한 품질 저하 방지 | 블랙박스 배정 금지 원칙(M-07) 강화 |
+| 2026.07.01 | [결정] | LYRA | Version 0.1 원칙 — 첫 가사를 완성본으로 만들려 하지 않는다 | Quality Gate 통과까지 반복 개선이 MUSIC OS 핵심 철학 | LYRA 착수 시 선언 필수 |
 
 ---
 
-_Last updated: 2026.06.30 — Dashboard v4.0 / STEP 5.5 Producer Blueprint_
+_Last updated: 2026.07.01 — MUSIC OS Production System 선언 / P-08+P-09+P-10_
