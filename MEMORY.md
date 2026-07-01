@@ -50,6 +50,13 @@
 | M-39 | P-10 | Hook Protection Rule: 후렴 핵심 단어("늦게", "알았네", "늦게 알았네")는 Chorus 1 이전 벌스에서 절대 사용 금지. 폭발력 보호 원칙. |
 | M-40 | LYRA순서 | LYRA 작사 순서: 1.Hook→2.Final Hook→3.Bridge→4.Verse1→5.Verse2→6.Intro→7.Outro→8.리듬검토→9.QG. 후렴 먼저 완성 후 벌스 설계. Version 0.1부터 시작. |
 | M-41 | AgentRole | Agent Role Matrix: SAGE=세계관(가사작성금지), CONDUCTOR=프로듀싱(직접작사금지), LYRA=작사(세계관변경금지), MUSE=Suno(스토리변경금지), NOVA=시장성(감정선변경금지). |
+| M-42 | P-11 | Rewrite Rule: PASS가 아닌 Freeze가 목표. "더 고칠 수 있지만 고치지 않기로 결정하는 순간" = 완성. Freeze=CONDUCTOR 선언+CEO 확정. |
+| M-43 | P-12 | Kill Rule: 3회 Rewrite 후 Still Bad = Archive. 죽일 줄 아는 것도 프로듀싱. Kill=CONDUCTOR 제안+CEO 결정. 파일 보존. |
+| M-44 | P-13 | Time Test: Version 완성 후 24시간 보관 후 재독. 즉시 QG 금지. Rewrite 3회 차는 면제. |
+| M-45 | P-14 | Read Aloud Test: 소리 내서 읽기. 숨/입에붙음/생활어/대화체 4항목 Pass 필수. 1항목 Fail = 해당 문장 재작성. |
+| M-46 | P-15 | Human Test (최우선): "이 노래 듣고 부모님께 전화하고 싶었는가?" YES=PASS / NO=Rewrite. 모든 QG보다 우선. |
+| M-47 | G-01 | GOSARI Symbol Reveal: T01 고사리 설명 안 함(1~2회 최대) / T02 의미 개방 / T03+ 삶의 순환 확장. EP 전체가 하나의 은유 완성 구조. |
+| M-48 | v4.1 | MUSIC OS v4.1 = Production Grade 100/100. "시스템 추가 중단. 작품으로 증명할 차례." 다음 = LYRA T01 Version 0.1. |
 
 ---
 
@@ -79,4 +86,4 @@
 
 ---
 
-_Last updated: 2026.07.01 — MUSIC OS Production System 선언 / P-08+P-09+P-10_
+_Last updated: 2026.07.01 — MUSIC OS v4.1 Production Grade 100 / P-11~P-15 + G-01_

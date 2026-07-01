@@ -288,6 +288,112 @@ STEP 9: Quality Gate (Style Guide 체크리스트 전 항목)
 
 ---
 
+## P-11 Rewrite Rule (신규)
+
+> PASS가 목표가 아니다. Freeze가 목표다.
+
+```
+Version 0.1
+↓ QG
+Rewrite
+↓ QG
+Rewrite
+↓ QG
+Freeze → Release
+```
+
+**Freeze 조건:**
+더 고칠 수 있지만, 더 고치지 않기로 결정하는 순간.
+그 순간이 완성이다.
+
+**Freeze 판단 기준:**
+- P-15 Human Test YES
+- P-13 Time Test 통과
+- P-14 Read Aloud Test 통과
+- QG 90+ 유지
+
+**CONDUCTOR 원칙:** Freeze 선언은 CONDUCTOR 단독 결정. CEO 보고 후 확정.
+
+---
+
+## P-12 Kill Rule (신규)
+
+> 죽일 줄 아는 것도 프로듀싱이다.
+
+```
+Version n
+↓ QG (Fail)
+Rewrite
+↓ QG (Fail)
+Rewrite
+↓ QG (Still Bad)
+Archive → 다음 트랙
+```
+
+**Kill 기준:** 3회 Rewrite 후에도 P-15 Human Test NO = Kill.
+
+**Archive 처리:** 가사·설계 파일은 보존. 트랙에서 제외만 한다.
+죽인 트랙이 다른 프로젝트에서 살아날 수 있다.
+
+**CONDUCTOR 원칙:** Kill은 CONDUCTOR 제안, CEO 최종 결정.
+
+---
+
+## P-13 Time Test (신규)
+
+> 좋은 가사는 시간이 지나도 좋다.
+
+```
+Version 작성 완료
+↓ 24시간 보관 (검토 금지)
+↓ 다시 읽기 (첫인상 기준)
+↓ QG
+```
+
+**규칙:** Version 완성 후 24시간 내 QG 제출 금지.
+다음 날 읽었을 때 여전히 좋은 가사만 QG에 진입한다.
+
+**예외:** Rewrite 3회 차에는 Time Test 면제. Kill or Freeze 결정 단계.
+
+---
+
+## P-14 Read Aloud Test (신규)
+
+> LYRA는 반드시 소리 내서 읽는다.
+
+**평가 기준 4항목:**
+
+| 항목 | 기준 | Pass |
+|------|------|------|
+| 숨이 차는가? | 한 줄이 너무 길면 탈락 | 숨 쉴 수 있어야 함 |
+| 입에 붙는가? | 자연스럽게 읽히는가 | 막히면 탈락 |
+| 생활어처럼 들리는가? | 어색한 어조 없는가 | 평이하게 들려야 함 |
+| 가사처럼만 들리는가? | "이건 노래 가사다" 느낌만 나면 탈락 | 대화처럼 들려야 함 |
+
+4항목 전부 Pass → QG 진입 허용.
+1항목이라도 Fail → 해당 문장 재작성.
+
+---
+
+## P-15 Human Test (신규 / 최우선 규칙)
+
+> 이 규칙이 모든 QG보다 우선한다.
+
+**질문은 단 하나:**
+
+> "이 노래를 듣고 부모님께 전화하고 싶었는가?"
+
+```
+YES → PASS
+NO  → Rewrite
+```
+
+**운영 방법:** CONDUCTOR가 직접 가사를 읽고 판단. AI 평가 아님. CEO가 읽어도 동일 기준.
+
+**원칙:** 조회 수보다 이 질문이 먼저다. GOSARI Creative Bible Success Metric(부모님께 전화한다)과 동일 기준.
+
+---
+
 ## Quality Gate (v1.1 재평가)
 
 | 항목 | v1.0 | v1.1 | 변동 |
@@ -302,21 +408,24 @@ STEP 9: Quality Gate (Style Guide 체크리스트 전 항목)
 
 ---
 
-## Production OS 진단 (CONDUCTOR, 2026-07-01)
+## Production OS 진단 (CONDUCTOR, 2026-07-01 v4.1)
 
 | 영역 | 점수 |
 |------|------|
-| Architecture | 99 |
-| Workflow | 99 |
-| Quality | 99 |
+| Architecture | 100 |
+| Workflow | 100 |
+| Quality System | 100 |
+| Creative Direction | 100 |
 | Scalability | 100 |
-| Reusability | 100 |
-| Creative Direction | 98 |
-| **Overall** | **99.2 / Production Ready** |
+| Production Methodology | 100 |
+| **Overall** | **100 / Production Grade** |
 
 > BALMY MUSIC OS는 이제 '작사 시스템'이 아니라 '음악 프로덕션 시스템'이다.
+>
+> 이제 더 이상 시스템을 추가하지 않는다. 시스템을 증명할 차례다.
+> 첫 번째 증명 = Track 1 "늦게 알았네" Version 0.1
 
 ---
 
-_Last updated: 2026-07-01 — MUSIC OS v4.0 / P-08+P-09+P-10 추가_
-_STEP 5.5 — Producer Blueprint v1.1_
+_Last updated: 2026-07-01 — MUSIC OS v4.1 / P-11+P-12+P-13+P-14+P-15 추가_
+_STEP 5.5 — Producer Blueprint v1.2 (Final)_

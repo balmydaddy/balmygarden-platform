@@ -121,6 +121,24 @@
 - [ ] Hook 핵심 단어가 Chorus 이전 벌스에 없는가 (P-10)
 - [ ] 전체 운율·리듬 검토 완료
 
+**출고 전 (Pre-release)**
+- [ ] P-13 Time Test — 24시간 보관 후 재독 완료
+- [ ] P-14 Read Aloud Test — 숨/입에붙는가/생활어/대화체 4항목 Pass
+- [ ] P-15 Human Test — "부모님께 전화하고 싶었는가?" YES
+- [ ] Freeze or Rewrite or Kill 결정 (P-11/P-12)
+
 ---
 
-_Last updated: 2026.07.01 — MUSIC OS v4.0 / P-08+P-09+P-10_
+## Rewrite / Freeze / Kill 기준 (P-11/P-12)
+
+| 상태 | 조건 | 다음 액션 |
+|------|------|-----------|
+| Rewrite | QG Fail or Human Test NO | 해당 섹션 재작성 |
+| Freeze | 더 고칠 수 있지만 고치지 않기로 결정 | Release 진입 |
+| Kill | 3회 Rewrite 후 Still Bad | Archive 처리 |
+
+Kill은 실패가 아니다. 다음 트랙을 더 빠르게 만드는 결정이다.
+
+---
+
+_Last updated: 2026.07.01 — MUSIC OS v4.1 / P-11~P-15 추가_

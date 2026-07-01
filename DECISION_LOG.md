@@ -47,7 +47,14 @@
 | 2026.07.01 | [결정] | LYRA | LYRA 작사 순서 확정: Hook→Final Hook→Bridge→Verse1→Verse2→Intro→Outro→리듬검토→QG | 후렴 없는 상태에서 벌스를 쓰면 방향이 없는 가사가 된다 | 모든 이후 트랙에 적용 |
 | 2026.07.01 | [결정] | OS | Agent Role Matrix 확정 — SAGE(세계관)/CONDUCTOR(프로듀싱)/LYRA(작사)/MUSE(Suno)/NOVA(시장성) 역할·금지사항 | 역할 중복으로 인한 품질 저하 방지 | 블랙박스 배정 금지 원칙(M-07) 강화 |
 | 2026.07.01 | [결정] | LYRA | Version 0.1 원칙 — 첫 가사를 완성본으로 만들려 하지 않는다 | Quality Gate 통과까지 반복 개선이 MUSIC OS 핵심 철학 | LYRA 착수 시 선언 필수 |
+| 2026.07.01 | [결정] | P-11 | Rewrite Rule — PASS가 아닌 Freeze가 목표. Rewrite→QG 반복 후 "더 고칠 수 있지만 고치지 않기로 결정하는 순간" = 완성 | 개선 루프 종료 기준 부재 해결 | Freeze=CONDUCTOR 선언+CEO 확정 |
+| 2026.07.01 | [결정] | P-12 | Kill Rule — 3회 Rewrite 후 Still Bad = Archive. 무조건 살리지 않는다 | 죽일 줄 아는 것도 프로듀싱 | Kill=CONDUCTOR 제안+CEO 결정. 파일은 보존. |
+| 2026.07.01 | [결정] | P-13 | Time Test — Version 완성 후 24시간 보관 후 재독. 좋은 가사는 시간이 지나도 좋다 | 즉시 QG 금지 | Rewrite 3회 차는 면제(Kill or Freeze 결정 단계) |
+| 2026.07.01 | [결정] | P-14 | Read Aloud Test — 소리 내서 읽기. 숨/입에붙음/생활어/대화체 4항목 Pass 필수 | 가사가 '가사처럼만' 들리는 함정 방지 | 4항목 중 1항목 Fail = 해당 문장 재작성 |
+| 2026.07.01 | [결정] | P-15 | Human Test 최우선 규칙 — "이 노래 듣고 부모님께 전화하고 싶었는가?" YES=PASS / NO=Rewrite | 조회 수보다 이 질문이 먼저. Creative Bible Success Metric과 동일 기준 | 모든 QG보다 우선 적용 |
+| 2026.07.01 | [결정] | G-01 | Symbol Reveal Rule (GOSARI 전용) — T01 고사리 설명 안 함 / T02 의미를 연다 / T03+ 삶의 순환으로 확장 | EP 전체가 하나의 은유를 완성하는 구조 | T01 "고사리" 사용=1~2회 최대, 의미 설명 금지 |
+| 2026.07.01 | [결정] | OS | MUSIC OS v4.1 = Production Grade 100/100. "이제 시스템 추가 중단. 작품으로 증명할 차례" | 좋은 시스템은 작품을 만들기 위해 존재한다 | 다음 단계 = LYRA, Track 1 Version 0.1 |
 
 ---
 
-_Last updated: 2026.07.01 — MUSIC OS Production System 선언 / P-08+P-09+P-10_
+_Last updated: 2026.07.01 — MUSIC OS v4.1 Production Grade / P-11~P-15 + G-01_
