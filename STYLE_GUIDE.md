@@ -112,6 +112,7 @@
 - [ ] 1줄 최대 14음절 이내인가
 - [ ] 후렴이 단순한가 (첫 노출 기준)
 - [ ] 장면이 있는가 (추상 감정 단독 사용 없음)
+- [ ] G-03 Truth Filter — 각 문장이 실제로 사람이 할 법한 말인가
 - [ ] Creative Bible Core Emotion과 일치하는가
 - [ ] Scene 08 유형 장면: 상대 반응을 가사에 쓰지 않았는가
 
@@ -125,9 +126,11 @@
 - [ ] P-13 Time Test — 24시간 보관 후 재독 완료
 - [ ] P-14 Read Aloud Test — 숨/입에붙는가/생활어/대화체 4항목 Pass
 - [ ] P-15 Human Test — "부모님께 전화하고 싶었는가?" YES
-- [ ] P-16 Memory Trigger Test — "노래 끝 후 머릿속 첫 장면이 구체적 개인 기억인가?" Pass
+- [ ] P-16 Memory Resonance Test (MRT) — 30초/5분/다음 날 시간 레이어별 여운 잔상 확인
 - [ ] P-17 Hook Layer Test — 여러 청자층에 다른 기억을 유발하는가 (20대/30대/부모잃은/아이없는)
-- [ ] G-02 Empty Space — Final Hook·Outro에 여백이 있는가. 이유 설명 없이 청자가 채우는가
+- [ ] P-18 One Breath Test — 후렴 핵심을 한 번의 숨으로 끝까지 말할 수 있는가
+- [ ] G-02 Empty Space — "감정은 비우되 상황은 비우지 않았는가" 확인
+- [ ] G-03 Truth Filter — 전 문장 "실제로 사람이 할 법한 말인가?" 통과 확인
 - [ ] Freeze or Rewrite or Kill 결정 (P-11/P-12)
 
 ---
@@ -144,4 +147,4 @@ Kill은 실패가 아니다. 다음 트랙을 더 빠르게 만드는 결정이�
 
 ---
 
-_Last updated: 2026.07.01 — P-16/P-17 + G-02 Empty Space Rule 추가_
+_Last updated: 2026.07.01 — P-16 MRT 개명 / G-03/P-18 추가 / Rule Adoption Gate_
