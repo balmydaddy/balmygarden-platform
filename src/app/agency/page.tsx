@@ -253,6 +253,53 @@ const WORKFLOWS: Workflow[] = [
     desc: "경쟁사 분석 → 포지셔닝 공백 → 차별화",
     quickSkill: "BALMYGARDEN의 경쟁사 3곳을 분석하고, 포지셔닝 공백을 찾아 차별화 전략과 카테고리 선언문을 작성해주세요.",
   },
+  /* ── CEO 전략 프롬프트 (parky0ngnam 7종) ── */
+  {
+    id: "biz_system", emoji: "💰", cat: "CEO전략", name: "돈 버는 시스템 설계",
+    chain: ["NOVA", "REX", "CONDUCTOR"],
+    parallel: [["NOVA", "REX"], ["CONDUCTOR"]],
+    desc: "수익모델·고객획득·자동화 → 90일 현금흐름 로드맵",
+    quickSkill: "당신은 1인 에이전시를 100억 매출까지 키워본 비즈니스 설계자입니다. BALMYGARDEN 상황: CEO 1인·파라텍 안전보건팀 병행, 3트랙(음악 BALMYDADDY DistroKid 배급 시작 / 앱 영수증 OCR 사전테스팅 / 게임 LOD 프로토타입) 동시 운영. AI 에이전트 12명 배치. 현재 매출 0. 집중 트랙: [트랙 선택: 음악/앱/게임]. 목표: 90일 안에 첫 유료 매출 확보. 수익모델·고객 획득·상품 구조·가격 전략·운영 시스템·자동화까지 포함해 90일 실행 로드맵을 설계해주세요.",
+  },
+  {
+    id: "bottleneck", emoji: "🔍", cat: "CEO전략", name: "숨은 병목 찾기",
+    chain: ["CONDUCTOR", "REX", "AEGIS"],
+    parallel: [["CONDUCTOR", "REX"], ["AEGIS"]],
+    desc: "1인 3트랙 운영 → 성장 병목 3개 → 이번 주 제거 행동",
+    quickSkill: "당신은 세계적인 운영 전략가입니다. BALMYGARDEN 구조를 보고 성장을 막는 가장 큰 병목 3가지를 찾아주세요. 구조: CEO 1인(파라텍 병행, 가용 시간 모바일 낮/PC 23시 이후), 3트랙(음악/앱/게임) 동시 운영, AI 에이전트 12명 배치, 현재 매출 0. 각 병목이 왜 위험한지, 어떤 지표로 확인해야 하는지, 이번 주 바로 제거할 수 있는 행동까지 제시해주세요.",
+  },
+  {
+    id: "unfair_edge", emoji: "⚡", cat: "CEO전략", name: "불공정한 우위 만들기",
+    chain: ["SCOUT", "NOVA", "CONDUCTOR"],
+    parallel: [["SCOUT", "NOVA"], ["CONDUCTOR"]],
+    desc: "자원 분석 → 차별화·브랜드 포지션 → 복제 불가 구조 설계",
+    quickSkill: "당신은 시장에서 압도적 우위를 만드는 전략가입니다. BALMYGARDEN 자원: CEO 파라텍 안전보건 전문성 + AI 에이전트 12명 + MUSIC OS v4.0 파이프라인 + 3트랙(음악/앱/게임) 동시 운영 구조. 경쟁자: 일반 인디 음악 레이블, 1인 앱 개발자, 인디 게임 스튜디오. 남들이 쉽게 따라 할 수 없는 차별화·콘텐츠 전략·상품 구조·유통 전략·브랜드 포지션을 설계해주세요. 평범한 조언은 제외하고, 불공정한 우위만 찾아주세요.",
+  },
+  {
+    id: "time_compress", emoji: "⏩", cat: "CEO전략", name: "10년을 12개월로 압축",
+    chain: ["CONDUCTOR", "NOVA", "REX"],
+    desc: "버릴 것 vs 집중할 것 → AI·자동화 활용 고속 성장 계획",
+    quickSkill: "당신은 시간 레버리지 전략가입니다. BALMYGARDEN CEO 목표: 1인·직장 병행 조건에서 음악+앱+게임 3트랙 중 1트랙을 12개월 안에 시장 검증까지 완성. 보통 10년 걸릴 일을 12개월 안에 압축하려면 무엇을 버리고 무엇에 집중해야 하는지 알려주세요. AI·자동화·외주·인재·자본·콘텐츠·네트워크를 활용한 고속 성장 계획을 만들어주세요. 집중 트랙: [트랙 선택: 음악/앱/게임]",
+  },
+  {
+    id: "chaos_to_sys", emoji: "⚙️", cat: "CEO전략", name: "혼란을 시스템으로",
+    chain: ["CONDUCTOR", "ZERO", "REX"],
+    parallel: [["CONDUCTOR", "ZERO"], ["REX"]],
+    desc: "반복 업무 → AI 에이전트 위임 프로세스 → 사람 의존 제거",
+    quickSkill: "당신은 혼란스러운 1인 에이전시를 AI 기반 시스템으로 설계하는 운영 전문가입니다. BALMYGARDEN의 아래 반복 업무를 보고, AI 에이전트(ARIA·PHANTOM·ZERO·MUSE·AEGIS·NOVA·REX·SCOUT·CONDUCTOR·SAGE·LYRA·STROBE) 위임 프로세스로 재설계해주세요. 업무 순서·담당 에이전트·체크리스트·자동화 가능 영역·품질 기준·보고 방식까지 정리해주세요. [반복 업무 입력]",
+  },
+  {
+    id: "decision_up", emoji: "🎯", cat: "CEO전략", name: "의사결정 업그레이드",
+    chain: ["CONDUCTOR", "AEGIS"],
+    desc: "장기 리스크·기회비용·레버리지·최악의 경우 → 가장 강한 선택",
+    quickSkill: "당신은 투자자·창업가·전략가들의 사고법을 훈련시키는 의사결정 코치입니다. BALMYGARDEN CEO 제약: 1인 운영·파라텍 병행·3트랙(음악/앱/게임) 동시. 내가 고민하는 선택지는 [선택지 입력]입니다. 장기 리스크·기회비용·레버리지·회복 가능성·최악의 경우를 기준으로 분석하고, 가장 강한 선택을 내려주세요.",
+  },
+  {
+    id: "war_ceo", emoji: "⚔️", cat: "CEO전략", name: "전쟁형 CEO 판단 [긴급]",
+    chain: ["CONDUCTOR", "AEGIS"],
+    desc: "위기 상황 전용 — 감정 제거 → 생존·현금흐름·속도 기준 냉정 결정",
+    quickSkill: "당신은 위기 상황에서 회사를 살리는 전쟁형 CEO 코치입니다. BALMYGARDEN이 처한 문제: [문제 입력]. 감정적 판단을 제거하고, 생존·현금흐름·속도·인력·우선순위 기준으로 가장 냉정한 의사결정안을 주세요. 듣기 좋은 말 말고, 해야 하는 말을 해주세요.",
+  },
   {
     id: "knowledge", emoji: "🧠", cat: "학습", name: "지식 강화 모드",
     chain: ["SCOUT", "ZERO", "CONDUCTOR"],
