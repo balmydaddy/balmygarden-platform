@@ -57,6 +57,7 @@
 | M-46 | P-15 | Human Test (최우선): "이 노래 듣고 부모님께 전화하고 싶었는가?" YES=PASS / NO=Rewrite. 모든 QG보다 우선. |
 | M-47 | G-01 | GOSARI Symbol Reveal: T01 고사리 설명 안 함(1~2회 최대) / T02 의미 개방 / T03+ 삶의 순환 확장. EP 전체가 하나의 은유 완성 구조. |
 | M-48 | v4.1 | MUSIC OS v4.1 = Production Grade 100/100. "시스템 추가 중단. 작품으로 증명할 차례." 다음 = LYRA T01 Version 0.1. |
+| M-49 | 문서규칙 | 모든 문서(Notion·MD·보고서) 작성 시 오탈자·수치·날짜·에이전트명 검토 후 최종 저장. 초안 ≠ 완성. 검토 완료 후 저장이 원칙. CLAUDE.md 등재 완료. |
 
 ---
 
