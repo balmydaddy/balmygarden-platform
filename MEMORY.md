@@ -18,7 +18,7 @@
 | M-07 | Fugu | 에이전트 배정 시 이유 공개 필수. 블랙박스 금지 (CONDUCTOR 핵심). |
 | M-08 | 배급 | DistroKid 음원 배급. 아티스트: BALMYDADDY, JEDMIR, DUBUREN. |
 | M-09 | 스택 | GitHub: balmydaddy/lord-of-dark. CI/CD: Harness.io → Vercel. Obsidian: D:\obsidian\obsidian. |
-| M-10 | 소스 | 모니터링: @parky0ngnam, @_business.story, @shoppduddn_, @platformtree_, trenddalkak_ai, keanu_visuals. |
+| M-10 | 소스 | 모니터링 채택(4): prompt_what, nookitokki, chase.h.ai, whopdwho. 기존유지: @parky0ngnam, @_business.story, @shoppduddn_, @platformtree_, trenddalkak_ai, keanu_visuals. 거부(6): girsta, thesaar_ai, ainewsdly, adityaa.daily, __3ceo, bestapps_ai (검증불가 수익주장). |
 | M-11 | 학습 | v3.0 탑재: 파인만·오류시뮬·번역기·경로설계·빈틈탐지·곡선파괴 6종. |
 | M-12 | 마케팅 | v3.0 탑재: 고객조사·이메일·광고카피·포지셔닝·상세페이지·크리에이터·영상스크립트 7종. |
 | M-13 | 콘텐츠 | 훅 20개 + How-To·팁·스토리텔링 각 10개 탑재. MUSE/NOVA 우선 활용. |
@@ -69,6 +69,10 @@
 | M-58 | 시스템 | Rule Adoption Gate 확정. 신규 Rule 추가 전 필수 질문: "이 규칙은 '늦게 알았네'를 더 좋은 노래로 만드는가, 아니면 시스템만 더 복잡하게 만드는가?" YES=채택 / NO=보류. v4.1 이후 시스템 추가 동결. |
 | M-59 | T01테스트 | P-13 PASS (72시간 경과 2026-07-04). P-14 조건부 PASS (숨/입/생활어 PASS, 대화체 약함). P-15 조건부 NO ("그 마음을"/"당신을 알았네" 감정 선언, 장면 없음, 행동 유발 실패). → P-11 Rewrite. |
 | M-60 | HookV02 | Hook v0.2 (2026-07-04). 변경: "내 손을 꼭 잡아주던/그 마음을" → "꼭 쥔 이 손이/이렇게 작은 걸" / "당신을 알았네" → "당신이 보였네". 채택 장면: 아이가 내 손을 꽉 잡는 순간. G-02(여백)/G-03(진실) 적용. P-10 유지. |
+| M-61 | 콘텐츠기준 | 학습 콘텐츠 등재 기준 확정. 검증 불가 수익·성과 주장 소스 등재 금지. 구조가 유효하면 구조만 일반화, 수치 주장 폐기. 채택4(prompt_what/nookitokki/whopdwho/parky0ngnam), 부분2(chase.h.ai/adityaa), 거부6. |
+| M-62 | 모델라우팅 | 비용 60-30-10 확정. Haiku 60%(분류·요약·단순판단) / Sonnet 30%(실무생성) / 상위 10%(CONDUCTOR·AEGIS·NOVA). 초기 8:2 시작 후 조정. 병렬=독립작업만. 긴 세션: 목표·결정·미완료·다음액션 200자 압축 인계. |
+| M-63 | AEGIS보강 | 검증 세션 분리 원칙. 결과물 검증은 생성 세션과 분리된 새 컨텍스트(서브에이전트/새 대화)에서 배경 없이 수행. 자기 검토는 게이트 통과 불인정. CONTRACT 포맷: 목표·제약·포맷·실패조건 4항목 미기재 시 착수 금지. 완료 조건 수치화 필수. |
+| M-64 | 프롬프트 | 신규 카테고리 확정. 페이블5 운영규칙 9종(과잉지시제거/난이도최상단/의도먼저/행동우선/결론우선/증거기반보고/검증세션분리/effort노브/추론재현지시금지). 사업전략 7종(parky0ngnam). 개발도구 카탈로그(whopdwho). 비즈니스자동화 파이프라인 템플릿. |
 
 ---
 
@@ -98,4 +102,4 @@
 
 ---
 
-_Last updated: 2026.07.04 — M-59~M-60 / P-14/P-15 공식 판정 + Hook v0.2 착수_
+_Last updated: 2026.07.05 — M-61~M-64 / 학습 콘텐츠 검수 결과 + 모델 라우팅 + AEGIS 보강 + 프롬프트 라이브러리_
