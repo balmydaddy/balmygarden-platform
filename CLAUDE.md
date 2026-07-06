@@ -64,6 +64,15 @@ CEO: 김태을 대표 (파라텍 안전보건팀 과장)
 
 4항목 미기재 시 착수 금지. 완료 조건은 수치로 명시 (예: "AEGIS 95/100 이상", "에러 0건").
 
+## 노션 PMO 운영 원칙
+
+- 노션 "BALMYGARDEN — 미결 사항" 페이지 = 에이전시 PMO 운영본부
+- **Rule PM-01**: 신규 작업은 7개 카테고리(CEO요청/AI발견/TechDebt/QualityIssues/CEO결정/Blockers/FutureIdeas) 중 정확히 하나에만 등록. 중복 금지.
+- **Priority**: P0(Blocker) / P1(이번 주) / P2(다음 Sprint) / P3(언젠가) / Icebox
+- **Status**: Draft / Ready / In Progress / Waiting / Blocked / Review / Approved / Done / Archived
+- CEO 요청 항목(C)과 AI 발견 항목(D)은 반드시 분리 — CEO가 요청하지 않은 AI 제안은 D 카테고리, CEO 승인 전 실행 금지
+- 매 세션 종료 시 Executive Summary(4개 프로젝트 현황) 포함 최신화 필수
+
 ## AEGIS QA 게이트
 
 - 기준: 95/100 이상 통과 후 CEO 보고
