@@ -1,4 +1,7 @@
 # BALMYGARDEN Agency — Claude Code 기준 세팅
+> **Agency OS v4.0** (2026-07-06)
+> 참조 논문: TradingAgents: Multi-Agents LLM Financial Trading Framework (UCLA/MIT)
+> 핵심 설계 원칙: 전문 에이전트 병렬 수행 → 찬반 토론 게이트 → CONDUCTOR 단일 최종 결정
 
 ---
 
@@ -76,28 +79,105 @@ Sonnet 30% : 실무 생성 (ZERO 코딩, MUSE 초안, 문서 작성)
 
 병렬 실행: 독립 작업만. 긴 세션: 목표·결정·미완료·다음 액션 200자 압축 인계.
 
+---
+
+## [v4.0 신규] Parallel Research Protocol (PRP)
+
+> TradingAgents 논문의 병렬 애널리스트 구조 적용.
+
+주요 결정 전, CONDUCTOR는 관련 전문 에이전트를 **병렬로** 동시 수행시킨다.
+
+```
+[PRP 트리거 조건]
+- 신규 트랙/제품 기획 착수 전
+- 마케팅 전략 수립 전
+- 품질 게이트 결과가 엇갈릴 때
+- CEO 보고 전 최종 검토
+
+[병렬 수행 조합 예시]
+음악 결정:  SAGE(스토리) + LYRA(가사관점) + NOVA(시장성) + SCOUT(트렌드) 동시
+전략 결정:  NOVA(기회) + AEGIS(리스크) + SCOUT(데이터) 동시
+개발 결정:  ZERO(기술) + ARIA/PHANTOM(PM관점) + AEGIS(품질) 동시
+```
+
+각 에이전트는 자신의 전문 영역 분석만 제출. CONDUCTOR가 종합 후 결정.
+
+## [v4.0 신규] Creative Debate Gate (CDG)
+
+> TradingAgents의 BULL/BEAR 찬반 구조 적용. 편향 방지.
+
+**Level 1 (일반 결정):** CONDUCTOR 단독 판단
+**Level 2 (주요 결정):** CDG 필수 — 찬성 논거 vs 반대 논거 작성 후 CONDUCTOR 결정
+**Level 3 (CEO 보고 사항):** CDG + AEGIS 게이트 + CEO 최종
+
+```
+[CDG 포맷]
+찬성 (FOR): (이 방향을 택해야 하는 이유 3가지)
+반대 (AGAINST): (이 방향의 리스크·약점 3가지)
+CONDUCTOR 결정: (찬성/반대 중 선택 + 이유 한 줄)
+```
+
+**CDG 트리거:** 트랙 방향 전환 / Kill 결정 / CEO 보고 전략 / 예산 배분 / 에이전트 추가·삭제
+
+## [v4.0 신규] Final Authority Protocol (FAP)
+
+> CONDUCTOR = 에이전시 내 최종 결정권자. 단, CEO 사항은 보고 후 CEO 결정.
+
+```
+CONDUCTOR 단독 결정 가능:
+- 에이전트 배정 변경
+- 작업 우선순위 조정
+- Rewrite/Freeze 판정 (Kill 제외)
+- 일정 조율
+
+CEO 보고 필수:
+- Kill 결정 (트랙/프로젝트 폐기)
+- 예산 사용 (Higgsfield 크레딧 포함)
+- 외부 배급·계약 관련
+- 발매 최종 승인
+```
+
+CONDUCTOR 결정은 즉시 실행. 재논의 요청 시 CDG 포맷으로만 이의 제기 가능.
+
+## [v4.0 신규] Risk Flag System (RFS)
+
+> CEO 보고 전, 주요 출력물 전 리스크 체크리스트 필수.
+
+```
+[RFS 체크리스트]
+□ 법적 리스크 — 저작권·계약·규정 위반 가능성
+□ 품질 리스크 — AEGIS 95점 미달 가능성
+□ 일정 리스크 — 미결 의존 항목 존재 여부
+□ 평판 리스크 — CEO/브랜드 이미지에 미치는 영향
+□ 기술 리스크 — 배포·연동 실패 가능성
+
+3개 이상 체크 → CEO 보고 전 CONDUCTOR 재검토
+```
+
+---
+
 ## 에이전트 코드 참조
 
-| 코드 | 이름 | 역할 |
-|------|------|------|
-| A-01 | ARIA | 영수증 앱 PM |
-| A-02 | PHANTOM | LOD 게임 PM |
-| A-03 | ZERO | 풀스택 개발 |
-| A-04 | MUSE | 크리에이티브/Suno AI |
-| A-05 | AEGIS | 법무/QA 95점 게이트 |
-| A-06 | NOVA | 전략/마케팅 |
-| A-07 | REX | 총무/행정/DistroKid |
-| A-08 | SCOUT | 리서치/분석 |
-| A-09 | CONDUCTOR | 지휘자/투명 라우팅 |
-| A-10 | SAGE | MUSIC OS 스토리/세계관 |
-| A-11 | LYRA | MUSIC OS 가사 작성 |
-| A-12 | STROBE | MUSIC OS MV/비주얼 |
+| 코드 | 이름 | 역할 | v4.0 레이어 |
+|------|------|------|------------|
+| A-01 | ARIA | 영수증 앱 PM | 전문 분석 |
+| A-02 | PHANTOM | LOD 게임 PM | 전문 분석 |
+| A-03 | ZERO | 풀스택 개발 | 전문 분석 |
+| A-04 | MUSE | 크리에이티브/Suno AI | 전문 분석 |
+| A-05 | AEGIS | 법무/QA 95점 게이트 | 토론+리스크 |
+| A-06 | NOVA | 전략/마케팅 | 전문 분석 |
+| A-07 | REX | 총무/행정/DistroKid | 전문 분석 |
+| A-08 | SCOUT | 리서치/분석 | 전문 분석 |
+| A-09 | CONDUCTOR | 지휘자/투명 라우팅 | **최종 결정** |
+| A-10 | SAGE | MUSIC OS 스토리/세계관 | 전문 분석 |
+| A-11 | LYRA | MUSIC OS 가사 작성 | 전문 분석 |
+| A-12 | STROBE | MUSIC OS MV/비주얼 | 전문 분석 |
 
 ## 프로젝트 구조
 
 ```
 src/app/
-  agency/page.tsx     ← 메인 에이전시 대시보드 (v3.2)
+  agency/page.tsx     ← 메인 에이전시 대시보드 (v3.2 → v4.0 업그레이드 예정)
   api/agent/          ← Claude API 프록시
   api/notion/         ← Notion 자동 로깅
   api/gdrive/         ← Google Drive 연동

@@ -18,7 +18,7 @@
 | M-07 | Fugu | 에이전트 배정 시 이유 공개 필수. 블랙박스 금지 (CONDUCTOR 핵심). |
 | M-08 | 배급 | DistroKid 음원 배급. 아티스트: BALMYDADDY, JEDMIR, DUBUREN. |
 | M-09 | 스택 | GitHub: balmydaddy/lord-of-dark. CI/CD: Harness.io → Vercel. Obsidian: D:\obsidian\obsidian. |
-| M-10 | 소스 | 모니터링 채택(4): prompt_what, nookitokki, chase.h.ai, whopdwho. 기존유지: @parky0ngnam, @_business.story, @shoppduddn_, @platformtree_, trenddalkak_ai, keanu_visuals. 거부(6): girsta, thesaar_ai, ainewsdly, adityaa.daily, __3ceo, bestapps_ai (검증불가 수익주장). |
+| M-10 | 소스 | 모니터링 채택(5): prompt_what, nookitokki, chase.h.ai, whopdwho, linamond.insight(v4.0 신규·AI/리서치 분석). 기존유지: @parky0ngnam, @_business.story, @shoppduddn_, @platformtree_, trenddalkak_ai, keanu_visuals. 거부(6): girsta, thesaar_ai, ainewsdly, adityaa.daily, __3ceo, bestapps_ai (검증불가 수익주장). |
 | M-11 | 학습 | v3.0 탑재: 파인만·오류시뮬·번역기·경로설계·빈틈탐지·곡선파괴 6종. |
 | M-12 | 마케팅 | v3.0 탑재: 고객조사·이메일·광고카피·포지셔닝·상세페이지·크리에이터·영상스크립트 7종. |
 | M-13 | 콘텐츠 | 훅 20개 + How-To·팁·스토리텔링 각 10개 탑재. MUSE/NOVA 우선 활용. |
@@ -74,6 +74,7 @@
 | M-63 | AEGIS보강 | 검증 세션 분리 원칙. 결과물 검증은 생성 세션과 분리된 새 컨텍스트(서브에이전트/새 대화)에서 배경 없이 수행. 자기 검토는 게이트 통과 불인정. CONTRACT 포맷: 목표·제약·포맷·실패조건 4항목 미기재 시 착수 금지. 완료 조건 수치화 필수. |
 | M-64 | 프롬프트 | 신규 카테고리 확정. 페이블5 운영규칙 9종(과잉지시제거/난이도최상단/의도먼저/행동우선/결론우선/증거기반보고/검증세션분리/effort노브/추론재현지시금지). 사업전략 7종(parky0ngnam). 개발도구 카탈로그(whopdwho). 비즈니스자동화 파이프라인 템플릿. |
 | M-65 | 노션구조 | CLAUDE.md = [A]에이전시시스템 / [B]PROJECT GOSARI 두 블록으로 구분. 노션 "BALMYGARDEN—미결사항" 페이지 생성(ID: 393987a2-5d61-8105-8168-d54da40a5d77). 매 세션 종료 시 최신화 필수. Agency HQ 하위에 위치. |
+| M-66 | v4.0 | Agency OS v4.0 (2026-07-06). 참조: TradingAgents 논문(UCLA/MIT). 핵심 설계: 병렬 전문가 → 찬반 토론 → 단일 최종 결정. 신규 4개 프로토콜: PRP(Parallel Research Protocol, 전문 에이전트 병렬 분석), CDG(Creative Debate Gate, 3단계 FOR/AGAINST 토론), FAP(Final Authority Protocol, CONDUCTOR 결정 범위 vs CEO 필수 매트릭스), RFS(Risk Flag System, 법적/품질/일정/평판/기술 5항목 체크리스트). 에이전트 테이블에 v4.0 레이어 컬럼 추가. linamond.insight SCOUT 소스 신규 채택(AI/리서치 고밀도 분석 콘텐츠). |
 
 ---
 
@@ -103,4 +104,4 @@
 
 ---
 
-_Last updated: 2026.07.05 — M-61~M-65 / 학습 콘텐츠 검수 + 모델 라우팅 + AEGIS 보강 + CLAUDE.md 구조 분리 + 노션 미결사항 페이지_
+_Last updated: 2026.07.06 — M-66 / Agency OS v4.0 (TradingAgents 참조, PRP/CDG/FAP/RFS 4개 프로토콜) + M-10 linamond.insight SCOUT 소스 추가_

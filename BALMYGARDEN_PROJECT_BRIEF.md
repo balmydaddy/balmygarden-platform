@@ -1,5 +1,5 @@
 # BALMYGARDEN Agency — Claude Project Brief
-> 버전: 2026-07-05 / 이 파일은 Claude 프로젝트 지식 파일로 사용됩니다.
+> 버전: 2026-07-06 (Agency OS v4.0) / 이 파일은 Claude 프로젝트 지식 파일로 사용됩니다.
 > 업데이트 주기: 주요 결정·상태 변경 시 즉시 반영.
 
 ---
@@ -21,20 +21,20 @@
 
 ## 2. 에이전트 로스터
 
-| 코드 | 이름 | 역할 |
-|------|------|------|
-| A-01 | ARIA | 영수증 앱 PM |
-| A-02 | PHANTOM | LOD 게임 PM |
-| A-03 | ZERO | 풀스택 개발 |
-| A-04 | MUSE | 크리에이티브 / Suno AI |
-| A-05 | AEGIS | 법무 / QA 95점 게이트 |
-| A-06 | NOVA | 전략 / 마케팅 |
-| A-07 | REX | 총무 / 행정 / DistroKid |
-| A-08 | SCOUT | 리서치 / 분석 |
-| A-09 | CONDUCTOR | 지휘자 / 투명 라우팅 |
-| A-10 | SAGE | MUSIC OS 스토리 / 세계관 |
-| A-11 | LYRA | MUSIC OS 가사 작성 |
-| A-12 | STROBE | MUSIC OS MV / 비주얼 |
+| 코드 | 이름 | 역할 | v4.0 레이어 |
+|------|------|------|-----------|
+| A-01 | ARIA | 영수증 앱 PM | PRP 전문가 |
+| A-02 | PHANTOM | LOD 게임 PM | PRP 전문가 |
+| A-03 | ZERO | 풀스택 개발 | PRP 전문가 |
+| A-04 | MUSE | 크리에이티브 / Suno AI | PRP 전문가 |
+| A-05 | AEGIS | 법무 / QA 95점 게이트 | RFS 실행 |
+| A-06 | NOVA | 전략 / 마케팅 | CDG BULL 측 |
+| A-07 | REX | 총무 / 행정 / DistroKid | CDG BEAR 측 |
+| A-08 | SCOUT | 리서치 / 분석 | PRP 전문가 |
+| A-09 | CONDUCTOR | 지휘자 / 투명 라우팅 | FAP 최종 결정권 |
+| A-10 | SAGE | MUSIC OS 스토리 / 세계관 | PRP 전문가 |
+| A-11 | LYRA | MUSIC OS 가사 작성 | PRP 전문가 |
+| A-12 | STROBE | MUSIC OS MV / 비주얼 | PRP 전문가 |
 
 **Agent Role Matrix (역할 경계)**
 - SAGE: 세계관 담당. 가사 작성 금지.
@@ -75,6 +75,17 @@ Haiku  60% : 분류·요약·형식 검증·단순 판단
 Sonnet 30% : 실무 생성 (코딩, 초안, 문서)
 상위   10% : 판단·설계·최종 통합 (CONDUCTOR, AEGIS, NOVA)
 ```
+
+### [v4.0 신규] 4개 프로토콜 (TradingAgents 참조, 2026-07-06)
+
+**설계 원칙:** 전문 에이전트 병렬 수행 → 찬반 토론 게이트 → CONDUCTOR 단일 최종 결정
+
+| 프로토콜 | 약어 | 설명 |
+|---------|------|------|
+| Parallel Research Protocol | PRP | 주요 결정 전 관련 전문 에이전트 병렬 조사. 단독 판단 금지. |
+| Creative Debate Gate | CDG | Level 1(아이디어), Level 2(실행), Level 3(전략) 단계별 FOR/AGAINST 구조 토론. |
+| Final Authority Protocol | FAP | CONDUCTOR 자율 결정 범위 vs CEO 필수 승인 항목 구분 매트릭스. |
+| Risk Flag System | RFS | CEO 보고 전 5항목 체크: 법적/품질/일정/평판/기술 리스크. |
 
 ### 출력 원칙
 - **결론 우선**: 완료 후 첫 문장은 "무슨 일이 있었나"에 답한다.
