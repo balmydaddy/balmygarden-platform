@@ -76,6 +76,7 @@
 | M-65 | 노션구조 | CLAUDE.md = [A]에이전시시스템 / [B]PROJECT GOSARI 두 블록으로 구분. 노션 "BALMYGARDEN—미결사항" 페이지 생성(ID: 393987a2-5d61-8105-8168-d54da40a5d77). 매 세션 종료 시 최신화 필수. Agency HQ 하위에 위치. |
 | M-68 | 세션로그 | Claude=Build / ChatGPT=Review 역할 구분 정책 확정 (2026-07-06). 세션 로그 & Rule Adoption Log 전용 노션 페이지 신설 (ID: 395987a2-5d61-8104-872c-e1c21fffe329). 매 세션 종료 시 Claude Update + ChatGPT Review 형식으로 추가. Rule 채택 시 제안자·날짜 기록 필수. |
 | M-67 | PMO | 노션 미결사항 페이지 PMO 구조 전환 (2026-07-06). 7개 카테고리: CEO요청(C)/AI발견(D)/TechDebt/QualityIssues(Q)/CEO결정(DR)/Blockers(B)/FutureIdeas(F). Rule PM-01: 작업은 하나의 카테고리에만 속함. Priority: P0/P1/P2/P3/Icebox. Status: Draft/Ready/In Progress/Waiting/Blocked/Review/Approved/Done/Archived. 최상단 Executive Summary (4개 프로젝트 현황 30초 파악). |
+| M-71 | HookFreeze2 | Hook v0.3 공식 Freeze 확정 (2026-07-10). P-13/P-14(조건부)/P-15/P-16 전항목 PASS. 핵심: "손의 체온" → 기억 검색 키. P-16 동시 현상: 자녀 있는 사람 = 자녀+부모 손 동시 활성화. Bridge v0.1 착수 (Scene 07 / 사진 / "그냥 보고 싶다"). P-13 타이머: 2026-07-10~11. |
 | M-66 | v4.0 | Agency OS v4.0 (2026-07-06). 참조: TradingAgents 논문(UCLA/MIT). 핵심 설계: 병렬 전문가 → 찬반 토론 → 단일 최종 결정. 신규 4개 프로토콜: PRP(Parallel Research Protocol, 전문 에이전트 병렬 분석), CDG(Creative Debate Gate, 3단계 FOR/AGAINST 토론), FAP(Final Authority Protocol, CONDUCTOR 결정 범위 vs CEO 필수 매트릭스), RFS(Risk Flag System, 법적/품질/일정/평판/기술 5항목 체크리스트). 에이전트 테이블에 v4.0 레이어 컬럼 추가. linamond.insight SCOUT 소스 신규 채택(AI/리서치 고밀도 분석 콘텐츠). |
 
 ---
