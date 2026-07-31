@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
+import TradingTab from "./TradingTab";
 
 /* ══════════════════════════════════════════════════════
    TYPES
@@ -1545,6 +1546,7 @@ export default function BALMYGARDENDashboard() {
             { id: "system", label: "⚙️ 시스템" },
             { id: "ladder", label: "📈 사다리" },
             { id: "qg", label: "🎬 STUDIO" },
+            { id: "trading", label: "📈 트레이딩" },
             { id: "history", label: "📒 히스토리" },
             { id: "guide", label: "📚 가이드" },
           ].map((t) => (
@@ -3461,6 +3463,10 @@ export default function BALMYGARDENDashboard() {
             )}
           </div>
         )}
+
+        {/* ══════ TRADING ══════ */}
+        {/* 탭이 열릴 때만 마운트 — 닫혀 있으면 폴링 자체가 돌지 않는다. */}
+        {tab === "trading" && <TradingTab isMobile={isMobile} />}
 
         {/* ══════ HISTORY ══════ */}
         {tab === "history" && (
