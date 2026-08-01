@@ -2,7 +2,7 @@
 ## Track 01 : 늦게 알았네
 
 > Owner: LYRA
-> Status: **Hook v0.3 공식 Freeze** (2026-07-10) / Bridge v0.1 — **P-13 PASS 확정 (2026-08-01)** / P-14 착수
+> Status: **Hook v0.3 공식 Freeze** (2026-07-10) / Bridge v0.1 — **P-13·P-14 PASS (2026-08-01)** / P-15 착수
 > QG: P-13/P-14/P-15/P-16 PASS → Hook v0.3 Freeze 확정 / 다음 = Bridge → Verse 1 → Verse 2 → Intro → Outro → QG → Suno
 
 ---
@@ -15,7 +15,7 @@
 | v0.2 | 2026-07-04 | Hook (장면화 강화) | Draft → Freeze 확정 (2026-07-09) |
 | v0.3 | 2026-07-09 | Hook (체온·범위 확장) | **공식 Freeze (2026-07-10)** — P-13/P-14/P-15/P-16 전항목 PASS |
 | Final Hook | Blueprint 확정 | "엄마… 그냥 전화했어." | Blueprint v1.0 설계 완료 — LYRA 정식 작성 보류 |
-| Bridge | 2026-07-10 | Bridge (Scene 07) | v0.1 Draft — **P-13 PASS (2026-08-01)** / P-14 진행 중 |
+| Bridge | 2026-07-10 | Bridge (Scene 07) | v0.1 Draft — **P-13 PASS / P-14 완전 PASS (2026-08-01)** / P-15 진행 중 |
 
 ---
 
@@ -973,5 +973,40 @@ Bridge가 기억을 재생시키는 데 그치지 않고 **머무를 공간**을
 
 ---
 
-_Last updated: 2026-08-01 — Bridge v0.1 P-13 PASS 확정 (CEO) / 현존 현상 관찰 / P-14 착수_
+## Bridge v0.1 — P-14 Read Aloud Test 결과 (2026-08-01)
+
+### CEO 진술 (원문)
+
+> 숨 안 끊기고 입에 잘 붙어, 대화체도 자연스러움
+
+### 판정
+
+| 항목 | 판정 | 근거 |
+|------|------|------|
+| 숨 | PASS | CEO 명시 — 끊기는 지점 없음 |
+| 입에 붙는가 | PASS | CEO 명시 — 걸리는 발음 없음 |
+| 대화체 | PASS | CEO 명시 — 자연스러움 (G-03 통과) |
+| 생활어 | PASS | CEO 지적 없음 + 텍스트 검증: 전 행에 문어체·한자어 없음 |
+
+**판정: 완전 PASS (4항목)**
+
+### Hook 대비 개선
+
+| 구간 | P-14 결과 | 미달 항목 |
+|------|-----------|-----------|
+| Hook v0.1 | 조건부 PASS | 대화체 — "당신을 알았네" 선언조 |
+| Hook v0.3 | 조건부 PASS | 대화체 잔존 (Q-01로 이월) |
+| **Bridge v0.1** | **완전 PASS** | **없음** |
+
+Hook에서 두 차례 걸렸던 대화체 항목을 Bridge가 처음으로 통과했다. "보고 싶다 / 그냥 보고 싶다"가 선언이 아니라 발화이기 때문으로 관찰된다 — G-03 Truth Filter 기준에 정면 부합.
+
+### P-18 One Breath Test
+
+"보고 싶다 / 그냥 보고 싶다" — CEO 진술 "숨 안 끊기고"에 포함되는 것으로 판단. 별도 반증 없음.
+
+**다음 단계: P-15 Human Test 착수.**
+
+---
+
+_Last updated: 2026-08-01 — Bridge v0.1 P-13 PASS / P-14 완전 PASS / P-15 착수_
 _"10년 후에도 누군가의 마음에 남을 가사를 만든다."_
