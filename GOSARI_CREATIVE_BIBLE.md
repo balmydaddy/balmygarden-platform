@@ -1,7 +1,7 @@
 # PROJECT GOSARI — Creative Bible v0.1
 
 > GOSARI EP 전용 창작 기준 문서. 모든 에이전트(SAGE·LYRA·MUSE·NOVA·STROBE) 공통 참조 최상위 문서.
-> Status: Draft v0.1 (CEO 서명 대기)
+> Status: **확정 v1.0 — CEO 서명 완료 (2026-08-01)**
 
 ---
 
@@ -247,7 +247,19 @@ Track 3~ — 고사리를 삶의 순환으로 확장한다
 ## CEO Approval Status
 
 - [x] SAGE 리뷰 (97.25 PASS)
-- [ ] CONDUCTOR 최종 확인
-- [ ] CEO 서명
+- [x] CONDUCTOR 최종 확인 (2026-08-01)
+- [x] **CEO 서명 (2026-08-01)** — DR-01 승인 완료
 
-_Last updated: 2026.07.01 — G-02 보강 + G-03 Truth Filter + Rule Adoption Gate_
+### 서명 효력
+
+Creative Bible이 확정됨에 따라 아래가 해제된다.
+
+| 항목 | 서명 전 | 서명 후 |
+|------|---------|---------|
+| M-22 LYRA 작성 제한 | Bible 미승인 상태에서 작사 진행 (절차 위반 상태) | **해소** — 정식 근거 확보 |
+| Hook v0.3 Freeze | 절차상 소급 검증 필요 | **유효 확정** |
+| Bridge 이후 전 구간 | — | Bible 기준으로 작성·검증 |
+
+North Star("눈물을 강요하지 말고, 기억을 깨워라")와 G-01/G-02/G-03은 이 시점부터 변경 시 CEO 재승인이 필요하다.
+
+_Last updated: 2026-08-01 — **CEO 서명 완료 (DR-01)** / Status: Draft v0.1 → 확정 v1.0_

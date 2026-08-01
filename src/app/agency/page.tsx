@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
 import TradingTab from "./TradingTab";
 import { MEMORY, type MemoryEntry } from "./memory";
+import OsV4Tab from "./OsV4Tab";
 
 /* ══════════════════════════════════════════════════════
    TYPES
@@ -1526,6 +1527,7 @@ export default function BALMYGARDENDashboard() {
             { id: "system", label: "⚙️ 시스템" },
             { id: "ladder", label: "📈 사다리" },
             { id: "qg", label: "🎬 STUDIO" },
+            { id: "osv4", label: "🏛️ OS v4.0" },
             { id: "trading", label: "📈 트레이딩" },
             { id: "history", label: "📒 히스토리" },
             { id: "guide", label: "📚 가이드" },
@@ -3443,6 +3445,9 @@ export default function BALMYGARDENDashboard() {
             )}
           </div>
         )}
+
+        {/* ══════ OS v4.0 ══════ */}
+        {tab === "osv4" && <OsV4Tab isMobile={isMobile} />}
 
         {/* ══════ TRADING ══════ */}
         {/* 탭이 열릴 때만 마운트 — 닫혀 있으면 폴링 자체가 돌지 않는다. */}
