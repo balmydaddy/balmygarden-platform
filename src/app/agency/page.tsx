@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
 import TradingTab from "./TradingTab";
+import { MEMORY, type MemoryEntry } from "./memory";
 
 /* ══════════════════════════════════════════════════════
    TYPES
@@ -53,7 +54,6 @@ interface LadderStep {
   next: string;
 }
 
-interface MemoryEntry { id: string; tag: string; txt: string; }
 interface ScheduleEntry { time: string; agent: string; task: string; wfId?: string; chatAgent?: string; cat?: string; }
 interface ToolEntry { name: string; use: string; fb: string; warn?: boolean; }
 interface ChainResult { key: string; ag: Agent; txt: string; done: boolean; }
@@ -716,27 +716,7 @@ const TEMPLATES: Record<string, string[]> = {
   ],
 };
 
-const MEMORY: MemoryEntry[] = [
-  { id: "M-01", tag: "기업", txt: "BALMYGARDEN = BALMYDADDY 전속 음반사. 심포닉/클래시컬 메탈, 다크판타지, 복음 발라드." },
-  { id: "M-02", tag: "앱", txt: "영수증 OCR: Next.js 14 / Supabase / Gemini API / Vercel / Resend. 사전 테스팅 단계." },
-  { id: "M-03", tag: "게임", txt: "LOD (Lord of Dynasty): React 다크판타지 턴제 RPG 리마스터. 프로토타입 완성." },
-  { id: "M-04", tag: "CEO", txt: "김태을 대표. 파라텍 안전보건팀 과장. 모바일 낮 / PC 23시 이후." },
-  { id: "M-05", tag: "QA", txt: "전 결과물 QA 95/100 통과 후 CEO 보고. AEGIS → CONDUCTOR 최종 확인." },
-  { id: "M-06", tag: "크레딧", txt: "Higgsfield 월 크레딧 = LOD 게임 아트 전용. CEO 승인 전 타 용도 절대 금지." },
-  { id: "M-07", tag: "Fugu", txt: "에이전트 배정 시 이유 공개 필수. 블랙박스 금지 (CONDUCTOR 핵심)." },
-  { id: "M-08", tag: "배급", txt: "DistroKid 음원 배급. 아티스트: BALMYDADDY, JEDMIR, DUBUREN." },
-  { id: "M-09", tag: "스택", txt: "GitHub: balmydaddy/lord-of-dark. CI/CD: Harness.io → Vercel. Obsidian: D:\\obsidian\\obsidian." },
-  { id: "M-10", tag: "소스", txt: "모니터링: @parky0ngnam, @_business.story, @shoppduddn_, @platformtree_, trenddalkak_ai, keanu_visuals." },
-  { id: "M-11", tag: "학습", txt: "v3.0 탑재: 파인만·오류시뮬·번역기·경로설계·빈틈탐지·곡선파괴 6종." },
-  { id: "M-12", tag: "마케팅", txt: "v3.0 탑재: 고객조사·이메일·광고카피·포지셔닝·상세페이지·크리에이터·영상스크립트 7종." },
-  { id: "M-13", tag: "콘텐츠", txt: "훅 20개 + How-To·팁·스토리텔링 각 10개 탑재. MUSE/NOVA 우선 활용." },
-  { id: "M-14", tag: "안전", txt: "ISO 45001/14001, 중대재해처벌법, 산업안전기사 준비 중. 파라텍 20개 현장." },
-  { id: "M-15", tag: "버전", txt: "Dashboard v3.2 (2026.06.27). 신규: MUSIC OS v1.0 통합 — SAGE/LYRA/STROBE 에이전트 + GOSARI 워크플로우 5종." },
-  { id: "M-16", tag: "12단계", txt: "@platformtree_ 사업 성장 사다리. BG 현황: 음악=2단계(기술판매), 앱/게임=3단계(제품판매). 목표: 음악→제품화, 앱→정보상품, 게임→주목확보." },
-  { id: "M-17", tag: "MUSIC OS", txt: "BALMY MUSIC OS v1.0 — 파이프라인 12단계: 아이디어→기획→스토리→가사→제작→앨범아트→MV→마케팅→배급→분석→아카이브. 담당 에이전트: SAGE(스토리)→LYRA(가사)→MUSE(제작)→STROBE(비주얼)→NOVA(마케팅)→REX(배급)." },
-  { id: "M-18", tag: "GOSARI", txt: "PROJECT GOSARI — EP 6트랙. 테마: 시간(Time). 메시지: '우리는 모두 누군가의 고사리였다.' 감정 흐름: 무관심→탄생→깨달음→후회→감사→희망. 효도송 아님. 부모를 이해하는 이야기. 장면 우선, 진심 우선." },
-  { id: "M-19", tag: "제작규칙", txt: "MUSIC OS 절대 규칙: 가사 먼저 쓰지 않는다. 반드시 아이디어→스토리→시나리오→장면→가사→리뷰→Suno 프롬프트→생성(20~50버전)→선택 순서 준수. SAGE 없이 LYRA 단독 가사 작성 금지." },
-];
+/* MEMORY 배열은 ./memory.ts 로 분리 — MEMORY.md 와 동기화 */
 
 const SCHEDULES: ScheduleEntry[] = [
   { time: "매일 07:00", agent: "SCOUT",      task: "Higgsfield 크레딧 잔여량 + 무료 AI 도구 업데이트 체크", chatAgent: "SCOUT",    cat: "daily" },
@@ -1665,7 +1645,7 @@ export default function BALMYGARDENDashboard() {
               </div>
               {[
                 { lv: 1, name: "프롬프트", pct: 100, state: "✅", note: "9 에이전트 시스템 프롬프트 완비", color: "#22c55e" },
-                { lv: 2, name: "컨텍스트", pct: ctxEnabled ? 90 : 50, state: ctxEnabled ? "✅" : "⚠️", note: ctxEnabled ? "MEMORY 16개 → 전 에이전트 자동 주입 ON" : "컨텍스트 주입 OFF", color: ctxEnabled ? "#22c55e" : "#eab308" },
+                { lv: 2, name: "컨텍스트", pct: ctxEnabled ? 90 : 50, state: ctxEnabled ? "✅" : "⚠️", note: ctxEnabled ? `MEMORY ${MEMORY.length}개 → 전 에이전트 자동 주입 ON` : "컨텍스트 주입 OFF", color: ctxEnabled ? "#22c55e" : "#eab308" },
                 { lv: 3, name: "도구", pct: 100, state: "✅", note: "Claude API 서버 프록시 동작", color: "#22c55e" },
                 { lv: 4, name: "MCP 연결", pct: 95, state: "✅", note: "Notion 자동 로깅 — 워크플로우/대화/로그", color: "#22c55e" },
                 { lv: 5, name: "스킬", pct: 85, state: "✅", note: "12 워크플로우 + 퀵 스킬 원클릭 런처", color: "#22c55e" },
@@ -1690,7 +1670,7 @@ export default function BALMYGARDENDashboard() {
                   <div style={{ fontSize: "12px", fontWeight: "700", color: ctxEnabled ? "#22c55e" : "#64748b" }}>
                     {ctxEnabled ? "🟢" : "⚫"} Level 2 컨텍스트 주입 {ctxEnabled ? "ON" : "OFF"}
                   </div>
-                  <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>MEMORY 16개를 모든 에이전트 시스템 프롬프트에 자동 추가</div>
+                  <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>MEMORY {MEMORY.length}개를 모든 에이전트 시스템 프롬프트에 자동 추가</div>
                 </div>
                 <button
                   onClick={() => setCtxEnabled(!ctxEnabled)}
@@ -2404,7 +2384,7 @@ export default function BALMYGARDENDashboard() {
         {tab === "system" && (
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
             <div>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>🧠 메모리 (16건)</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>🧠 메모리 ({MEMORY.length}건)</div>
               {MEMORY.map((m) => (
                 <div key={m.id} style={{ ...S.card(), marginBottom: "8px", padding: "10px 14px" }}>
                   <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
@@ -3528,7 +3508,7 @@ export default function BALMYGARDENDashboard() {
             <div style={{ display: "grid", gap: "10px" }}>
               {[
                 { lv: 1, emoji: "💬", name: "프롬프트", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["ARIA·PHANTOM·ZERO·MUSE·AEGIS·NOVA·REX·SCOUT·CONDUCTOR", "9개 에이전트 각각 전문화된 시스템 프롬프트", "300자 이내 핵심만, BALMYGARDEN 컨텍스트 내장"], next: "—" },
-                { lv: 2, emoji: "📎", name: "컨텍스트", pct: ctxEnabled ? 90 : 50, state: ctxEnabled ? "✅ 활성" : "⚠️ 비활성", color: ctxEnabled ? "#22c55e" : "#eab308", impl: ["MEMORY 16개 항목 (기업/앱/게임/CEO/QA/크레딧/Fugu 등)", ctxEnabled ? "전 에이전트 API 호출 시 자동 주입 ON" : "컨텍스트 주입 현재 OFF", "홈 탭에서 ON/OFF 토글 가능"], next: "Notion 기록을 실시간 컨텍스트로 주입 (Phase 2)" },
+                { lv: 2, emoji: "📎", name: "컨텍스트", pct: ctxEnabled ? 90 : 50, state: ctxEnabled ? "✅ 활성" : "⚠️ 비활성", color: ctxEnabled ? "#22c55e" : "#eab308", impl: [`MEMORY ${MEMORY.length}개 항목 (기업/앱/게임/CEO/QA/크레딧/GOSARI 등)`, ctxEnabled ? "전 에이전트 API 호출 시 자동 주입 ON" : "컨텍스트 주입 현재 OFF", "홈 탭에서 ON/OFF 토글 가능"], next: "Notion 기록을 실시간 컨텍스트로 주입 (Phase 2)" },
                 { lv: 3, emoji: "🛠️", name: "도구", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["Claude API — claude-sonnet-4-6", "/api/agent 서버 프록시 (API키 노출 없음)", "파일 읽기/쓰기 · 체인 실행 · 병렬 처리"], next: "스트리밍 응답 (실시간 타이핑 효과)" },
                 { lv: 4, emoji: "🔌", name: "MCP 연결", pct: 95, state: "✅ 완료", color: "#22c55e", impl: ["Notion 자동 로깅 — save_workflow / save_log / save_chat", "GET /api/notion — 히스토리 조회", "워크플로우 완료 시 + 대화 시 자동 fire-and-forget 저장"], next: "Google Drive · Slack 연동 (Phase 2)" },
                 { lv: 5, emoji: "⚡", name: "스킬", pct: 85, state: "✅ 적용", color: "#22c55e", impl: ["12개 워크플로우 = 12개 스킬", "각 워크플로우별 퀵 스킬 — 원클릭 기본 입력 세팅", "카테고리별 분류 (전략/개발/게임/음악/마케팅/법무 등)"], next: "/명령어 슬래시 커맨드 스타일 런처 (Phase 2)" },
