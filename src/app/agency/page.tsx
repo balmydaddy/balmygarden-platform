@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
 import TradingTab from "./TradingTab";
 import { MEMORY, type MemoryEntry } from "./memory";
 import OsV4Tab from "./OsV4Tab";
+import { AI_TOOLS, STATUS_META, DAILY_CHECK } from "./aiTools";
 
 /* ══════════════════════════════════════════════════════
    TYPES
@@ -720,11 +721,11 @@ const TEMPLATES: Record<string, string[]> = {
 /* MEMORY 배열은 ./memory.ts 로 분리 — MEMORY.md 와 동기화 */
 
 const SCHEDULES: ScheduleEntry[] = [
-  { time: "매일 07:00", agent: "SCOUT",      task: "Higgsfield 크레딧 잔여량 + 무료 AI 도구 업데이트 체크", chatAgent: "SCOUT",    cat: "daily" },
+  { time: "매일 07:00", agent: "SCOUT",      task: "무료 AI 생성 도구 한도 점검 (Leonardo·Gemini 주력) + 신규 도구 체크", chatAgent: "SCOUT",    cat: "daily" },
   { time: "매일 08:00", agent: "REX",        task: "일일 업무 우선순위 정리 (앱/게임/음악 3트랙)",           chatAgent: "REX",      cat: "daily" },
   { time: "매주 월 09:00", agent: "CONDUCTOR", task: "주간 에이전트 업무 배분 + QA 스케줄 수립",            wfId: "weekly",        cat: "weekly" },
   { time: "매주 금 17:00", agent: "REX·SCOUT", task: "주간 성과 보고 + 다음 주 계획 초안 CEO 제출",         wfId: "weekly",        cat: "weekly" },
-  { time: "매월 1일", agent: "SCOUT",        task: "월간 AI 도구 크레딧 현황 점검 + 신규 무료 도구 보고",   chatAgent: "SCOUT",    cat: "monthly" },
+  { time: "매월 1일", agent: "SCOUT",        task: "AI 도구 레지스트리 갱신 + Higgsfield 재개 여부 판단",   chatAgent: "SCOUT",    cat: "monthly" },
   { time: "분기 말", agent: "AEGIS·REX",     task: "법무/경영 리스크 검토 + ISO 감사 대응 체크",            wfId: "legal",         cat: "quarterly" },
   { time: "발매 D-30", agent: "STROBE·MUSE", task: "[GOSARI] 앨범아트 컨셉 확정 + MV 스토리보드 초안",     wfId: "gosari_visual", cat: "gosari" },
   { time: "발매 D-14", agent: "LYRA·MUSE",   task: "[GOSARI] Suno AI 20~50버전 생성 → 선택 → 마스터링",    wfId: "music_suno_prompt", cat: "gosari" },
@@ -735,7 +736,7 @@ const SCHEDULES: ScheduleEntry[] = [
 ];
 
 const TOOLS: ToolEntry[] = [
-  { name: "Higgsfield", use: "🔒 LOD 게임 아트 전용", fb: "Runway ML", warn: true },
+  { name: "Higgsfield", use: "⛔ 크레딧 소진 — 사용 불가 (2026-08-01)", fb: "Leonardo AI", warn: true },
   { name: "Runway ML", use: "무료 영상 AI 125크레딧/월", fb: "Kling AI" },
   { name: "Kling AI", use: "일 66크레딧 무료", fb: "Pika 2.1" },
   { name: "Pika 2.1", use: "무료 티어 (워터마크)", fb: "Luma" },
@@ -2406,6 +2407,28 @@ export default function BALMYGARDENDashboard() {
                   <div style={{ fontSize: "11px", color: "#94a3b8" }}>{s.task}</div>
                 </div>
               ))}
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "4px", marginTop: "18px" }}>🎨 AI 생성 도구 (SCOUT 감시)</div>
+              <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "8px" }}>Higgsfield 크레딧 소진(2026-08-01) → 무료 대체 체계 전환</div>
+              {AI_TOOLS.map((t) => {
+                const m = STATUS_META[t.status];
+                return (
+                  <div key={t.id} style={{ ...S.card(m.color + "44"), marginBottom: "6px", padding: "9px 12px" }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                      <span style={{ fontSize: "12px", fontWeight: "700", color: m.color }}>{t.name}</span>
+                      <span style={S.badge(m.color)}>{m.label}</span>
+                      <span style={{ fontSize: "10px", color: "#94a3b8", marginLeft: "auto", fontFamily: "monospace" }}>{t.freeLimit}</span>
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "3px" }}>{t.use}</div>
+                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{t.note}</div>
+                  </div>
+                );
+              })}
+              <div style={{ ...S.card(), padding: "10px 12px", marginBottom: "6px" }}>
+                <div style={{ fontSize: "10px", color: "#64748b", letterSpacing: "1px", marginBottom: "5px" }}>매일 07:00 SCOUT 점검 항목</div>
+                {DAILY_CHECK.map((c, i) => (
+                  <div key={i} style={{ fontSize: "11px", color: "#94a3b8", padding: "1px 0" }}>· {c}</div>
+                ))}
+              </div>
               <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px", marginTop: "18px" }}>🛠️ Tool Pool</div>
               {TOOLS.map((t, i) => (
                 <div key={i} style={{ display: "flex", gap: "8px", alignItems: "center", ...S.card(t.warn ? "#EF444433" : "#1e293b"), marginBottom: "6px", padding: "8px 12px" }}>
