@@ -2,7 +2,8 @@
 ## Track 01 : 늦게 알았네
 
 > Owner: LYRA
-> Status: **Hook v0.3 공식 Freeze** (2026-07-10) / **Bridge v0.2 Draft (2026-08-02)** — P-13 타이머 가동 (08-03 재독)
+> Status: **전체 초안 v0.1 완성 (2026-08-02)** → GOSARI_T01_FULL_DRAFT.md / CEO 통독 대기
+> 검증 전환: 지인 검증 폐지, 조각 검증 → 전체 통독 (M-82)
 > QG: P-13/P-14/P-15/P-16 PASS → Hook v0.3 Freeze 확정 / 다음 = Bridge → Verse 1 → Verse 2 → Intro → Outro → QG → Suno
 
 ---
