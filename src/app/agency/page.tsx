@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
 import TradingTab from "./TradingTab";
 import { MEMORY, type MemoryEntry } from "./memory";
 import OsV4Tab from "./OsV4Tab";
+import OfficeTab from "./OfficeTab";
 import { AI_TOOLS, STATUS_META, DAILY_CHECK } from "./aiTools";
 
 /* ══════════════════════════════════════════════════════
@@ -888,7 +889,7 @@ interface DirectChatMsg { role: "user" | "agent"; text: string; }
    MAIN COMPONENT
 ══════════════════════════════════════════════════════ */
 export default function BALMYGARDENDashboard() {
-  const [tab, setTab] = useState("home");
+  const [tab, setTab] = useState("office");
   const [wfId, setWfId] = useState<string | null>(null);
   const [wfInput, setWfInput] = useState("");
   const [chainRes, setChainRes] = useState<ChainResult[]>([]);
@@ -1517,6 +1518,7 @@ export default function BALMYGARDENDashboard() {
         {/* 탭 — 모바일에선 가로 스크롤 */}
         <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap" }}>
           {[
+            { id: "office", label: "🏢 오피스" },
             { id: "home", label: "🏠 홈" },
             { id: "projects", label: "🌿 프로젝트" },
             { id: "schedule", label: "⏰ 예약" },
@@ -1571,6 +1573,9 @@ export default function BALMYGARDENDashboard() {
       )}
 
       <div style={{ padding: isMobile ? "12px 10px" : "20px 22px" }}>
+        {/* ══════ OFFICE ══════ */}
+        {tab === "office" && <OfficeTab isMobile={isMobile} />}
+
         {/* ══════ HOME ══════ */}
         {tab === "home" && (
           <div>
