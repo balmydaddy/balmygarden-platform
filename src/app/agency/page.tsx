@@ -5,6 +5,23 @@ import TradingTab from "./TradingTab";
 import { MEMORY, type MemoryEntry } from "./memory";
 import OsV4Tab from "./OsV4Tab";
 import OfficeTab from "./OfficeTab";
+
+/* 위키로 묶인 항목 — 업무화면·업무·지시창을 제외한 전부 */
+const WIKI_TABS = [
+  { id: "home", label: "🏠 현황" },
+  { id: "agents", label: "🤖 에이전트" },
+  { id: "workflow", label: "⚡ 워크플로" },
+  { id: "prompts", label: "📚 프롬프트" },
+  { id: "content", label: "📝 콘텐츠" },
+  { id: "schedule", label: "⏰ 예약" },
+  { id: "qg", label: "🎬 STUDIO" },
+  { id: "osv4", label: "🏛️ OS v4.0" },
+  { id: "trading", label: "📈 트레이딩" },
+  { id: "ladder", label: "📈 사다리" },
+  { id: "system", label: "⚙️ 시스템" },
+  { id: "history", label: "📒 히스토리" },
+  { id: "guide", label: "📚 가이드" },
+];
 import { AI_TOOLS, STATUS_META, DAILY_CHECK } from "./aiTools";
 
 /* ══════════════════════════════════════════════════════
@@ -1518,27 +1535,20 @@ export default function BALMYGARDENDashboard() {
         {/* 탭 — 모바일에선 가로 스크롤 */}
         <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap" }}>
           {[
-            { id: "office", label: "🏢 오피스" },
-            { id: "home", label: "🏠 홈" },
-            { id: "projects", label: "🌿 프로젝트" },
-            { id: "schedule", label: "⏰ 예약" },
-            { id: "workflow", label: "⚡ 워크플로" },
-            { id: "agents", label: "🤖 에이전트" },
-            { id: "chat", label: "💬 대화" },
-            { id: "prompts", label: "📚 프롬프트" },
-            { id: "content", label: "📝 콘텐츠" },
-            { id: "system", label: "⚙️ 시스템" },
-            { id: "ladder", label: "📈 사다리" },
-            { id: "qg", label: "🎬 STUDIO" },
-            { id: "osv4", label: "🏛️ OS v4.0" },
-            { id: "trading", label: "📈 트레이딩" },
-            { id: "history", label: "📒 히스토리" },
-            { id: "guide", label: "📚 가이드" },
+            { id: "office", label: "🏢 업무화면" },
+            { id: "projects", label: "🌿 업무" },
+            { id: "chat", label: "🎙️ 지시창" },
+            { id: "wiki", label: "📚 위키" },
           ].map((t) => (
             <button
               key={t.id}
-              style={{ ...S.tabBtn(tab === t.id), flexShrink: 0, fontSize: isMobile ? "11px" : "12px", padding: isMobile ? "5px 10px" : "6px 14px" }}
-              onClick={() => setTab(t.id)}
+              style={{
+                ...S.tabBtn(tab === t.id || (t.id === "wiki" && WIKI_TABS.some((w) => w.id === tab))),
+                flexShrink: 0,
+                fontSize: isMobile ? "12px" : "13px",
+                padding: isMobile ? "6px 14px" : "7px 20px",
+              }}
+              onClick={() => setTab(t.id === "wiki" ? "wiki" : t.id)}
             >
               {t.label}
             </button>
@@ -1573,6 +1583,70 @@ export default function BALMYGARDENDashboard() {
       )}
 
       <div style={{ padding: isMobile ? "12px 10px" : "20px 22px" }}>
+        {/* ══════ WIKI 서브 네비 ══════ */}
+        {(tab === "wiki" || WIKI_TABS.some((w) => w.id === tab)) && (
+          <div style={{ marginBottom: "16px" }}>
+            <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "10px" }}>
+              {WIKI_TABS.map((w) => (
+                <button
+                  key={w.id}
+                  onClick={() => setTab(w.id)}
+                  style={{
+                    padding: isMobile ? "4px 9px" : "5px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: isMobile ? "10px" : "11px",
+                    fontWeight: tab === w.id ? 700 : 400,
+                    border: `1px solid ${tab === w.id ? "#6366F1" : "#1e293b"}`,
+                    background: tab === w.id ? "#6366F122" : "#0d1629",
+                    color: tab === w.id ? "#a5b4fc" : "#64748b",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {w.label}
+                </button>
+              ))}
+            </div>
+            {tab === "wiki" && (
+              <div style={{ ...S.card(), padding: "20px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 700, color: "#a5b4fc", marginBottom: "6px" }}>
+                  📚 에이전시 위키
+                </div>
+                <div style={{ fontSize: "11px", color: "#64748b", lineHeight: 1.7, marginBottom: "14px" }}>
+                  업무화면·업무·지시창을 제외한 모든 자료를 여기 모았다. 위 항목을 눌러 이동한다.
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)",
+                    gap: "8px",
+                  }}
+                >
+                  {WIKI_TABS.map((w) => (
+                    <button
+                      key={w.id}
+                      onClick={() => setTab(w.id)}
+                      style={{
+                        padding: "12px 10px",
+                        background: "#111827",
+                        border: "1px solid #1e293b",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        color: "#cbd5e1",
+                        fontSize: "12px",
+                        fontFamily: "inherit",
+                        textAlign: "left",
+                      }}
+                    >
+                      {w.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ══════ OFFICE ══════ */}
         {tab === "office" && <OfficeTab isMobile={isMobile} />}
 
