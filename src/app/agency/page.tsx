@@ -16,7 +16,6 @@ const WIKI_TABS = [
   { id: "schedule", label: "⏰ 예약" },
   { id: "qg", label: "🎬 STUDIO" },
   { id: "osv4", label: "🏛️ OS v4.0" },
-  { id: "trading", label: "📈 트레이딩" },
   { id: "ladder", label: "📈 사다리" },
   { id: "system", label: "⚙️ 시스템" },
   { id: "history", label: "📒 히스토리" },
@@ -1538,6 +1537,7 @@ export default function BALMYGARDENDashboard() {
             { id: "office", label: "🏢 업무화면" },
             { id: "projects", label: "🌿 업무" },
             { id: "chat", label: "🎙️ 지시창" },
+            { id: "trading", label: "📈 트레이딩" },
             { id: "wiki", label: "📚 위키" },
           ].map((t) => (
             <button
