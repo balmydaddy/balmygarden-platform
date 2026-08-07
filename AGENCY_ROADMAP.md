@@ -4,6 +4,17 @@
 > 현재 버전: **Dashboard v3.7**
 > 보고 주기: **2주 1회** — 다음 보고 예정일 **2026-08-15**
 
+## 배포 구조 (2026-08-07 갱신)
+
+Vercel 프로젝트 2개, 같은 GitHub 저장소(`balmydaddy/receipt-dashboard`) 공유:
+
+| 프로젝트 | 도메인 | Production Branch | 서비스 |
+|---|---|---|---|
+| balmygarden-platform | receipt-dashboard-pi.vercel.app | `main` | 영수증 OCR 앱 (판매용, 원본 유지) |
+| receipt-dashboard | receipt-dashboard-plum.vercel.app | `claude/balmygarden-dashboard-v3-ok5lnw` | BALMYGARDEN 에이전시 대시보드 (복사본) |
+
+이 커밋은 receipt-dashboard 프로젝트가 방금 변경된 Production Branch 설정으로 첫 프로덕션 빌드를 트리거하기 위한 것.
+
 ---
 
 ## 운영 원칙
