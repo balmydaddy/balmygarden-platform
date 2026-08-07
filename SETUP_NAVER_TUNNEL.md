@@ -187,7 +187,13 @@ cloudflared tunnel --url http://localhost:5000
 |------|-------|
 | `TRADING_SERVER_URL` | `https://random-words-here.trycloudflare.com` |
 
-끝에 슬래시(`/`)는 붙이지 않는다. 저장 후 **위 1-3-1의 배포 대상 착오 주의를 그대로 적용** — `main`이 아니라 작업 브랜치 배포를 재배포하거나, 새 커밋이 올라오길 기다린다.
+끝에 슬래시(`/`)는 붙이지 않는다.
+
+## ⚠️ 2-3-1. 저장 후 "Redeploy" 버튼을 누르지 말 것
+
+**Vercel Dashboard의 Redeploy 버튼은 기본적으로 프로덕션(= `main` = 옛 영수증 앱)을 다시 배포한다.** 실측으로 이미 세 번 반복된 실수다(M-85, M-87). 배포 목록 맨 위가 작업 브랜치처럼 보여도 실제로 눌러보면 `main`이 걸리는 경우가 많다.
+
+환경변수를 새로 저장했다면 **버튼을 누르지 말고 그대로 알려주기만 한다.** 작업 브랜치(claude/balmygarden-dashboard-v3-ok5lnw) preview를 강제로 새로 빌드하는 커밋은 항상 내가 올린다 — 그게 배포 대상을 확실히 맞추는 유일한 방법이다.
 
 ## 2-4. 확인
 
