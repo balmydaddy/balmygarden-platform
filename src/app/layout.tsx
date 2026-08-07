@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "스마트 재구매 대시보드",
-  description: "영수증 OCR 기반 구매 이력 및 최저가 분석",
+  title: "BALMYGARDEN",
+  description: "BALMYGARDEN AI 에이전시 대시보드 — 음악·앱·게임 3트랙 운영",
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
