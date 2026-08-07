@@ -1,4 +1,20 @@
-# LOD (Lord of Dynasty) — 스토리·세계관 치안 v0.1
+# [폐기] LOD 스토리·세계관 치안 v0.1 — 실제 프로젝트로 대체됨
+
+> **이 문서는 2026-08-07 같은 날 폐기되었다.** 작성 당시 이 저장소·세션에서
+> 기존 게임 자료를 찾지 못해 "원점(v0.1)"으로 새로 썼으나, 직후 CEO 확인으로
+> **별도 GitHub 저장소 `balmydaddy/lord-of-dark`에 완성도 높은 실제 프로젝트가
+> 존재함**이 밝혀졌다: Unity 6 LTS 다크판타지 모바일 RPG, 정식 게임 기획서
+> (`docs/game-design-document.md`), 인수인계 문서(`docs/HANDOFF_FOR_CLAUDE.md`,
+> 최종 2026-06-10), 전투·퀘스트·장비·오디오 시스템 구현 완료, Play 테스트 통과,
+> 스토어 출시 준비 착수 상태.
+>
+> **아래 내용은 참고하지 말 것.** 실제 설계는 `lord-of-dark` 저장소의
+> `docs/game-design-document.md`(직업 4종·전투 공식·아이템 등급 등 기존 확정
+> 설계)와 `docs/HANDOFF_FOR_CLAUDE.md`(현재 진행 상태·남은 작업 §10)를 따른다.
+
+---
+
+## (폐기 전 원문 — 기록용으로만 보존)
 
 > 담당: PHANTOM (A-02, LOD 게임 PM)
 > 단계: Phase 1 — 스토리·세계관 (착수)
