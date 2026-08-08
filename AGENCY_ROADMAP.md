@@ -4,16 +4,17 @@
 > 현재 버전: **Dashboard v3.7**
 > 보고 주기: **2주 1회** — 다음 보고 예정일 **2026-08-15**
 
-## 배포 구조 (2026-08-07 갱신)
+## 배포 구조 (2026-08-08 갱신 — 저장소 3분리 완료)
 
-Vercel 프로젝트 2개, 같은 GitHub 저장소(`balmydaddy/receipt-dashboard`) 공유:
+GitHub 저장소·Vercel 프로젝트를 트랙별로 완전히 독립시켰다 (M-91).
 
-| 프로젝트 | 도메인 | Production Branch | 서비스 |
-|---|---|---|---|
-| balmygarden-platform | receipt-dashboard-pi.vercel.app | `main` | 영수증 OCR 앱 (판매용, 원본 유지) |
-| receipt-dashboard | receipt-dashboard-plum.vercel.app | `claude/balmygarden-dashboard-v3-ok5lnw` | BALMYGARDEN 에이전시 대시보드 (복사본) |
+| 트랙 | GitHub 저장소 | Vercel 프로젝트 | 도메인 | Production Branch |
+|---|---|---|---|---|
+| 플랫폼 (이 저장소) | `balmydaddy/balmygarden-platform` | `balmygarden-platform` | balmygarden-platform.vercel.app | `main` |
+| 앱 — 영수증 OCR | `balmydaddy/balmydaddy-receipt` | `receipt-app` | balmydaddy-receipt.vercel.app | `main` |
+| 게임 — LOD | `balmydaddy/lord-of-dark` (private, Unity) | 미배포 | — | `master` |
 
-이 커밋은 receipt-dashboard 프로젝트가 방금 변경된 Production Branch 설정으로 첫 프로덕션 빌드를 트리거하기 위한 것.
+이 커밋은 `CRON_SECRET` 환경변수 등록 이후 이 프로젝트의 첫 프로덕션 빌드를 트리거하기 위한 것 — R-03 자동화 최종 활성화 확인용.
 
 ---
 
@@ -62,11 +63,11 @@ v5.0 — 3트랙 실시간 연동 완성 (음악·앱·게임 데이터 자동 �
 | 사다리 | 운영 | 12단계 성장 모델 |
 | STUDIO | 운영 | 채점·리뷰·PM·토론 4서브탭 |
 | **OS v4.0** | **신규 v3.4** | FAP 권한판정 / RFS 리스크 / PRP 조합 / CDG 토론 |
-| **트레이딩** | **신규 v3.3** | 포트폴리오·신호·체결·로그 |
+| **트레이딩** | **v3.3 → 상단 최상위 탭 승격 (2026-08-07)** | 포트폴리오·신호·체결·로그 |
 | 히스토리 | 운영 | 노션 활동 이력 |
 | 가이드 | 운영 | 7단계 안내 |
 
-### API 라우트 (9개)
+### API 라우트
 
 | 라우트 | 상태 |
 |--------|------|
@@ -74,11 +75,12 @@ v5.0 — 3트랙 실시간 연동 완성 (음악·앱·게임 데이터 자동 �
 | `/api/notion` | 운영 — 자동 로깅 |
 | `/api/gdrive` | 운영 |
 | `/api/slack` | 운영 |
-| `/api/ocr` | 운영 — 영수증 앱 |
+| `/api/ocr` | 운영 — 영수증 앱 (별도 저장소로 이전) |
 | `/api/barcode` | 운영 |
 | `/api/notify` | 운영 |
-| **`/api/naver-news`** | **신규 v3.3** — 키 미발급으로 미검증 |
-| **`/api/trading`** | **신규 v3.3** — 목 서버 검증 완료 |
+| `/api/naver-news` | 운영 — 실호출 검증 완료 (트레이딩 서버 연동 검증 과정에서 확인) |
+| `/api/trading` | 운영 — 실 트레이딩 서버 연동 검증 완료 (cloudflared 터널) |
+| `/api/cron` | **신규 (2026-08-07)** — R-03 SCOUT 예약 수집 + 캐릭터 일일 로테이션 업무. `CRON_SECRET` 등록 완료(2026-08-08), 활성화 확인 중 |
 
 ---
 
@@ -90,17 +92,18 @@ v5.0 — 3트랙 실시간 연동 완성 (음악·앱·게임 데이터 자동 �
 
 | ID | 항목 | 근거 |
 |----|------|------|
-| ~~R-01~~ | ~~MEMORY 동기화~~ | ✅ **완료 (2026-08-01)** — `memory.ts` 분리 후 M-01~M-75 전량 반영, 하드코딩 "16건" 4곳 동적 치환 |
+| ~~R-01~~ | ~~MEMORY 동기화~~ | ✅ **완료 (2026-08-01)** |
 | R-02 | `page.tsx` 3,580줄 분할 | 단일 파일 과대. 탭별 컴포넌트 분리로 유지보수성 확보 |
-| ~~R-03~~ | ~~SCOUT 뉴스 브리핑 예약 실행 연결~~ | ⚠️ **코드 완료, 활성화 대기 (2026-08-07)** — `vercel.json` + `/api/cron` 구현(SCOUT 4프리셋 수집 + 캐릭터 일일 로테이션 1건 실행, 전부 Notion 저장). **CEO 조치 필요**: ①Vercel Settings에 `CRON_SECRET` 등록 ②Production Branch를 `main`→작업 브랜치로 변경(Cron은 Production 배포에서만 동작 — 지금 main엔 이 코드가 없어 등록해도 실행 안 됨). 상시 실시간이 아니라 하루 1회 배치(Hobby 플랜 cron 빈도 제한) — 화면 애니메이션과는 별개의 실제 서버 자동화. |
+| ~~R-03~~ | ~~SCOUT 뉴스 브리핑 예약 실행 연결~~ | ✅ **활성화 완료 (2026-08-08)** — `CRON_SECRET` 등록 + 저장소 분리로 Production Branch 문제 해소. 하루 1회 배치(Hobby 플랜 제한): SCOUT 4프리셋 수집 + 캐릭터 로테이션 업무 1건, 전부 Notion 저장. |
+| R-10 | LOD §10 잔여 작업 이어받기 | Build All Scenes 재실행/스프라이트 매핑/React-Unity 연동 방식 확정/실기기 빌드 테스트 — Unity 에디터가 CEO PC 전용이라 CONDUCTOR 단독 진행 불가 |
 
 ### P2 — 검토 후 실행
 
 | ID | 항목 | 근거 |
 |----|------|------|
-| ~~R-04~~ | ~~v4.0 프로토콜 UI (D-01)~~ | ✅ **완료 (2026-08-01)** — CEO 승인 후 OsV4Tab 구현, 4종 동작 검증 |
+| ~~R-04~~ | ~~v4.0 프로토콜 UI (D-01)~~ | ✅ **완료 (2026-08-01)** |
 | R-05 | 프롬프트 라이브러리 신규 4종 등재 (D-02) | 학습 콘텐츠 검수 결과 미반영 |
-| ~~R-08~~ | ~~위키화 — 상단 탭 재편~~ | ✅ **완료 (2026-08-02, v3.7)** — 상단 4개(업무화면/업무/지시창/위키), 나머지 13개는 위키 서브 네비로 이동 |
+| ~~R-08~~ | ~~위키화 — 상단 탭 재편~~ | ✅ **완료 (2026-08-02, v3.7)** |
 | R-09 | 위키 항목별 실행·복사 버튼 정비 | 구조는 잡혔으나 항목별 복사/실행 UI는 기존 상태 유지 |
 | R-06 | GOSARI 검증 현황 대시보드화 | P-13~P-18 진행 상태를 프로젝트 탭에서 즉시 확인 |
 
@@ -148,4 +151,4 @@ v5.0 — 3트랙 실시간 연동 완성 (음악·앱·게임 데이터 자동 �
 
 ---
 
-_Last updated: 2026-08-01 — 체계 수립 (v3.3)_
+_Last updated: 2026-08-08 — 저장소 3분리 + R-03 활성화_
