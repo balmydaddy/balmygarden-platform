@@ -14,7 +14,7 @@ GitHub 저장소·Vercel 프로젝트를 트랙별로 완전히 독립시켰다 
 | 앱 — 영수증 OCR | `balmydaddy/balmydaddy-receipt` | `receipt-app` | balmydaddy-receipt.vercel.app | `main` |
 | 게임 — LOD | `balmydaddy/lord-of-dark` (private, Unity) | 미배포 | — | `master` |
 
-이 커밋은 `CRON_SECRET` 환경변수 등록 이후 이 프로젝트의 첫 프로덕션 빌드를 트리거하기 위한 것 — R-03 자동화 최종 활성화 확인용.
+**주의 — 새 프로젝트는 환경변수를 물려받지 않는다**: `receipt-dashboard`를 신규 프로젝트로 만들면서 `NOTION_API_KEY`/`NOTION_DATABASE_ID`/`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET` 등이 옛 프로젝트(`receipt-app`)에만 남아있고 이쪽엔 없었음 (2026-08-08 확인). 전부 재등록 완료, 이 커밋은 그 반영을 위한 재배포 트리거.
 
 ---
 
@@ -72,15 +72,15 @@ v5.0 — 3트랙 실시간 연동 완성 (음악·앱·게임 데이터 자동 �
 | 라우트 | 상태 |
 |--------|------|
 | `/api/agent` | 운영 — Claude 프록시 |
-| `/api/notion` | 운영 — 자동 로깅 |
+| `/api/notion` | 환경변수 재등록 후 재확인 중 (2026-08-08) |
 | `/api/gdrive` | 운영 |
 | `/api/slack` | 운영 |
 | `/api/ocr` | 운영 — 영수증 앱 (별도 저장소로 이전) |
 | `/api/barcode` | 운영 |
 | `/api/notify` | 운영 |
-| `/api/naver-news` | **미확인** — 배포 대상 착오(M-85)는 해소했으나 그 후 실제 호출 성공 여부는 CEO로부터 최종 확인받지 못함. 저장소 분리로 재배포됐으니 재확인 필요 |
+| `/api/naver-news` | 환경변수 재등록 후 재확인 중 (2026-08-08) |
 | `/api/trading` | 운영 — 실 트레이딩 서버 연동 실측 확인 완료(`online:true`, 2026-08-07) |
-| `/api/cron` | **신규 (2026-08-07)** — R-03 SCOUT 예약 수집 + 캐릭터 일일 로테이션 업무. `CRON_SECRET` 등록 완료(2026-08-08), 활성화 확인 중 |
+| `/api/cron` | `CRON_SECRET` 인증 확인 완료(200 응답, 2026-08-08). 내부 Notion·SCOUT 연동은 환경변수 재등록 후 재확인 중 |
 
 ---
 
@@ -94,8 +94,7 @@ v5.0 — 3트랙 실시간 연동 완성 (음악·앱·게임 데이터 자동 �
 |----|------|------|
 | ~~R-01~~ | ~~MEMORY 동기화~~ | ✅ **완료 (2026-08-01)** |
 | R-02 | `page.tsx` 3,580줄 분할 | 단일 파일 과대. 탭별 컴포넌트 분리로 유지보수성 확보 |
-| ~~R-03~~ | ~~SCOUT 뉴스 브리핑 예약 실행 연결~~ | ✅ **활성화 완료 (2026-08-08)** — `CRON_SECRET` 등록 + 저장소 분리로 Production Branch 문제 해소. 하루 1회 배치(Hobby 플랜 제한): SCOUT 4프리셋 수집 + 캐릭터 로테이션 업무 1건, 전부 Notion 저장. |
-| R-10 | naver-news 실호출 최종 확인 | `?preset=safety` 응답이 기사 JSON인지 재확인 필요 (위 API 라우트 표 참고) |
+| R-03 | SCOUT 뉴스 브리핑 예약 실행 연결 | `CRON_SECRET` 인증은 통과. Notion·네이버 환경변수를 새 프로젝트에 재등록 완료, 재배포 후 최종 확인 중 (2026-08-08) |
 | R-11 | LOD §10 잔여 작업 이어받기 | Build All Scenes 재실행/스프라이트 매핑/React-Unity 연동 방식 확정/실기기 빌드 테스트 — Unity 에디터가 CEO PC 전용이라 CONDUCTOR 단독 진행 불가 |
 
 ### P2 — 검토 후 실행
@@ -152,4 +151,4 @@ v5.0 — 3트랙 실시간 연동 완성 (음악·앱·게임 데이터 자동 �
 
 ---
 
-_Last updated: 2026-08-08 — 저장소 3분리 + R-03 활성화_
+_Last updated: 2026-08-08 — 신규 프로젝트 환경변수 재등록 + 재배포_
