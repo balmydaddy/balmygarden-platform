@@ -1,8 +1,8 @@
 # BALMYGARDEN Platform
 
-AI 에이전시 대시보드 — 음악(BALMYDADDY) · 앱(영수증 OCR) · 게임(LOD) 3트랙 운영 본부.
+AI 에이전시 대시보드 — 음악(BALMYDADDY) · 앱(영수증 OCR) · 게임(LOD) · 안전관리(위험성평가) 4트랙 운영 본부.
 
-이 저장소는 **에이전시 플랫폼 자체**(오피스 뷰·업무 자동화·워크플로·트레이딩 탭 등)만 담는다. 3트랙 각 제품은 아래처럼 독립 저장소로 분리되어 있다.
+이 저장소는 **에이전시 플랫폼 자체**(오피스 뷰·업무 자동화·워크플로·트레이딩 탭 등)만 담는다. 4트랙 각 제품은 아래처럼 독립 저장소로 분리되어 있다.
 
 ## 트랙별 저장소
 
@@ -12,8 +12,9 @@ AI 에이전시 대시보드 — 음악(BALMYDADDY) · 앱(영수증 OCR) · 게
 | 📄 앱 — 영수증 OCR | [balmydaddy-receipt](https://github.com/balmydaddy/balmydaddy-receipt) | receipt-app.vercel.app |
 | 🎮 게임 — Lord of Dark | [lord-of-dark](https://github.com/balmydaddy/lord-of-dark) (private) | — (Unity, 미배포) |
 | 🎵 음악 — BALMYDADDY (GOSARI) | 이 저장소 내 `GOSARI_*.md` 문서로 관리 | — |
+| 🦺 안전관리 — 위험성평가 세트 (크몽) | [balmydaddy-safety](https://github.com/balmydaddy/balmydaddy-safety) (private) | Kmong 판매 (gig/753184) |
 
-세 저장소는 코드·배포가 서로 완전히 독립적이다. 한쪽 작업이 다른 쪽 프로덕션 배포에 영향을 주지 않는다 — 과거 한 저장소 안에서 브랜치로만 나눠져 있던 시절 반복됐던 배포 대상 착오(엉뚱한 브랜치 재배포) 문제를 구조적으로 없애기 위한 분리다.
+네 저장소는 코드·배포가 서로 완전히 독립적이다. 한쪽 작업이 다른 쪽 프로덕션 배포에 영향을 주지 않는다 — 과거 한 저장소 안에서 브랜치로만 나눠져 있던 시절 반복됐던 배포 대상 착오(엉뚱한 브랜치 재배포) 문제를 구조적으로 없애기 위한 분리다.
 
 ## 이 저장소 구성
 
