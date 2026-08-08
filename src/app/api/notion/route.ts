@@ -11,9 +11,14 @@ export async function GET(req: NextRequest) {
   }
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") ?? "20"), 50);
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const res = await (notion.databases as any).query({
-      database_id: DB_ID,
+    // @notionhq/client v5+: 조회는 database가 아니라 그 안의 data source 단위로 한다.
+    const db = await notion.databases.retrieve({ database_id: DB_ID });
+    const dataSourceId = (db as unknown as { data_sources: { id: string }[] }).data_sources[0]?.id;
+    if (!dataSourceId) {
+      return NextResponse.json({ error: "데이터베이스에 data source가 없습니다." }, { status: 500 });
+    }
+    const res = await notion.dataSources.query({
+      data_source_id: dataSourceId,
       sorts: [{ property: "Date", direction: "descending" }],
       page_size: limit,
     });
