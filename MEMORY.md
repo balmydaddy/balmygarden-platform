@@ -99,6 +99,7 @@
 | M-89 | 트레이딩엔진확인 | CEO가 실제 트레이딩 엔진 `main.py` 업로드 (2026-08-07) — M-87·M-88에서 "파일 없음"으로 보류했던 부분 해소. 확인 결과 PAPER/REAL 전환은 코드 수정이 아니라 **환경변수 `TRADING_MODE`(주식) / `CRYPTO_MODE`(코인)**로 실행 시점에 결정됨(`os.getenv(...,"paper")`) — 코인은 이미 CRYPTO_MODE=real로 실행 중(M-87의 빗썸 실계좌 확인과 일치). 주식(토스)을 실거래로 바꾸려면 코드 변경 없이 CEO PC에서 `TRADING_MODE=real`로 설정 후 `python main.py` 재실행하면 됨 — 트레이딩시작.bat에 `set TRADING_MODE=real` 한 줄 추가로 영구 적용 가능. |
 | M-90 | LOD실체발견 | CEO 지시로 GitHub 확인 결과 **별도 저장소 `balmydaddy/lord-of-dark`(private)에 완성도 높은 기존 프로젝트 존재** 확인 (2026-08-07) — 직전 세션에서 "게임 코드 전혀 없음"으로 판단해 작성한 `LOD_STORY_TREATMENT.md` v0.1은 오판이었음, 문서 상단에 폐기 표시하고 실제 저장소로 안내 처리. 실체: Unity 6 LTS URP 2D 다크판타지 모바일 RPG. `docs/game-design-document.md`에 직업 4종(기사/헌터/마법사/성령사)·전투 공식·속성 상성·상태이상 6종·장비 등급 4단계·경제 시스템까지 확정 설계 존재. `docs/HANDOFF_FOR_CLAUDE.md`(51KB, 최종 2026-06-10)에 따르면 전투·퀘스트(22개)·장비 강화·오디오·한글 폰트·Animator까지 구현 완료, Boot→Lobby Play 테스트 통과(2026-05-25), 스토어 출시 준비 착수(BuildConfiguration/BuildScript/AndroidManifest), Higgsfield AI로 아이템 아이콘 158개 매일 자동 교체하는 GitHub Actions cron까지 구축됨(단, 별도 브랜치에 있어 기본 브랜치 머지 전까지 미작동). 남은 작업(§10): Build All Scenes 재실행(Unity 에디터 필요) / 슬라이스 아이콘→ID 매핑 / React 데모-Unity 연동 방식 미확정 / iOS·Android 실기기 빌드 테스트. **제약**: Unity 에디터·실행 파일은 CEO 로컬 PC(`C:\Users\gogok\lord-of-dark`)에만 있어, 이 세션(클라우드, Unity 미설치)에서는 git에 커밋된 코드·문서 확인·수정까지만 가능하고 씬 빌드·Play 테스트·실제 구동은 CEO PC에서만 가능 — 트레이딩 엔진과 동일한 구조적 제약. |
 | M-91 | 저장소분리 | GitHub 저장소를 3개로 완전 분리 (2026-08-08). `receipt-dashboard`(구, 브랜치 공유 방식) → `balmygarden-platform`(플랫폼, 이 저장소)과 `balmydaddy-receipt`(영수증 앱)로 코드 이관. `lord-of-dark`(게임)는 이미 독립. Vercel 프로젝트도 `balmygarden-platform`/`receipt-app` 각각 이름에 맞게 리네임 + 새 저장소로 Git 연결 재설정. 3트랙 저장소·배포가 서로 완전히 독립되어, M-85·M-87에서 반복된 "한 저장소 여러 브랜치, 브랜치별 다른 프로덕션" 배포 착오 구조 자체가 사라짐. |
+| M-92 | Notion근본해결 | `NOTION_DATABASE_ID` 수동 등록 3회 연속 실패 원인 규명 + 근본 해결 (2026-08-09). `/api/notion`을 `notion.search({filter:{property:"object",value:"data_source"}})`로 통합에 연결된 데이터소스를 자동 탐지하도록 전환 — 이름에 "Agency" 포함된 것 우선 선택, `NOTION_DATABASE_ID` 환경변수 완전 제거. 배포 후 디버그 엔드포인트로 검증: 통합에 연결된 데이터소스 2개("BALMYGARDEN Agency Log", "GOSARI 리비전 트래커") 확인, 자동 탐지가 정확히 전자를 선택함. Notion MCP로 스키마 직접 조회 결과 Name/Type/Status/Date 4개 속성이 코드와 완전 일치 — 코드는 정상. 단, 같은 데이터소스를 SQL로 조회한 결과 **최신 항목이 전부 2026-06-25~07-06 CEO 수동 생성 페이지뿐, 앱이 자동 저장한 로그는 지금까지 0건**. 이전 cron "Run" 200 응답은 구버전(`databases.query` 오류) 배포 시점이었고, `/api/cron` 핸들러가 Notion 저장 실패를 try/catch로 삼켜 오류를 감춘 채 200을 반환하는 구조 때문으로 추정. **최종 종단검증 미완료** — CEO가 Vercel Cron Jobs에서 "Run"을 다시 눌러 지금 배포된 코드로 실제 저장 성공 여부를 확인해야 함(세션 환경의 프록시가 `*.vercel.app` 도메인 직접 POST를 차단해 이 세션에서는 자체 테스트 불가). |
 
 ---
 
@@ -133,4 +134,4 @@
 
 ---
 
-_Last updated: 2026-08-08 — M-91 / GitHub 저장소 3분리 완료_
+_Last updated: 2026-08-09 — M-92 / Notion 연동 자동 탐지 근본 해결, 종단검증 CEO 확인 대기_
