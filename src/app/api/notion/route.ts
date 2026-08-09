@@ -41,6 +41,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "env 미설정" }, { status: 500 });
   }
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") ?? "20"), 50);
+
+  if (req.nextUrl.searchParams.get("debug") === "1") {
+    const res = await notion.search({
+      filter: { property: "object", value: "data_source" },
+      page_size: 20,
+    });
+    type SearchDataSource = { id: string; title?: { plain_text: string }[] };
+    const results = res.results as unknown as SearchDataSource[];
+    return NextResponse.json({
+      count: results.length,
+      sources: results.map((r) => ({ id: r.id, title: (r.title ?? []).map((t) => t.plain_text).join("") })),
+    });
+  }
+
   try {
     const dataSourceId = await resolveDataSourceId();
     const res = await notion.dataSources.query({
