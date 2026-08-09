@@ -86,5 +86,7 @@ export async function GET(req: NextRequest) {
     results.agent = { key: agent.key, error: (e as Error).message };
   }
 
+  console.log("[cron] run result", JSON.stringify({ ran: new Date().toISOString(), results }));
+
   return NextResponse.json({ ran: new Date().toISOString(), results });
 }
