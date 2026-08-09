@@ -2,21 +2,47 @@ import { NextRequest, NextResponse } from "next/server";
 import { Client, type BlockObjectRequest, type PageObjectResponse } from "@notionhq/client";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const DB_ID = process.env.NOTION_DATABASE_ID ?? "";
+
+/**
+ * NOTION_DATABASE_ID 수동 복사가 반복적으로 틀린 ID(페이지/뷰 ID)로
+ * 등록되는 문제가 있어, 검색으로 실제 접근 가능한 data source를 찾는다.
+ * 통합(integration)에 연결된 데이터소스 중 이름에 "Agency"가 들어간
+ * 것을 우선한다 — 그것도 없으면 연결된 첫 번째 data source를 쓴다.
+ */
+let cachedDataSourceId: string | null = null;
+
+async function resolveDataSourceId(): Promise<string> {
+  if (cachedDataSourceId) return cachedDataSourceId;
+
+  const res = await notion.search({
+    filter: { property: "object", value: "data_source" },
+    page_size: 20,
+  });
+
+  if (res.results.length === 0) {
+    throw new Error(
+      "연동(BALMYGARDEN Agency)에 연결된 데이터베이스가 하나도 없습니다. " +
+        "Notion에서 대상 데이터베이스를 열어 '···' → 연결 추가하기에서 직접 연결해주세요."
+    );
+  }
+
+  type SearchDataSource = { id: string; title?: { plain_text: string }[] };
+  const results = res.results as unknown as SearchDataSource[];
+  const preferred = results.find((r) =>
+    (r.title ?? []).some((t) => t.plain_text?.includes("Agency"))
+  );
+  cachedDataSourceId = (preferred ?? results[0]).id;
+  return cachedDataSourceId;
+}
 
 /* GET /api/notion?limit=20 — 최근 Notion 기록 조회 (에이전트 컨텍스트용) */
 export async function GET(req: NextRequest) {
-  if (!process.env.NOTION_API_KEY || !DB_ID) {
+  if (!process.env.NOTION_API_KEY) {
     return NextResponse.json({ error: "env 미설정" }, { status: 500 });
   }
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") ?? "20"), 50);
   try {
-    // @notionhq/client v5+: 조회는 database가 아니라 그 안의 data source 단위로 한다.
-    const db = await notion.databases.retrieve({ database_id: DB_ID });
-    const dataSourceId = (db as unknown as { data_sources: { id: string }[] }).data_sources[0]?.id;
-    if (!dataSourceId) {
-      return NextResponse.json({ error: "데이터베이스에 data source가 없습니다." }, { status: 500 });
-    }
+    const dataSourceId = await resolveDataSourceId();
     const res = await notion.dataSources.query({
       data_source_id: dataSourceId,
       sorts: [{ property: "Date", direction: "descending" }],
@@ -42,15 +68,17 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.NOTION_API_KEY || !DB_ID) {
+  if (!process.env.NOTION_API_KEY) {
     return NextResponse.json(
-      { error: "NOTION_API_KEY 또는 NOTION_DATABASE_ID 환경변수가 설정되지 않았습니다." },
+      { error: "NOTION_API_KEY 환경변수가 설정되지 않았습니다." },
       { status: 500 }
     );
   }
 
   try {
     const { action, payload } = await req.json();
+    const dataSourceId = await resolveDataSourceId();
+    const parent = { data_source_id: dataSourceId, type: "data_source_id" as const };
 
     if (action === "save_workflow") {
       const { workflowName, input, results } = payload as {
@@ -71,7 +99,7 @@ export async function POST(req: NextRequest) {
       ];
 
       const page = await notion.pages.create({
-        parent: { database_id: DB_ID },
+        parent,
         properties: {
           Name: { title: [{ text: { content: `[워크플로우] ${workflowName}` } }] },
           Type: { select: { name: "워크플로우" } },
@@ -98,7 +126,7 @@ export async function POST(req: NextRequest) {
       ]);
 
       const page = await notion.pages.create({
-        parent: { database_id: DB_ID },
+        parent,
         properties: {
           Name: { title: [{ text: { content: `[대화] ${agentKey} — ${agentRole}` } }] },
           Type: { select: { name: "대화" } },
@@ -125,7 +153,7 @@ export async function POST(req: NextRequest) {
       ];
 
       const page = await notion.pages.create({
-        parent: { database_id: DB_ID },
+        parent,
         properties: {
           Name: { title: [{ text: { content: `[${category}] ${name}` } }] },
           Type: { select: { name: "프롬프트" } },
@@ -146,7 +174,7 @@ export async function POST(req: NextRequest) {
       };
       const children: BlockObjectRequest[] = paragraphs(content);
       const page = await notion.pages.create({
-        parent: { database_id: DB_ID },
+        parent,
         properties: {
           Name: { title: [{ text: { content: `[${source}] ${title}` } }] },
           Type: { select: { name: "로그" } },
@@ -171,7 +199,7 @@ export async function POST(req: NextRequest) {
         heading("➡️ 다음 수정"), ...paragraphs(next || "(없음)"),
       ];
       const page = await notion.pages.create({
-        parent: { database_id: DB_ID },
+        parent,
         properties: {
           Name: { title: [{ text: { content: `[리뷰] ${track} ${version} by ${agent}` } }] },
           Type: { select: { name: "리뷰" } },
