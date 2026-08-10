@@ -1,7 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const client = new Anthropic();
+async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
+  const client = new Anthropic();
+  const msg = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 1000,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userMessage }],
+  });
+  return msg.content[0]?.type === "text" ? msg.content[0].text : "(응답 없음)";
+}
+
+/* Claude 크레딧 소진 등으로 위 호출이 실패할 때만 쓰는 무료 대체 경로.
+   GEMINI_API_KEY는 이미 api/ocr에서 쓰고 있는 값을 그대로 재사용한다. */
+async function callGemini(systemPrompt: string, userMessage: string): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY 미설정 — Gemini 대체도 불가");
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    systemInstruction: systemPrompt,
+  });
+  const result = await model.generateContent(userMessage);
+  return result.response.text() || "(응답 없음)";
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,16 +34,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "systemPrompt and userMessage required" }, { status: 400 });
     }
 
-    const msg = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userMessage }],
-    });
-
-    const text =
-      msg.content[0]?.type === "text" ? msg.content[0].text : "(응답 없음)";
-    return NextResponse.json({ text });
+    try {
+      const text = await callClaude(systemPrompt, userMessage);
+      return NextResponse.json({ text, provider: "claude" });
+    } catch (claudeErr: unknown) {
+      try {
+        const text = await callGemini(systemPrompt, userMessage);
+        console.log("[agent] Claude 실패 → Gemini 무료 대체 사용:", (claudeErr as Error).message);
+        return NextResponse.json({ text, provider: "gemini-fallback" });
+      } catch {
+        throw claudeErr;
+      }
+    }
   } catch (e: unknown) {
     const err = e as Error;
     return NextResponse.json({ error: err.message ?? "Unknown error" }, { status: 500 });
