@@ -303,13 +303,15 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
           }}
         >
           <div style={{ fontWeight: 700, marginBottom: "6px" }}>연결 조건</div>
-          <div>· 로컬: `python server.py` 실행 후 localhost:3000 접속 시 직결</div>
-          <div>· 배포본: 트레이딩 서버를 터널(ngrok·cloudflared)로 노출하고</div>
+          <div>· 로컬: `python server.py` 실행 후 localhost:5000 접속 시 직결</div>
+          <div>· 배포본: 트레이딩 서버를 터널(ngrok·cloudflared)의 고정 도메인으로 노출하고</div>
           <div style={{ paddingLeft: "10px" }}>
             Vercel 환경변수 <code style={{ color: "#fde68a" }}>TRADING_SERVER_URL</code> 에 그 HTTPS 주소 등록
           </div>
           <div style={{ marginTop: "6px", color: "#94a3b8" }}>
-            배포본이 localhost를 직접 호출하면 브라우저가 mixed content로 차단한다.
+            배포본이 localhost를 직접 호출하면 브라우저가 mixed content로 차단한다. Quick
+            Tunnel(무료 임시 주소)은 재시작마다 주소가 바뀌니 고정 도메인을 예약해서 써야
+            등록을 반복하지 않는다.
           </div>
         </div>
       )}
