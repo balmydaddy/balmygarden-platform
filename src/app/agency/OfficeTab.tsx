@@ -263,13 +263,14 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
   const send = async () => {
     if (!selected || !order.trim() || sending) return;
     const agent = agents.find((a) => a.staff.key === selected)!;
+    const orderText = order.trim();
     setSending(true);
-    addLog("CEO", "#a5b4fc", `→ ${selected}: ${order.trim()}`);
+    addLog("CEO", "#a5b4fc", `→ ${selected}: ${orderText}`);
 
     setAgents((prev) =>
       prev.map((a) =>
         a.staff.key === selected
-          ? { ...a, activity: "업무", task: order.trim(), say: "확인했습니다" }
+          ? { ...a, activity: "업무", task: orderText, say: "확인했습니다" }
           : a
       )
     );
@@ -284,7 +285,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
             `한국어로, 300자 이내로, 액션 아이템 중심으로 답한다.\n\n` +
             `[BALMYGARDEN 기업 컨텍스트]\n` +
             MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n"),
-          userMessage: order.trim(),
+          userMessage: orderText,
         }),
       });
       const data = (await res.json()) as { text?: string; error?: string };
@@ -293,6 +294,27 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
         setAgents((prev) =>
           prev.map((a) => (a.staff.key === selected ? { ...a, say: "완료했습니다" } : a))
         );
+        /* 화면 로그는 새로고침하면 사라진다 — Notion에 남겨야 실제 기록이 된다.
+           실패해도 화면 동작에는 영향 주지 않는다(best-effort). */
+        try {
+          await fetch("/api/notion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "save_chat",
+              payload: {
+                agentKey: selected,
+                agentRole: agent.staff.role,
+                messages: [
+                  { role: "user", text: orderText },
+                  { role: "agent", text: data.text },
+                ],
+              },
+            }),
+          });
+        } catch {
+          /* 저장 실패는 조용히 무시 — 화면 로그는 이미 표시됨 */
+        }
       } else {
         addLog(selected, "#ef4444", `응답 실패 — ${data.error ?? res.status}`);
       }
