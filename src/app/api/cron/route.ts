@@ -31,7 +31,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const origin = req.nextUrl.origin;
+  // Vercel Cron은 프로덕션 별칭이 아니라 배포 고유 URL로 이 라우트를 호출한다.
+  // 그 고유 URL은 Deployment Protection(Vercel Authentication)에 걸려 있어,
+  // req.nextUrl.origin을 그대로 내부 fetch에 재사용하면 /api/naver-news,
+  // /api/agent, /api/notion 호출이 전부 401 "Protected deployment"로 막힌다.
+  // 보호되지 않는 프로덕션 별칭 도메인을 고정으로 사용해 우회한다.
+  const origin = process.env.SITE_ORIGIN || "https://balmygarden-platform.vercel.app";
   const results: Record<string, unknown> = {};
 
   // 1) SCOUT — 프리셋 전량 수집 + Notion 저장
