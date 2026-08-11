@@ -29,6 +29,13 @@ const TICK_MS = 4000;
 const MAX_LOG = 40;
 const THREADS_KEY = "balmygarden_office_threads_v1";
 
+/* 담당자 홈존 → Notion Track. 사업별 보드와 값이 일치해야 한다. */
+const ZONE_TRACK: Partial<Record<ZoneId, string>> = {
+  music: "음악",
+  app: "영수증앱",
+  game: "게임",
+};
+
 const WALL = "#1a1410";
 
 const card = (border = "#1e293b"): CSSProperties => ({
@@ -70,7 +77,7 @@ function saveThreads(t: Threads) {
   }
 }
 
-/* ── 사람 캐릭터 ── */
+/* ── 사람 캐릭터 ── 각진 사각 몸통 대신 둥근 캡슐형 + 작은 팔로 부드럽게. */
 function Person({
   a,
   selected,
@@ -82,9 +89,10 @@ function Person({
   scale: number;
   onClick: () => void;
 }) {
-  const head = 7 * scale;
+  const head = 7.5 * scale;
   const bodyW = 9 * scale;
   const bodyH = 10 * scale;
+  const armSize = 3.4 * scale;
 
   return (
     <button
@@ -110,12 +118,12 @@ function Person({
       {a.say && (
         <div
           style={{
-            marginBottom: "2px",
-            padding: "2px 6px",
+            marginBottom: "3px",
+            padding: "3px 7px",
             background: "#fefce8",
             color: "#1c1917",
             fontSize: `${8 * scale}px`,
-            borderRadius: "4px",
+            borderRadius: "10px",
             whiteSpace: "nowrap",
             border: "1px solid #a8a29e",
             fontWeight: 600,
@@ -135,36 +143,67 @@ function Person({
           height: `${head}px`,
           borderRadius: "50%",
           background: "#e8c39e",
-          border: `1px solid ${selected ? "#fff" : "#00000066"}`,
-          boxShadow: selected ? "0 0 0 2px #fff" : "none",
+          border: `1px solid ${selected ? "#fff" : "#00000055"}`,
+          boxShadow: selected
+            ? "0 0 0 2px #fff"
+            : "inset -2px -2px 3px #00000022, inset 2px 2px 3px #ffffff33",
+          zIndex: 2,
         }}
       />
-      {/* 몸통 */}
-      <div
-        style={{
-          width: `${bodyW}px`,
-          height: `${bodyH}px`,
-          marginTop: `-${1 * scale}px`,
-          background: a.staff.wear,
-          borderRadius: `${2 * scale}px ${2 * scale}px 1px 1px`,
-          border: "1px solid #00000055",
-          boxShadow:
-            a.activity === "회의"
-              ? "0 0 8px #f59e0b"
-              : a.activity === "업무"
-                ? `0 0 6px ${a.staff.color}`
-                : "none",
-        }}
-      />
+      {/* 몸통 + 팔 */}
+      <div style={{ position: "relative", marginTop: `-${1.5 * scale}px` }}>
+        {/* 팔(왼) */}
+        <div
+          style={{
+            position: "absolute",
+            left: `-${armSize * 0.55}px`,
+            top: `${bodyH * 0.1}px`,
+            width: `${armSize}px`,
+            height: `${armSize}px`,
+            borderRadius: "50%",
+            background: a.staff.wear,
+            border: "1px solid #00000044",
+          }}
+        />
+        {/* 팔(오) */}
+        <div
+          style={{
+            position: "absolute",
+            right: `-${armSize * 0.55}px`,
+            top: `${bodyH * 0.1}px`,
+            width: `${armSize}px`,
+            height: `${armSize}px`,
+            borderRadius: "50%",
+            background: a.staff.wear,
+            border: "1px solid #00000044",
+          }}
+        />
+        {/* 몸통 — 둥근 캡슐형 */}
+        <div
+          style={{
+            width: `${bodyW}px`,
+            height: `${bodyH}px`,
+            background: a.staff.wear,
+            borderRadius: "48% 48% 34% 34%",
+            border: "1px solid #00000055",
+            boxShadow:
+              a.activity === "회의"
+                ? "0 0 8px #f59e0b"
+                : a.activity === "업무"
+                  ? `0 0 6px ${a.staff.color}`
+                  : "none",
+          }}
+        />
+      </div>
       {/* 이름표 */}
       <span
         style={{
-          marginTop: "1px",
+          marginTop: "2px",
           fontSize: `${7 * scale}px`,
           color: selected ? "#fff" : "#e7e5e4",
           background: "#000000aa",
-          padding: "0 3px",
-          borderRadius: "2px",
+          padding: "1px 5px",
+          borderRadius: "8px",
           whiteSpace: "nowrap",
           fontWeight: selected ? 700 : 500,
           letterSpacing: "-0.2px",
@@ -354,6 +393,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
                   { role: "user", text: orderText },
                   { role: "agent", text: data.text },
                 ],
+                businessTrack: ZONE_TRACK[agent.staff.home] ?? "전체",
               },
             }),
           });
@@ -494,7 +534,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
                   background: "#7c5c3b",
                   border: "1px solid #4a3520",
                   borderTop: "1px solid #9c7449",
-                  borderRadius: "2px",
+                  borderRadius: "4px",
                   boxShadow: "0 2px 0 #3d2e1e",
                   zIndex: 10,
                 }}
@@ -510,7 +550,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
                   height: `${5 * scale}px`,
                   background: "#0f172a",
                   border: "1px solid #334155",
-                  borderRadius: "1px",
+                  borderRadius: "2px",
                   zIndex: 11,
                 }}
               />
@@ -525,7 +565,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
                   height: `${7 * scale}px`,
                   background: "#3f3f46",
                   border: "1px solid #27272a",
-                  borderRadius: "3px",
+                  borderRadius: "50%",
                   zIndex: 9,
                 }}
               />
