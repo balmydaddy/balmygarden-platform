@@ -6,24 +6,60 @@ import { SCOUT_PRESETS } from "@/app/api/naver-news/route";
 /**
  * 일일 자동화 배치 — Vercel Cron이 매일 00:00 UTC(09:00 KST)에 호출한다.
  *
- * R-03: SCOUT 뉴스 프리셋 전량 수집 + Notion 저장.
- * 캐릭터 로테이션: STAFF 12명 중 그날짜 기준 1명을 골라 실제 업무 1건을
- * Claude로 실행시키고 결과를 Notion에 남긴다 — 화면 애니메이션과 별개로
- * 서버에서 실제로 진행되는 유일한 자동화 단위.
+ * 1) SCOUT: 프리셋 전량(music/app/game/safety/trend) 수집 + Notion 저장.
+ * 2) 블로그팀: trend 조사 결과를 INK(정리)→CHECK(1차검토)→CHIEF(최종검토)로
+ *    넘겨 네이버 블로그 초안을 만든다. 단계별 결과 전부 Notion 기록.
+ * 3) 나머지 전 직원: 병렬로 하루 업무 1건씩 실행 — 화면 애니메이션과 별개로
+ *    서버에서 실제로 진행되는 자동화.
  *
- * Hobby 플랜은 cron 실행 빈도가 1일 1회로 제한된다 — 그래서 "실시간 상시
- * 업무"가 아니라 "하루 1명씩 순번제로 실제 업무 1건" 구조로 설계했다.
+ * Hobby 플랜은 cron 실행 빈도가 1일 1회로 제한된다.
  */
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-function dayIndex(mod: number): number {
-  const start = Date.UTC(new Date().getUTCFullYear(), 0, 1);
-  const now = Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate());
-  const dayOfYear = Math.floor((now - start) / 86400000);
-  return dayOfYear % mod;
+// Vercel Cron은 배포 고유 URL(Deployment Protection 적용됨)로 호출하므로
+// req.nextUrl.origin을 쓰면 내부 fetch가 전부 막힌다. 보호되지 않는
+// 프로덕션 별칭을 고정으로 쓴다.
+const SITE_ORIGIN = process.env.SITE_ORIGIN || "https://balmygarden-platform.vercel.app";
+
+async function callAgent(name: string, role: string, userMessage: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${SITE_ORIGIN}/api/agent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemPrompt:
+          `당신은 BALMYGARDEN 에이전시의 ${name}입니다. 담당: ${role}.\n한국어로 답한다.\n\n` +
+          `[BALMYGARDEN 기업 컨텍스트]\n` + MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n"),
+        userMessage,
+      }),
+    });
+    const data = (await res.json()) as { text?: string };
+    return data.text ?? null;
+  } catch {
+    return null;
+  }
 }
+
+async function saveLog(source: string, title: string, content: string) {
+  try {
+    await fetch(`${SITE_ORIGIN}/api/notion`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "save_log", payload: { source, title, content } }),
+    });
+  } catch {
+    /* 저장 실패해도 파이프라인은 계속 진행 */
+  }
+}
+
+type ScoutResult = {
+  preset: string;
+  status?: number;
+  body?: { groups?: { query: string; entries: { title: string; summary: string }[] }[] };
+  error?: string;
+};
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
@@ -31,65 +67,82 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // Vercel Cron은 프로덕션 별칭이 아니라 배포 고유 URL로 이 라우트를 호출한다.
-  // 그 고유 URL은 Deployment Protection(Vercel Authentication)에 걸려 있어,
-  // req.nextUrl.origin을 그대로 내부 fetch에 재사용하면 /api/naver-news,
-  // /api/agent, /api/notion 호출이 전부 401 "Protected deployment"로 막힌다.
-  // 보호되지 않는 프로덕션 별칭 도메인을 고정으로 사용해 우회한다.
-  const origin = process.env.SITE_ORIGIN || "https://balmygarden-platform.vercel.app";
   const results: Record<string, unknown> = {};
+  const today = new Date().toISOString().slice(0, 10);
 
-  // 1) SCOUT — 프리셋 전량 수집 + Notion 저장
-  const scoutResults = await Promise.allSettled(
+  // 1) SCOUT — 프리셋 전량 수집 + Notion 저장 (music/app/game/safety/trend)
+  const scoutSettled = await Promise.allSettled(
     Object.keys(SCOUT_PRESETS).map(async (preset) => {
-      const res = await fetch(`${origin}/api/naver-news`, {
+      const res = await fetch(`${SITE_ORIGIN}/api/naver-news`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ preset }),
       });
-      return { preset, status: res.status, body: await res.json() };
+      return { preset, status: res.status, body: await res.json() } as ScoutResult;
     })
   );
-  results.scout = scoutResults.map((r) => (r.status === "fulfilled" ? r.value : { error: r.reason?.message }));
+  const scout: ScoutResult[] = scoutSettled.map((r) =>
+    r.status === "fulfilled" ? r.value : { preset: "?", error: r.reason?.message }
+  );
+  results.scout = scout;
 
-  // 2) 캐릭터 로테이션 — 오늘 담당자 1명 실제 업무 실행
-  const agent = STAFF[dayIndex(STAFF.length)];
-  try {
-    const agentRes = await fetch(`${origin}/api/agent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemPrompt:
-          `당신은 BALMYGARDEN 에이전시의 ${agent.name}입니다. 담당: ${agent.role}.\n` +
-          `한국어로, 300자 이내로, 오늘 실행할 액션 아이템 중심으로 답한다.\n\n` +
-          `[BALMYGARDEN 기업 컨텍스트]\n` +
-          MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n"),
-        userMessage:
-          "오늘 하루 담당 업무 중 우선순위가 가장 높은 것 하나를 정해서, 지금 바로 실행 가능한 구체적인 결과물이나 다음 행동을 제시해.",
-      }),
-    });
-    const agentData = (await agentRes.json()) as { text?: string; error?: string };
+  // 2) 블로그팀 파이프라인 — trend 조사 결과 → INK 정리 → CHECK 1차검토 → CHIEF 최종검토
+  const trend = scout.find((r) => r.preset === "trend");
+  const research = (trend?.body?.groups ?? [])
+    .map((g) => `[${g.query}]\n` + g.entries.slice(0, 5).map((e) => `- ${e.title}: ${e.summary}`).join("\n"))
+    .join("\n\n");
 
-    if (agentData.text) {
-      const notionRes = await fetch(`${origin}/api/notion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "save_log",
-          payload: {
-            source: "자동화",
-            title: `${agent.name} — 일일 업무 (${new Date().toISOString().slice(0, 10)})`,
-            content: agentData.text,
-          },
-        }),
-      });
-      results.agent = { key: agent.key, ok: notionRes.ok, text: agentData.text.slice(0, 200) };
+  if (research.trim()) {
+    const draft = await callAgent(
+      "INK",
+      "블로그 초안 정리",
+      `아래는 SCOUT가 오늘 조사한 트렌드 뉴스다. 이 중 네이버 블로그 글감으로 가장 좋은 주제 1개를 골라 ` +
+        `1200자 내외 블로그 초안(제목+본문)을 작성해라.\n\n${research}`
+    );
+    if (draft) {
+      await saveLog("블로그팀", `블로그 초안 ${today} (INK)`, draft);
+
+      const check = await callAgent(
+        "CHECK",
+        "블로그 1차 검토",
+        `아래는 INK가 쓴 블로그 초안이다. 과장급 검토자로서 사실관계·톤·표시광고 리스크를 점검하고, ` +
+          `수정 필요 시 구체적으로, 문제없으면 "승인"이라 명확히 밝혀라.\n\n${draft}`
+      );
+      if (check) {
+        await saveLog("블로그팀", `블로그 1차 검토 ${today} (CHECK)`, check);
+
+        const chief = await callAgent(
+          "CHIEF",
+          "블로그 최종 검토·승인",
+          `아래는 초안과 과장(CHECK) 1차 검토다. 팀장으로서 게시 여부를 "승인" 또는 "반려"로 명확히 ` +
+            `결정하고 이유를 짧게 남겨라.\n\n[초안]\n${draft}\n\n[1차 검토]\n${check}`
+        );
+        if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief);
+        results.blogTeam = { ok: !!chief };
+      } else {
+        results.blogTeam = { ok: false, stage: "CHECK 실패" };
+      }
     } else {
-      results.agent = { key: agent.key, error: agentData.error };
+      results.blogTeam = { ok: false, stage: "INK 실패" };
     }
-  } catch (e: unknown) {
-    results.agent = { key: agent.key, error: (e as Error).message };
+  } else {
+    results.blogTeam = { ok: false, stage: "트렌드 조사 결과 없음" };
   }
+
+  // 3) 나머지 전 직원 — 병렬로 하루 업무 1건씩 (SCOUT·블로그팀은 위에서 이미 실행)
+  const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF"].includes(s.key));
+  const dailySettled = await Promise.allSettled(
+    dailyStaff.map(async (s) => {
+      const text = await callAgent(
+        s.name,
+        s.role,
+        "오늘 하루 담당 업무 중 우선순위가 가장 높은 것 하나를 정해서, 지금 바로 실행 가능한 구체적인 결과물이나 다음 행동을 300자 이내로 제시해."
+      );
+      if (text) await saveLog("자동화", `${s.name} — 일일 업무 (${today})`, text);
+      return { key: s.key, ok: !!text };
+    })
+  );
+  results.daily = dailySettled.map((r) => (r.status === "fulfilled" ? r.value : { error: r.reason?.message }));
 
   console.log("[cron] run result", JSON.stringify({ ran: new Date().toISOString(), results }));
 
