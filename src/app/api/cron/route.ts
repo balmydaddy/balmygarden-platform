@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { STAFF } from "@/app/agency/office";
+import { STAFF, type ZoneId } from "@/app/agency/office";
 import { MEMORY } from "@/app/agency/memory";
 import { SCOUT_PRESETS } from "@/app/api/naver-news/route";
 
@@ -23,6 +23,13 @@ export const maxDuration = 60;
 // 프로덕션 별칭을 고정으로 쓴다.
 const SITE_ORIGIN = process.env.SITE_ORIGIN || "https://balmygarden-platform.vercel.app";
 
+/* 담당자 홈존 → Notion Track. Track select 옵션명과 정확히 일치해야 한다. */
+const ZONE_TRACK: Partial<Record<ZoneId, string>> = {
+  music: "음악",
+  app: "영수증앱",
+  game: "게임",
+};
+
 async function callAgent(name: string, role: string, userMessage: string): Promise<string | null> {
   try {
     const res = await fetch(`${SITE_ORIGIN}/api/agent`, {
@@ -42,12 +49,12 @@ async function callAgent(name: string, role: string, userMessage: string): Promi
   }
 }
 
-async function saveLog(source: string, title: string, content: string) {
+async function saveLog(source: string, title: string, content: string, businessTrack?: string) {
   try {
     await fetch(`${SITE_ORIGIN}/api/notion`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "save_log", payload: { source, title, content } }),
+      body: JSON.stringify({ action: "save_log", payload: { source, title, content, businessTrack } }),
     });
   } catch {
     /* 저장 실패해도 파이프라인은 계속 진행 */
@@ -100,7 +107,7 @@ export async function GET(req: NextRequest) {
         `1200자 내외 블로그 초안(제목+본문)을 작성해라.\n\n${research}`
     );
     if (draft) {
-      await saveLog("블로그팀", `블로그 초안 ${today} (INK)`, draft);
+      await saveLog("블로그팀", `블로그 초안 ${today} (INK)`, draft, "블로그팀");
 
       const check = await callAgent(
         "CHECK",
@@ -109,7 +116,7 @@ export async function GET(req: NextRequest) {
           `수정 필요 시 구체적으로, 문제없으면 "승인"이라 명확히 밝혀라.\n\n${draft}`
       );
       if (check) {
-        await saveLog("블로그팀", `블로그 1차 검토 ${today} (CHECK)`, check);
+        await saveLog("블로그팀", `블로그 1차 검토 ${today} (CHECK)`, check, "블로그팀");
 
         const chief = await callAgent(
           "CHIEF",
@@ -117,7 +124,7 @@ export async function GET(req: NextRequest) {
           `아래는 초안과 과장(CHECK) 1차 검토다. 팀장으로서 게시 여부를 "승인" 또는 "반려"로 명확히 ` +
             `결정하고 이유를 짧게 남겨라.\n\n[초안]\n${draft}\n\n[1차 검토]\n${check}`
         );
-        if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief);
+        if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief, "블로그팀");
         results.blogTeam = { ok: !!chief };
       } else {
         results.blogTeam = { ok: false, stage: "CHECK 실패" };
@@ -138,7 +145,7 @@ export async function GET(req: NextRequest) {
         s.role,
         "오늘 하루 담당 업무 중 우선순위가 가장 높은 것 하나를 정해서, 지금 바로 실행 가능한 구체적인 결과물이나 다음 행동을 300자 이내로 제시해."
       );
-      if (text) await saveLog("자동화", `${s.name} — 일일 업무 (${today})`, text);
+      if (text) await saveLog("자동화", `${s.name} — 일일 업무 (${today})`, text, ZONE_TRACK[s.home] ?? "전체");
       return { key: s.key, ok: !!text };
     })
   );
