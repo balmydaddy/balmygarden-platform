@@ -22,9 +22,12 @@ type Agent = {
 };
 
 type LogLine = { id: number; t: string; who: string; color: string; text: string };
+type ChatMsg = { role: "user" | "agent"; text: string; t: string };
+type Threads = Record<string, ChatMsg[]>;
 
 const TICK_MS = 4000;
 const MAX_LOG = 40;
+const THREADS_KEY = "balmygarden_office_threads_v1";
 
 const WALL = "#1a1410";
 
@@ -45,6 +48,26 @@ function initialAgents(): Agent[] {
     const seat = seatIn(zone, mates.findIndex((m) => m.key === s.key), mates.length);
     return { staff: s, x: seat.x, y: seat.y, at: s.home, activity: "대기", task: "", say: "" };
   });
+}
+
+/* 대화 이력은 새로고침해도 남아야 한다 — Notion에도 저장하지만(save_chat),
+   화면에 바로 다시 보여주려면 브라우저에도 들고 있어야 한다. */
+function loadThreads(): Threads {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(THREADS_KEY);
+    return raw ? (JSON.parse(raw) as Threads) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveThreads(t: Threads) {
+  try {
+    window.localStorage.setItem(THREADS_KEY, JSON.stringify(t));
+  } catch {
+    /* 저장 공간 부족 등은 화면 동작에 영향 주지 않게 무시 */
+  }
 }
 
 /* ── 사람 캐릭터 ── */
@@ -156,6 +179,7 @@ function Person({
 export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
   const [log, setLog] = useState<LogLine[]>([]);
+  const [threads, setThreads] = useState<Threads>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [order, setOrder] = useState("");
   const [sending, setSending] = useState(false);
@@ -167,6 +191,10 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
   useEffect(() => {
     agentsRef.current = agents;
   }, [agents]);
+
+  useEffect(() => {
+    setThreads(loadThreads());
+  }, []);
 
   const scale = isMobile ? 1.1 : 1.6;
 
@@ -264,18 +292,29 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
     if (!selected || !order.trim() || sending) return;
     const agent = agents.find((a) => a.staff.key === selected)!;
     const orderText = order.trim();
+    const agentKey = selected;
     setSending(true);
-    addLog("CEO", "#a5b4fc", `→ ${selected}: ${orderText}`);
+    addLog("CEO", "#a5b4fc", `→ ${agentKey}: ${orderText}`);
+
+    setThreads((prev) => {
+      const next = { ...prev, [agentKey]: [...(prev[agentKey] ?? []), { role: "user" as const, text: orderText, t: nowText() }] };
+      saveThreads(next);
+      return next;
+    });
 
     setAgents((prev) =>
       prev.map((a) =>
-        a.staff.key === selected
+        a.staff.key === agentKey
           ? { ...a, activity: "업무", task: orderText, say: "확인했습니다" }
           : a
       )
     );
 
     try {
+      const history = (threads[agentKey] ?? [])
+        .slice(-6)
+        .map((m) => `${m.role === "user" ? "CEO" : agent.staff.name}: ${m.text}`)
+        .join("\n");
       const res = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -283,6 +322,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
           systemPrompt:
             `당신은 BALMYGARDEN 에이전시의 ${agent.staff.name}입니다. 담당: ${agent.staff.role}.\n` +
             `한국어로, 300자 이내로, 액션 아이템 중심으로 답한다.\n\n` +
+            (history ? `[최근 대화]\n${history}\n\n` : "") +
             `[BALMYGARDEN 기업 컨텍스트]\n` +
             MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n"),
           userMessage: orderText,
@@ -290,11 +330,16 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
       });
       const data = (await res.json()) as { text?: string; error?: string };
       if (data.text) {
-        addLog(selected, agent.staff.color, data.text.slice(0, 160));
+        addLog(agentKey, agent.staff.color, data.text.slice(0, 160));
+        setThreads((prev) => {
+          const next = { ...prev, [agentKey]: [...(prev[agentKey] ?? []), { role: "agent" as const, text: data.text!, t: nowText() }] };
+          saveThreads(next);
+          return next;
+        });
         setAgents((prev) =>
-          prev.map((a) => (a.staff.key === selected ? { ...a, say: "완료했습니다" } : a))
+          prev.map((a) => (a.staff.key === agentKey ? { ...a, say: "완료했습니다" } : a))
         );
-        /* 화면 로그는 새로고침하면 사라진다 — Notion에 남겨야 실제 기록이 된다.
+        /* 화면 로그·이력은 위에서 이미 남겼다 — Notion에도 영구 기록을 남긴다.
            실패해도 화면 동작에는 영향 주지 않는다(best-effort). */
         try {
           await fetch("/api/notion", {
@@ -303,7 +348,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
             body: JSON.stringify({
               action: "save_chat",
               payload: {
-                agentKey: selected,
+                agentKey,
                 agentRole: agent.staff.role,
                 messages: [
                   { role: "user", text: orderText },
@@ -313,13 +358,13 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
             }),
           });
         } catch {
-          /* 저장 실패는 조용히 무시 — 화면 로그는 이미 표시됨 */
+          /* 저장 실패는 조용히 무시 */
         }
       } else {
-        addLog(selected, "#ef4444", `응답 실패 — ${data.error ?? res.status}`);
+        addLog(agentKey, "#ef4444", `응답 실패 — ${data.error ?? res.status}`);
       }
     } catch (e) {
-      addLog(selected, "#ef4444", `호출 실패 — ${(e as Error).message}`);
+      addLog(agentKey, "#ef4444", `호출 실패 — ${(e as Error).message}`);
     } finally {
       setSending(false);
       setOrder("");
@@ -327,6 +372,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
   };
 
   const sel = agents.find((a) => a.staff.key === selected) ?? null;
+  const selThread = selected ? threads[selected] ?? [] : [];
 
   return (
     <div>
@@ -499,7 +545,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
         ))}
       </div>
 
-      {/* ── 지시창 + 로그 ── */}
+      {/* ── 지시창(원위치, 접힘) + 로그 ── */}
       <div
         style={{
           display: "grid",
@@ -508,92 +554,13 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
           alignItems: "start",
         }}
       >
-        <div style={card(selected ? "#6366F1" : "#1e293b")}>
+        <div style={card("#1e293b")}>
           <div style={{ fontSize: "10px", color: "#64748b", letterSpacing: "2px", marginBottom: "8px" }}>
             🎙️ 지시창
           </div>
-
-          {sel ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "8px 10px",
-                background: "#111827",
-                borderRadius: "8px",
-                marginBottom: "8px",
-              }}
-            >
-              <span style={{ fontSize: "16px" }}>{sel.staff.emoji}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "12px", color: sel.staff.color, fontWeight: 700 }}>
-                  {sel.staff.name}
-                </div>
-                <div style={{ fontSize: "10px", color: "#64748b" }}>{sel.staff.role}</div>
-              </div>
-              <span
-                style={{
-                  fontSize: "10px",
-                  padding: "2px 7px",
-                  borderRadius: "4px",
-                  background: "#1e293b",
-                  color: "#94a3b8",
-                }}
-              >
-                {sel.activity}
-              </span>
-            </div>
-          ) : (
-            <div style={{ fontSize: "12px", color: "#475569", padding: "10px 0", lineHeight: 1.6 }}>
-              화면에서 담당자를 클릭하면 여기서 직접 지시할 수 있다.
-            </div>
-          )}
-
-          <textarea
-            value={order}
-            onChange={(e) => setOrder(e.target.value)}
-            placeholder={sel ? `${sel.staff.name}에게 지시…` : "담당자를 먼저 선택한다"}
-            disabled={!sel || sending}
-            style={{
-              width: "100%",
-              minHeight: "70px",
-              background: "#111827",
-              border: "1px solid #1e293b",
-              borderRadius: "6px",
-              color: "#e2e8f0",
-              fontSize: "12px",
-              padding: "8px 10px",
-              fontFamily: "inherit",
-              resize: "vertical",
-              boxSizing: "border-box",
-            }}
-          />
-          <button
-            onClick={send}
-            disabled={!sel || !order.trim() || sending}
-            style={{
-              width: "100%",
-              marginTop: "7px",
-              padding: "9px",
-              borderRadius: "6px",
-              border: "none",
-              cursor: !sel || !order.trim() || sending ? "not-allowed" : "pointer",
-              background: !sel || !order.trim() || sending ? "#1e293b" : "#6366F1",
-              color: !sel || !order.trim() || sending ? "#475569" : "#fff",
-              fontSize: "12px",
-              fontWeight: 700,
-              fontFamily: "inherit",
-            }}
-          >
-            {sending ? "전송 중…" : "지시 전송"}
-          </button>
-
-          {sel?.task && (
-            <div style={{ marginTop: "8px", fontSize: "10px", color: "#64748b", lineHeight: 1.5 }}>
-              현재 업무: {sel.task}
-            </div>
-          )}
+          <div style={{ fontSize: "12px", color: "#475569", padding: "10px 0", lineHeight: 1.6 }}>
+            화면에서 담당자를 클릭하면 대화창이 열린다.
+          </div>
         </div>
 
         <div style={{ ...card(), maxHeight: "300px", display: "flex", flexDirection: "column" }}>
@@ -618,6 +585,174 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
           </div>
         </div>
       </div>
+
+      {/* ── 확대 대화창(모달) — 담당자 선택 시에만 뜬다.
+          바깥(배경) 클릭 시 자동으로 닫혀 위 "원래 지시창 위치"로 돌아간다. ── */}
+      {sel && (
+        <div
+          onClick={() => setSelected(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "#000000b3",
+            zIndex: 100,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: isMobile ? "12px" : "24px",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              ...card("#6366F1"),
+              width: "min(640px, 100%)",
+              height: isMobile ? "88vh" : "min(680px, 88vh)",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 20px 60px #000000aa",
+            }}
+          >
+            {/* 헤더 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 10px",
+                background: "#111827",
+                borderRadius: "8px",
+                marginBottom: "10px",
+              }}
+            >
+              <span style={{ fontSize: "18px" }}>{sel.staff.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "13px", color: sel.staff.color, fontWeight: 700 }}>
+                  {sel.staff.name}
+                </div>
+                <div style={{ fontSize: "10px", color: "#64748b" }}>{sel.staff.role}</div>
+              </div>
+              <span
+                style={{
+                  fontSize: "10px",
+                  padding: "2px 7px",
+                  borderRadius: "4px",
+                  background: "#1e293b",
+                  color: "#94a3b8",
+                }}
+              >
+                {sel.activity}
+              </span>
+              <button
+                onClick={() => setSelected(null)}
+                title="닫기"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#64748b",
+                  fontSize: "18px",
+                  cursor: "pointer",
+                  lineHeight: 1,
+                  padding: "0 2px",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 대화 이력 */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                padding: "4px 2px",
+                marginBottom: "10px",
+              }}
+            >
+              {selThread.length === 0 ? (
+                <div style={{ fontSize: "12px", color: "#475569", padding: "20px 0", textAlign: "center" }}>
+                  아직 대화 이력이 없다. 아래에서 첫 지시를 보내면 이 창에 쌓인다.
+                </div>
+              ) : (
+                selThread.map((m, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+                      maxWidth: "85%",
+                      background: m.role === "user" ? "#4338ca33" : "#1e293b",
+                      border: `1px solid ${m.role === "user" ? "#6366F1" : "#334155"}`,
+                      borderRadius: "10px",
+                      padding: "8px 10px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "9px",
+                        color: "#64748b",
+                        marginBottom: "3px",
+                        display: "flex",
+                        gap: "6px",
+                      }}
+                    >
+                      <span style={{ fontWeight: 700, color: m.role === "user" ? "#a5b4fc" : sel.staff.color }}>
+                        {m.role === "user" ? "CEO" : sel.staff.name}
+                      </span>
+                      <span>{m.t}</span>
+                    </div>
+                    <div style={{ fontSize: "12.5px", color: "#e2e8f0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* 입력 */}
+            <textarea
+              value={order}
+              onChange={(e) => setOrder(e.target.value)}
+              placeholder={`${sel.staff.name}에게 지시…`}
+              disabled={sending}
+              style={{
+                width: "100%",
+                minHeight: "64px",
+                background: "#111827",
+                border: "1px solid #1e293b",
+                borderRadius: "6px",
+                color: "#e2e8f0",
+                fontSize: "13px",
+                padding: "8px 10px",
+                fontFamily: "inherit",
+                resize: "vertical",
+                boxSizing: "border-box",
+              }}
+            />
+            <button
+              onClick={send}
+              disabled={!order.trim() || sending}
+              style={{
+                width: "100%",
+                marginTop: "7px",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "none",
+                cursor: !order.trim() || sending ? "not-allowed" : "pointer",
+                background: !order.trim() || sending ? "#1e293b" : "#6366F1",
+                color: !order.trim() || sending ? "#475569" : "#fff",
+                fontSize: "13px",
+                fontWeight: 700,
+                fontFamily: "inherit",
+              }}
+            >
+              {sending ? "전송 중…" : "지시 전송"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
