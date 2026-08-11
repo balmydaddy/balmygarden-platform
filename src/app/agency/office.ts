@@ -96,8 +96,11 @@ export const ZONES: Zone[] = [
     floor: "#1f353d",
     x: 0, y: 68, w: 50, h: 32,
     desks: [
-      { x: 13, y: 82, face: "down" },
-      { x: 33, y: 82, face: "down" },
+      { x: 9, y: 78, face: "down" },
+      { x: 25, y: 78, face: "down" },
+      { x: 41, y: 78, face: "down" },
+      { x: 9, y: 90, face: "down" },
+      { x: 25, y: 90, face: "down" },
     ],
   },
   {
