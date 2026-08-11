@@ -35,6 +35,11 @@ async function resolveDataSourceId(): Promise<string> {
   return cachedDataSourceId;
 }
 
+/* 사업(Track) 태그. music/app/game/safety/blog/전체 5종 — Notion "Track" select와 값이 정확히 일치해야 한다. */
+function trackProp(businessTrack?: string) {
+  return { select: { name: businessTrack || "전체" } };
+}
+
 /* GET /api/notion?limit=20 — 최근 Notion 기록 조회 (에이전트 컨텍스트용) */
 export async function GET(req: NextRequest) {
   if (!process.env.NOTION_API_KEY) {
@@ -57,6 +62,7 @@ export async function GET(req: NextRequest) {
         title: props.Name?.title?.[0]?.plain_text ?? "",
         type: props.Type?.select?.name ?? "",
         status: props.Status?.select?.name ?? "",
+        track: props.Track?.select?.name ?? "",
         date: props.Date?.date?.start ?? "",
       };
     });
@@ -81,10 +87,11 @@ export async function POST(req: NextRequest) {
     const parent = { data_source_id: dataSourceId, type: "data_source_id" as const };
 
     if (action === "save_workflow") {
-      const { workflowName, input, results } = payload as {
+      const { workflowName, input, results, businessTrack } = payload as {
         workflowName: string;
         input: string;
         results: { agent: string; role: string; text: string; done: boolean }[];
+        businessTrack?: string;
       };
 
       const children: BlockObjectRequest[] = [
@@ -104,6 +111,7 @@ export async function POST(req: NextRequest) {
           Name: { title: [{ text: { content: `[워크플로우] ${workflowName}` } }] },
           Type: { select: { name: "워크플로우" } },
           Status: { select: { name: results.every((r) => r.done) ? "완료" : "오류" } },
+          Track: trackProp(businessTrack),
           Date: { date: { start: new Date().toISOString() } },
         },
         children,
@@ -113,10 +121,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "save_chat") {
-      const { agentKey, agentRole, messages } = payload as {
+      const { agentKey, agentRole, messages, businessTrack } = payload as {
         agentKey: string;
         agentRole: string;
         messages: { role: "user" | "agent"; text: string }[];
+        businessTrack?: string;
       };
 
       const children: BlockObjectRequest[] = messages.flatMap((m) => [
@@ -131,6 +140,7 @@ export async function POST(req: NextRequest) {
           Name: { title: [{ text: { content: `[대화] ${agentKey} — ${agentRole}` } }] },
           Type: { select: { name: "대화" } },
           Status: { select: { name: "완료" } },
+          Track: trackProp(businessTrack),
           Date: { date: { start: new Date().toISOString() } },
         },
         children,
@@ -140,11 +150,12 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "save_prompt") {
-      const { id, name, content, category } = payload as {
+      const { id, name, content, category, businessTrack } = payload as {
         id: string;
         name: string;
         content: string;
         category: string;
+        businessTrack?: string;
       };
 
       const children: BlockObjectRequest[] = [
@@ -158,6 +169,7 @@ export async function POST(req: NextRequest) {
           Name: { title: [{ text: { content: `[${category}] ${name}` } }] },
           Type: { select: { name: "프롬프트" } },
           Status: { select: { name: "저장됨" } },
+          Track: trackProp(businessTrack),
           Date: { date: { start: new Date().toISOString() } },
         },
         children,
@@ -167,10 +179,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "save_log") {
-      const { source, title, content } = payload as {
+      const { source, title, content, businessTrack } = payload as {
         source: string;
         title: string;
         content: string;
+        businessTrack?: string;
       };
       const children: BlockObjectRequest[] = paragraphs(content);
       const page = await notion.pages.create({
@@ -179,6 +192,7 @@ export async function POST(req: NextRequest) {
           Name: { title: [{ text: { content: `[${source}] ${title}` } }] },
           Type: { select: { name: "로그" } },
           Status: { select: { name: "기록됨" } },
+          Track: trackProp(businessTrack),
           Date: { date: { start: new Date().toISOString() } },
         },
         children,
@@ -187,9 +201,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "save_review") {
-      const { version, track, good, bad, improve, next, agent } = payload as {
+      const { version, track, good, bad, improve, next, agent, businessTrack } = payload as {
         version: string; track: string; good: string; bad: string;
-        improve: string; next: string; agent: string;
+        improve: string; next: string; agent: string; businessTrack?: string;
       };
       const children: BlockObjectRequest[] = [
         heading(`트랙: ${track} — ${version} / 담당: ${agent}`),
@@ -204,6 +218,7 @@ export async function POST(req: NextRequest) {
           Name: { title: [{ text: { content: `[리뷰] ${track} ${version} by ${agent}` } }] },
           Type: { select: { name: "리뷰" } },
           Status: { select: { name: "기록됨" } },
+          Track: trackProp(businessTrack || "음악"),
           Date: { date: { start: new Date().toISOString() } },
         },
         children,
