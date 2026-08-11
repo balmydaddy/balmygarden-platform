@@ -22,6 +22,15 @@ export const SCOUT_PRESETS: Record<string, string[]> = {
   trend: ["오늘 이슈", "화제의 뉴스", "AI 트렌드"],
 };
 
+/** preset → Notion Track 값. Track select 옵션명과 정확히 일치해야 한다. */
+const PRESET_TRACK: Record<string, string> = {
+  music: "음악",
+  app: "영수증앱",
+  game: "게임",
+  safety: "안전관리",
+  trend: "전체",
+};
+
 type NaverItem = {
   title?: string;
   originallink?: string;
@@ -195,6 +204,7 @@ export async function POST(req: NextRequest) {
           source: "SCOUT",
           title: `뉴스 브리핑 ${today} — ${preset ?? query}`,
           content: body,
+          businessTrack: preset ? PRESET_TRACK[preset] : "전체",
         },
       }),
     });
