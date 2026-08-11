@@ -13,12 +13,13 @@ const DEV_ENDPOINT = "https://openapi.naver.com/v1/search/news.json";
 const NCP_ENDPOINT =
   process.env.NCP_SEARCH_ENDPOINT ?? "https://naverapihub.apigw.ntruss.com/search/v1/news";
 
-/** SCOUT 상시 모니터링 키워드 — 3트랙 + CEO 본업(안전보건) */
+/** SCOUT 상시 모니터링 키워드 — 3트랙 + CEO 본업(안전보건) + 전체 트렌드 */
 export const SCOUT_PRESETS: Record<string, string[]> = {
   music: ["트로트 신곡", "음원 차트", "인디 음악 유통"],
   app: ["영수증 OCR", "경비처리 앱"],
   game: ["인디게임 출시", "턴제 RPG"],
   safety: ["중대재해처벌법", "ISO 45001", "산업안전보건"],
+  trend: ["오늘 이슈", "화제의 뉴스", "AI 트렌드"],
 };
 
 type NaverItem = {
