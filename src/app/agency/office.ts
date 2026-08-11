@@ -123,6 +123,8 @@ export type Staff = {
   wear: string;
   role: string;
   home: ZoneId;
+  /* 직급 — 블로그팀처럼 조사-정리-검토 위계가 있는 팀에만 표시. 없으면 미표시. */
+  level?: string;
 };
 
 export const STAFF: Staff[] = [
@@ -135,9 +137,14 @@ export const STAFF: Staff[] = [
   { key: "ZERO", name: "ZERO", emoji: "💻", color: "#6ee7b7", wear: "#059669", role: "풀스택 개발", home: "app" },
   { key: "PHANTOM", name: "PHANTOM", emoji: "⚔️", color: "#d8b4fe", wear: "#7E22CE", role: "LOD 게임 PM", home: "game" },
   { key: "NOVA", name: "NOVA", emoji: "🔭", color: "#67e8f9", wear: "#0891B2", role: "전략·마케팅", home: "strategy" },
-  { key: "SCOUT", name: "SCOUT", emoji: "🔍", color: "#fdba74", wear: "#EA580C", role: "리서치", home: "strategy" },
+  { key: "SCOUT", name: "SCOUT", emoji: "🔍", color: "#fdba74", wear: "#EA580C", role: "리서치·트렌드 조사", home: "strategy", level: "사원" },
   { key: "AEGIS", name: "AEGIS", emoji: "⚖️", color: "#fca5a5", wear: "#DC2626", role: "법무·QA", home: "ops" },
   { key: "REX", name: "REX", emoji: "📋", color: "#cbd5e1", wear: "#475569", role: "총무·배급", home: "ops" },
+  /* 블로그팀 — SCOUT 조사 결과를 초안화·검토. 조사(SCOUT)-정리(INK)-검토(CHECK→CHIEF).
+     최소 인원으로 시작, 업무량 많으면 CEO 승인 후 증원(정리 인력 추가). */
+  { key: "INK", name: "INK", emoji: "📝", color: "#a7f3d0", wear: "#0d9488", role: "블로그 초안 정리", home: "strategy", level: "주임" },
+  { key: "CHECK", name: "CHECK", emoji: "🧐", color: "#fde68a", wear: "#b45309", role: "블로그 1차 검토", home: "strategy", level: "과장" },
+  { key: "CHIEF", name: "CHIEF", emoji: "🏅", color: "#fecaca", wear: "#9f1239", role: "블로그 최종 검토·승인", home: "strategy", level: "팀장" },
 ];
 
 export type Errand = { staff: string; to: ZoneId; task: string; say: string };
@@ -157,6 +164,8 @@ export const ERRANDS: Errand[] = [
   { staff: "STROBE", to: "game", task: "게임 아트 레퍼런스 공유", say: "레퍼런스 가져왔어요" },
   { staff: "SAGE", to: "conductor", task: "T-02 세계관 초안 보고", say: "세계관 초안이에요" },
   { staff: "ZERO", to: "game", task: "빌드 파이프라인 점검", say: "빌드 확인할게요" },
+  { staff: "INK", to: "conductor", task: "블로그 초안 보고", say: "초안 가져왔어요" },
+  { staff: "CHECK", to: "strategy", task: "블로그 초안 검토", say: "검토할게요" },
 ];
 
 export const MEETINGS: { title: string; members: string[] }[] = [
