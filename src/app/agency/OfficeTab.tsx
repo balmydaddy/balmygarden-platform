@@ -28,8 +28,8 @@ const MAX_LOG = 40;
 
 const WALL = "#1a1410";
 
-const card = (border = "#1e293b"): CSSProperties => ({
-  background: "#0d1629",
+const card = (border = "#e2e8f0"): CSSProperties => ({
+  background: "#ffffff",
   border: `1px solid ${border}`,
   borderRadius: "12px",
   padding: "14px",
@@ -264,7 +264,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
     if (!selected || !order.trim() || sending) return;
     const agent = agents.find((a) => a.staff.key === selected)!;
     setSending(true);
-    addLog("CEO", "#a5b4fc", `→ ${selected}: ${order.trim()}`);
+    addLog("CEO", "#4f46e5", `→ ${selected}: ${order.trim()}`);
 
     setAgents((prev) =>
       prev.map((a) =>
@@ -320,10 +320,10 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
         }}
       >
         <div>
-          <div style={{ fontSize: "13px", fontWeight: 700, color: "#a5b4fc" }}>
+          <div style={{ fontSize: "13px", fontWeight: 700, color: "#4f46e5" }}>
             🏢 BALMYGARDEN HEADQUARTERS
           </div>
-          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
+          <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>
             {meeting ? `회의 중 — ${meeting}` : `근무 중 · ${STAFF.length}명`}
           </div>
         </div>
@@ -332,9 +332,9 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
           style={{
             padding: "6px 14px",
             borderRadius: "20px",
-            border: `1px solid ${running ? "#22c55e" : "#475569"}`,
-            background: running ? "#22c55e22" : "#0d1629",
-            color: running ? "#22c55e" : "#64748b",
+            border: `1px solid ${running ? "#22c55e" : "#334155"}`,
+            background: running ? "#22c55e22" : "#ffffff",
+            color: running ? "#22c55e" : "#475569",
             fontSize: "11px",
             fontWeight: 700,
             cursor: "pointer",
@@ -441,7 +441,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
                   width: `${7 * scale}px`,
                   height: `${5 * scale}px`,
                   background: "#0f172a",
-                  border: "1px solid #334155",
+                  border: "1px solid #cbd5e1",
                   borderRadius: "1px",
                   zIndex: 11,
                 }}
@@ -486,8 +486,8 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
           alignItems: "start",
         }}
       >
-        <div style={card(selected ? "#6366F1" : "#1e293b")}>
-          <div style={{ fontSize: "10px", color: "#64748b", letterSpacing: "2px", marginBottom: "8px" }}>
+        <div style={card(selected ? "#6366F1" : "#e2e8f0")}>
+          <div style={{ fontSize: "10px", color: "#475569", letterSpacing: "2px", marginBottom: "8px" }}>
             🎙️ 지시창
           </div>
 
@@ -498,7 +498,7 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
                 alignItems: "center",
                 gap: "8px",
                 padding: "8px 10px",
-                background: "#111827",
+                background: "#f1f5f9",
                 borderRadius: "8px",
                 marginBottom: "8px",
               }}
@@ -508,22 +508,22 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
                 <div style={{ fontSize: "12px", color: sel.staff.color, fontWeight: 700 }}>
                   {sel.staff.name}
                 </div>
-                <div style={{ fontSize: "10px", color: "#64748b" }}>{sel.staff.role}</div>
+                <div style={{ fontSize: "10px", color: "#475569" }}>{sel.staff.role}</div>
               </div>
               <span
                 style={{
                   fontSize: "10px",
                   padding: "2px 7px",
                   borderRadius: "4px",
-                  background: "#1e293b",
-                  color: "#94a3b8",
+                  background: "#e2e8f0",
+                  color: "#64748b",
                 }}
               >
                 {sel.activity}
               </span>
             </div>
           ) : (
-            <div style={{ fontSize: "12px", color: "#475569", padding: "10px 0", lineHeight: 1.6 }}>
+            <div style={{ fontSize: "12px", color: "#334155", padding: "10px 0", lineHeight: 1.6 }}>
               화면에서 담당자를 클릭하면 여기서 직접 지시할 수 있다.
             </div>
           )}
@@ -536,10 +536,10 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
             style={{
               width: "100%",
               minHeight: "70px",
-              background: "#111827",
-              border: "1px solid #1e293b",
+              background: "#f1f5f9",
+              border: "1px solid #e2e8f0",
               borderRadius: "6px",
-              color: "#e2e8f0",
+              color: "#1e293b",
               fontSize: "12px",
               padding: "8px 10px",
               fontFamily: "inherit",
@@ -557,8 +557,8 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
               borderRadius: "6px",
               border: "none",
               cursor: !sel || !order.trim() || sending ? "not-allowed" : "pointer",
-              background: !sel || !order.trim() || sending ? "#1e293b" : "#6366F1",
-              color: !sel || !order.trim() || sending ? "#475569" : "#fff",
+              background: !sel || !order.trim() || sending ? "#e2e8f0" : "#6366F1",
+              color: !sel || !order.trim() || sending ? "#334155" : "#fff",
               fontSize: "12px",
               fontWeight: 700,
               fontFamily: "inherit",
@@ -568,28 +568,28 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
           </button>
 
           {sel?.task && (
-            <div style={{ marginTop: "8px", fontSize: "10px", color: "#64748b", lineHeight: 1.5 }}>
+            <div style={{ marginTop: "8px", fontSize: "10px", color: "#475569", lineHeight: 1.5 }}>
               현재 업무: {sel.task}
             </div>
           )}
         </div>
 
         <div style={{ ...card(), maxHeight: "300px", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: "10px", color: "#64748b", letterSpacing: "2px", marginBottom: "8px" }}>
+          <div style={{ fontSize: "10px", color: "#475569", letterSpacing: "2px", marginBottom: "8px" }}>
             📋 업무 로그
           </div>
           <div style={{ overflowY: "auto", flex: 1, minHeight: "120px" }}>
             {log.length === 0 ? (
-              <div style={{ fontSize: "11px", color: "#475569" }}>업무 시작 대기 중…</div>
+              <div style={{ fontSize: "11px", color: "#334155" }}>업무 시작 대기 중…</div>
             ) : (
               log.map((l) => (
                 <div
                   key={l.id}
                   style={{ fontSize: "11px", lineHeight: 1.6, paddingBottom: "4px", display: "flex", gap: "6px" }}
                 >
-                  <span style={{ color: "#334155", fontFamily: "monospace", flexShrink: 0 }}>{l.t}</span>
+                  <span style={{ color: "#94a3b8", fontFamily: "monospace", flexShrink: 0 }}>{l.t}</span>
                   <span style={{ color: l.color, fontWeight: 700, flexShrink: 0 }}>{l.who}</span>
-                  <span style={{ color: "#94a3b8" }}>{l.text}</span>
+                  <span style={{ color: "#64748b" }}>{l.text}</span>
                 </div>
               ))
             )}

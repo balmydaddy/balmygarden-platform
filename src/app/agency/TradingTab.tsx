@@ -41,8 +41,8 @@ const POLL_MS = 5000;
 const fmt = (n: number | undefined) => Math.round(n || 0).toLocaleString("ko-KR");
 
 /* 대시보드 공통 팔레트에 맞춘 카드 스타일 */
-const card = (border = "#1e293b"): CSSProperties => ({
-  background: "#0d1629",
+const card = (border = "#e2e8f0"): CSSProperties => ({
+  background: "#ffffff",
   border: `1px solid ${border}`,
   borderRadius: "12px",
   padding: "16px",
@@ -50,7 +50,7 @@ const card = (border = "#1e293b"): CSSProperties => ({
 
 const sectionLabel: CSSProperties = {
   fontSize: "10px",
-  color: "#64748b",
+  color: "#475569",
   letterSpacing: "2px",
   marginBottom: "10px",
 };
@@ -60,8 +60,8 @@ function RsiBadge({ value }: { value: number }) {
   const color = value <= 30 ? "#ef4444" : value >= 70 ? "#f59e0b" : "#22c55e";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px" }}>
-      <span style={{ fontSize: "10px", color: "#64748b", width: "26px" }}>RSI</span>
-      <div style={{ flex: 1, height: "4px", background: "#1e293b", borderRadius: "2px" }}>
+      <span style={{ fontSize: "10px", color: "#475569", width: "26px" }}>RSI</span>
+      <div style={{ flex: 1, height: "4px", background: "#e2e8f0", borderRadius: "2px" }}>
         <div
           style={{
             width: `${Math.min(100, Math.max(0, value))}%`,
@@ -145,18 +145,18 @@ function CoinCard({ signal }: { signal: Signal }) {
         }}
       >
         <span
-          style={{ fontFamily: "monospace", fontSize: "15px", color: "#a5b4fc", fontWeight: 700 }}
+          style={{ fontFamily: "monospace", fontSize: "15px", color: "#4f46e5", fontWeight: 700 }}
         >
           {signal.symbol}
         </span>
         <span style={{ fontSize: "10px" }}>{flag}</span>
       </div>
-      <div style={{ fontFamily: "monospace", fontSize: "17px", color: "#e2e8f0", marginBottom: "6px" }}>
+      <div style={{ fontFamily: "monospace", fontSize: "17px", color: "#1e293b", marginBottom: "6px" }}>
         {signal.price || "--"}
       </div>
       <SignalBadge action={signal.action} />
       <RsiBadge value={rsi} />
-      <div style={{ fontSize: "10px", color: "#475569", marginTop: "5px", lineHeight: 1.3 }}>
+      <div style={{ fontSize: "10px", color: "#334155", marginTop: "5px", lineHeight: 1.3 }}>
         {(signal.reason || "").slice(0, 45)}
       </div>
     </div>
@@ -244,7 +244,7 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
 
   const stats = [
     { label: "총 자산", value: `${fmt(p.total_asset)}원`, color: "#f59e0b" },
-    { label: "현금 잔고", value: `${fmt(p.cash)}원`, color: "#38bdf8" },
+    { label: "현금 잔고", value: `${fmt(p.cash)}원`, color: "#0369a1" },
     { label: "평가금액", value: `${fmt(p.eval_total)}원`, color: "#22c55e" },
     {
       label: "총 손익",
@@ -286,7 +286,7 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
             {online ? "LIVE · 자동매매 가동 중" : `오프라인 — ${reason}`}
           </span>
         </div>
-        <span style={{ fontFamily: "monospace", fontSize: "11px", color: "#475569" }}>
+        <span style={{ fontFamily: "monospace", fontSize: "11px", color: "#334155" }}>
           갱신 {updated}
         </span>
       </div>
@@ -298,7 +298,7 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
             ...card("#7f1d1d"),
             marginBottom: "14px",
             fontSize: "12px",
-            color: "#fca5a5",
+            color: "#dc2626",
             lineHeight: 1.7,
           }}
         >
@@ -306,9 +306,9 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
           <div>· 로컬: `python server.py` 실행 후 localhost:3000 접속 시 직결</div>
           <div>· 배포본: 트레이딩 서버를 터널(ngrok·cloudflared)로 노출하고</div>
           <div style={{ paddingLeft: "10px" }}>
-            Vercel 환경변수 <code style={{ color: "#fde68a" }}>TRADING_SERVER_URL</code> 에 그 HTTPS 주소 등록
+            Vercel 환경변수 <code style={{ color: "#b45309" }}>TRADING_SERVER_URL</code> 에 그 HTTPS 주소 등록
           </div>
-          <div style={{ marginTop: "6px", color: "#94a3b8" }}>
+          <div style={{ marginTop: "6px", color: "#64748b" }}>
             배포본이 localhost를 직접 호출하면 브라우저가 mixed content로 차단한다.
           </div>
         </div>
@@ -326,7 +326,7 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
         >
           {stats.map(({ label, value, color }) => (
             <div key={label} style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "4px" }}>{label}</div>
+              <div style={{ fontSize: "10px", color: "#475569", marginBottom: "4px" }}>{label}</div>
               <div style={{ fontFamily: "monospace", fontSize: "14px", color, fontWeight: 700 }}>
                 {value}
               </div>
@@ -353,7 +353,7 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: "center", color: "#475569", fontSize: "13px", padding: "20px" }}>
+          <div style={{ textAlign: "center", color: "#334155", fontSize: "13px", padding: "20px" }}>
             {online ? "신호 없음" : "서버 연결 후 표시됩니다"}
           </div>
         )}
@@ -377,23 +377,23 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
                   display: "flex",
                   gap: "8px",
                   paddingBottom: "8px",
-                  borderBottom: "1px solid #1e293b",
+                  borderBottom: "1px solid #e2e8f0",
                   marginBottom: "8px",
                 }}
               >
                 <span style={{ fontSize: "16px" }}>{t.msg.includes("매수") ? "🟢" : "🔴"}</span>
                 <div>
-                  <div style={{ fontSize: "11px", color: "#cbd5e1", lineHeight: 1.4 }}>
+                  <div style={{ fontSize: "11px", color: "#94a3b8", lineHeight: 1.4 }}>
                     {t.msg.slice(0, 50)}
                   </div>
-                  <div style={{ fontFamily: "monospace", fontSize: "10px", color: "#475569" }}>
+                  <div style={{ fontFamily: "monospace", fontSize: "10px", color: "#334155" }}>
                     {t.ts?.slice(11, 19)}
                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <div style={{ textAlign: "center", color: "#475569", fontSize: "12px", padding: "12px" }}>
+            <div style={{ textAlign: "center", color: "#334155", fontSize: "12px", padding: "12px" }}>
               체결 내역 없음
             </div>
           )}
@@ -418,15 +418,15 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
                           ? "#22c55e"
                           : l.msg?.includes("매도")
                             ? "#f87171"
-                            : "#475569",
+                            : "#334155",
                   }}
                 >
-                  <span style={{ color: "#334155" }}>{l.ts?.slice(11, 19)} </span>
+                  <span style={{ color: "#94a3b8" }}>{l.ts?.slice(11, 19)} </span>
                   {(l.msg || "").slice(0, 60)}
                 </div>
               ))
             ) : (
-              <div style={{ color: "#475569", fontSize: "12px" }}>로그 없음</div>
+              <div style={{ color: "#334155", fontSize: "12px" }}>로그 없음</div>
             )}
           </div>
         </div>
