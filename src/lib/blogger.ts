@@ -53,6 +53,25 @@ async function getBlogId(accessToken: string): Promise<string> {
   return cachedBlogId;
 }
 
+/** 자격증명 진단용 — 실제로 글을 올리지 않고 블로그 정보만 조회한다. */
+export async function getBlogInfo(): Promise<{ id: string; name: string; url: string; postsCount: number }> {
+  const accessToken = await getAccessToken();
+  const blogUrl = process.env.BLOGGER_BLOG_URL || "https://balmydaddy.blogspot.com";
+  const res = await fetch(`${API_BASE}/blogs/byurl?url=${encodeURIComponent(blogUrl)}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const data = await res.json();
+  if (!res.ok || !data.id) {
+    throw new Error(`Blogger 블로그 조회 실패: ${JSON.stringify(data)}`);
+  }
+  return {
+    id: data.id,
+    name: data.name,
+    url: data.url,
+    postsCount: data.posts?.totalItems ?? 0,
+  };
+}
+
 /** 텍스트 초안 → Blogger HTML 포스트로 실제 발행. 성공 시 게시글 URL 반환. */
 export async function publishToBlogger(title: string, bodyText: string): Promise<string> {
   const accessToken = await getAccessToken();
