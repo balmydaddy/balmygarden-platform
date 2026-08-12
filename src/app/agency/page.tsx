@@ -668,9 +668,9 @@ const LADDER_12: LadderStep[] = [
   { step: 7, name: "채널을 판다", icon: "📡", color: "#EF4444", desc: "접근 자체가 자산. 유통을 쥔 사람이 레버리지를 가짐.", signal: ["트래픽 제휴/어필리에이트/리셀러 네트워크", "다른 사업자가 오디언스/파이프라인에 접근 원함", "유통이 있어서 거래가 더 쉬워짐"], problem: "신뢰 없는 채널은 잠깐 튀어도 충성도는 약함.", next: "정체성/메시지/평판 강화, 사람들이 일부러 고르는 브랜드 → 8단계" },
   { step: 8, name: "브랜드를 판다", icon: "👑", color: "#F97316", desc: "신뢰가 마찰을 줄임. 이름 그 자체가 수요를 만듦.", signal: ["사람들은 평판/스타일/정체성/권위 때문에 구매", "입소문이 커짐", "프리미엄 포지셔닝 가능"], problem: "브랜드만 있고 자산이 없으면 개인 존재감에 너무 의존.", next: "이익 → 소유권/자산/장기 보유, 지분/매출 쉐어 탐색 → 9단계" },
   { step: 9, name: "자본을 판다", icon: "💰", color: "#22C55E", desc: "매일의 생산보다 소유권과 자산 배분이 더 중요.", signal: ["수입이 지분/투자/배당/소유 지분", "시간보다 의사결정의 질이 더 중요", "자본은 잘 쓰면 복리로 커짐"], problem: "통찰 없는 자본은 잘못 배분될 수 있음.", next: "기준/인프라/플랫폼이 큰 지배력을 만드는 곳 찾기 → 10단계" },
-  { step: 10, name: "룰을 판다", icon: "📋", color: "#A78BFA", desc: "판의 틀을 세우는 단계. 플랫폼/기준/생태계/인프라.", signal: ["다른 사람들이 그 시스템 위에서 사업을 만듦", "사람들이 움직이는 조건/기준/환경을 이 사업이 좌우함", "네트워크 효과가 나타나기 시작"], problem: "깊은 전략/타이밍/강한 실행이 필요.", next: "인프라를 더 큰 미래 이야기로 확장 → 11단계" },
-  { step: 11, name: "미래를 판다", icon: "🚀", color: "#60A5FA", desc: "사람들이 다음에 올 미래의 비전을 지지하는 단계.", signal: ["제안이 지금의 제품보다 더 큰 방향성", "시장은 결과뿐만 아니라 어디로 가는지에 반응", "새로운 시장이나 카테고리를 만들 수 있음"], problem: "현실 없는 비전은 신뢰를 무너뜨림.", next: "믿음 체계와 미래 연결, 사고방식을 바꾸며 → 12단계" },
-  { step: 12, name: "세계관을 판다", icon: "🌍", color: "#FB923C", desc: "가장 깊은 자산은 공유된 믿음. 운동/미션/유산/영향력.", signal: ["사람들은 하나의 세계관에 모임", "미션이 개별 상품이나 캠페인보다 오래 남음", "공동체 정체성이 단일 제안보다 강해짐"], problem: "메시지는 진짜여야 함. 미션이 가짜처럼 느껴지면 그 아래 모든 것이 약해짐.", next: "제품/사람/메시지를 하나의 분명한 믿음에 맞춰 계속 정렬" },
+  { step: 10, name: "룰을 판다", icon: "📋", color: "#7c3aed", desc: "판의 틀을 세우는 단계. 플랫폼/기준/생태계/인프라.", signal: ["다른 사람들이 그 시스템 위에서 사업을 만듦", "사람들이 움직이는 조건/기준/환경을 이 사업이 좌우함", "네트워크 효과가 나타나기 시작"], problem: "깊은 전략/타이밍/강한 실행이 필요.", next: "인프라를 더 큰 미래 이야기로 확장 → 11단계" },
+  { step: 11, name: "미래를 판다", icon: "🚀", color: "#2563eb", desc: "사람들이 다음에 올 미래의 비전을 지지하는 단계.", signal: ["제안이 지금의 제품보다 더 큰 방향성", "시장은 결과뿐만 아니라 어디로 가는지에 반응", "새로운 시장이나 카테고리를 만들 수 있음"], problem: "현실 없는 비전은 신뢰를 무너뜨림.", next: "믿음 체계와 미래 연결, 사고방식을 바꾸며 → 12단계" },
+  { step: 12, name: "세계관을 판다", icon: "🌍", color: "#c2410c", desc: "가장 깊은 자산은 공유된 믿음. 운동/미션/유산/영향력.", signal: ["사람들은 하나의 세계관에 모임", "미션이 개별 상품이나 캠페인보다 오래 남음", "공동체 정체성이 단일 제안보다 강해짐"], problem: "메시지는 진짜여야 함. 미션이 가짜처럼 느껴지면 그 아래 모든 것이 약해짐.", next: "제품/사람/메시지를 하나의 분명한 믿음에 맞춰 계속 정렬" },
 ];
 
 const HOOKS = [
@@ -1114,9 +1114,9 @@ export default function BALMYGARDENDashboard() {
       style={{
         padding: small ? "2px 7px" : "4px 10px",
         fontSize: small ? "10px" : "11px",
-        background: copied === id ? "#22C55E" : "#1e293b",
+        background: copied === id ? "#22C55E" : "#94a3b8",
         color: "#fff",
-        border: `1px solid ${copied === id ? "#22C55E" : "#334155"}`,
+        border: `1px solid ${copied === id ? "#22C55E" : "#cbd5e1"}`,
         borderRadius: "5px",
         cursor: "pointer",
         whiteSpace: "nowrap" as const,
@@ -1229,8 +1229,8 @@ export default function BALMYGARDENDashboard() {
       style={{
         padding: small ? "2px 8px" : "6px 14px",
         fontSize: small ? "10px" : "12px",
-        background: notionSaving ? "#334155" : "#1e1e2e",
-        color: "#e2e8f0",
+        background: notionSaving ? "#cbd5e1" : "#e2e8f0",
+        color: "#1e293b",
         border: "1px solid #4a4a6a",
         borderRadius: "6px",
         cursor: notionSaving ? "not-allowed" : "pointer",
@@ -1461,9 +1461,9 @@ export default function BALMYGARDENDashboard() {
   /* ── STYLE HELPERS */
   const S = {
     card: (border?: string): CSSProperties => ({
-      background: "#0d1629",
+      background: "#ffffff",
       borderRadius: "12px",
-      border: `1px solid ${border || "#1e293b"}`,
+      border: `1px solid ${border || "#e2e8f0"}`,
       padding: "16px",
     }),
     tabBtn: (active: boolean, color?: string): CSSProperties => ({
@@ -1473,16 +1473,16 @@ export default function BALMYGARDENDashboard() {
       fontSize: "12px",
       fontWeight: active ? "700" : "400",
       border: "none",
-      background: active ? color || "#6366F1" : "#0d1629",
-      color: active ? "#fff" : "#64748b",
+      background: active ? color || "#6366F1" : "#ffffff",
+      color: active ? "#fff" : "#475569",
     }),
     sideItem: (active: boolean): CSSProperties => ({
       padding: "10px 14px",
       marginBottom: "6px",
       borderRadius: "8px",
       cursor: "pointer",
-      background: active ? "#1a2847" : "#0d1629",
-      border: `1px solid ${active ? "#6366F1" : "#1e293b"}`,
+      background: active ? "#eef2ff" : "#ffffff",
+      border: `1px solid ${active ? "#6366F1" : "#e2e8f0"}`,
     }),
     badge: (color: string): CSSProperties => ({
       fontSize: "10px",
@@ -1500,15 +1500,15 @@ export default function BALMYGARDENDashboard() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#060d1f",
-        color: "#e2e8f0",
+        background: "#f5f7fb",
+        color: "#1e293b",
         fontFamily: "'Pretendard','Apple SD Gothic Neo','Segoe UI',sans-serif",
       }}
     >
       {/* ── HEADER */}
       <div
         style={{
-          background: "linear-gradient(135deg,#080f22 0%,#0f0d30 100%)",
+          background: "linear-gradient(135deg,#eef2ff 0%,#f5f3ff 100%)",
           borderBottom: "1px solid #1a2547",
           padding: isMobile ? "10px 14px" : "14px 22px",
         }}
@@ -1516,10 +1516,10 @@ export default function BALMYGARDENDashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
           <div style={{ fontSize: isMobile ? "20px" : "26px" }}>🌿</div>
           <div>
-            <div style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: "800", color: "#a5b4fc", letterSpacing: "2px" }}>
+            <div style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: "800", color: "#4f46e5", letterSpacing: "2px" }}>
               BALMYGARDEN
             </div>
-            <div style={{ fontSize: "10px", color: "#475569", marginTop: "1px" }}>
+            <div style={{ fontSize: "10px", color: "#334155", marginTop: "1px" }}>
               AI AGENCY · 9 AGENTS · v3.0
             </div>
           </div>
@@ -1558,11 +1558,11 @@ export default function BALMYGARDENDashboard() {
 
       {/* ── NOTION TOAST */}
       {notionToast && (
-        <div style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 9999, padding: "12px 18px", borderRadius: "10px", background: notionToast.ok ? "#1e2d1e" : "#2d1e1e", border: `1px solid ${notionToast.ok ? "#22C55E" : "#EF4444"}`, display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 4px 24px #00000077" }}>
+        <div style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 9999, padding: "12px 18px", borderRadius: "10px", background: notionToast.ok ? "#dcfce7" : "#fef2f2", border: `1px solid ${notionToast.ok ? "#22C55E" : "#EF4444"}`, display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 4px 24px #00000077" }}>
           <span style={{ fontSize: "14px" }}>{notionToast.ok ? "✅" : "❌"}</span>
           <span style={{ fontSize: "13px", color: notionToast.ok ? "#86efac" : "#fca5a5" }}>{notionToast.msg}</span>
           {notionToast.url && (
-            <a href={notionToast.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#a5b4fc", textDecoration: "underline" }}>
+            <a href={notionToast.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#4f46e5", textDecoration: "underline" }}>
               노션에서 열기 →
             </a>
           )}
@@ -1571,11 +1571,11 @@ export default function BALMYGARDENDashboard() {
 
       {/* ── DRIVE TOAST */}
       {driveToast && (
-        <div style={{ position: "fixed", bottom: notionToast ? "80px" : "24px", right: "24px", zIndex: 9998, padding: "12px 18px", borderRadius: "10px", background: driveToast.ok ? "#1a2e1e" : "#2d1e1e", border: `1px solid ${driveToast.ok ? "#1a73e8" : "#EF4444"}`, display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 4px 24px #00000077" }}>
+        <div style={{ position: "fixed", bottom: notionToast ? "80px" : "24px", right: "24px", zIndex: 9998, padding: "12px 18px", borderRadius: "10px", background: driveToast.ok ? "#eff6ff" : "#fef2f2", border: `1px solid ${driveToast.ok ? "#1a73e8" : "#EF4444"}`, display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 4px 24px #00000077" }}>
           <span style={{ fontSize: "14px" }}>{driveToast.ok ? "📁" : "❌"}</span>
           <span style={{ fontSize: "13px", color: driveToast.ok ? "#93c5fd" : "#fca5a5" }}>{driveToast.msg}</span>
           {driveToast.url && (
-            <a href={driveToast.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#60a5fa", textDecoration: "underline" }}>
+            <a href={driveToast.url} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#2563eb", textDecoration: "underline" }}>
               Drive에서 열기 →
             </a>
           )}
@@ -1597,9 +1597,9 @@ export default function BALMYGARDENDashboard() {
                     cursor: "pointer",
                     fontSize: isMobile ? "10px" : "11px",
                     fontWeight: tab === w.id ? 700 : 400,
-                    border: `1px solid ${tab === w.id ? "#6366F1" : "#1e293b"}`,
-                    background: tab === w.id ? "#6366F122" : "#0d1629",
-                    color: tab === w.id ? "#a5b4fc" : "#64748b",
+                    border: `1px solid ${tab === w.id ? "#6366F1" : "#e2e8f0"}`,
+                    background: tab === w.id ? "#6366F122" : "#ffffff",
+                    color: tab === w.id ? "#4f46e5" : "#475569",
                     fontFamily: "inherit",
                   }}
                 >
@@ -1609,10 +1609,10 @@ export default function BALMYGARDENDashboard() {
             </div>
             {tab === "wiki" && (
               <div style={{ ...S.card(), padding: "20px" }}>
-                <div style={{ fontSize: "13px", fontWeight: 700, color: "#a5b4fc", marginBottom: "6px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 700, color: "#4f46e5", marginBottom: "6px" }}>
                   📚 에이전시 위키
                 </div>
-                <div style={{ fontSize: "11px", color: "#64748b", lineHeight: 1.7, marginBottom: "14px" }}>
+                <div style={{ fontSize: "11px", color: "#475569", lineHeight: 1.7, marginBottom: "14px" }}>
                   업무화면·업무·지시창을 제외한 모든 자료를 여기 모았다. 위 항목을 눌러 이동한다.
                 </div>
                 <div
@@ -1628,11 +1628,11 @@ export default function BALMYGARDENDashboard() {
                       onClick={() => setTab(w.id)}
                       style={{
                         padding: "12px 10px",
-                        background: "#111827",
-                        border: "1px solid #1e293b",
+                        background: "#f1f5f9",
+                        border: "1px solid #e2e8f0",
                         borderRadius: "8px",
                         cursor: "pointer",
-                        color: "#cbd5e1",
+                        color: "#94a3b8",
                         fontSize: "12px",
                         fontFamily: "inherit",
                         textAlign: "left",
@@ -1671,13 +1671,13 @@ export default function BALMYGARDENDashboard() {
                   <div style={{ fontSize: "22px", marginBottom: "6px" }}>{p.emoji}</div>
                   <div style={{ fontSize: "14px", fontWeight: "700", marginBottom: "3px" }}>{p.name}</div>
                   <div style={{ fontSize: "11px", color: p.color, marginBottom: "6px" }}>● {p.status}</div>
-                  <div style={{ fontSize: "11px", color: "#64748b" }}>{p.detail}</div>
+                  <div style={{ fontSize: "11px", color: "#475569" }}>{p.detail}</div>
                 </div>
               ))}
             </div>
 
             <div style={{ ...S.card(), marginBottom: "18px" }}>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "12px" }}>
                 🆕 v3.0 업그레이드 (2026.06.24)
               </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "10px" }}>
@@ -1686,12 +1686,12 @@ export default function BALMYGARDENDashboard() {
                   { icon: "📣", title: "마케팅 프롬프트 7종", src: "@_business.story", items: ["고객 조사", "이메일 마케팅", "광고 카피", "브랜드 포지셔닝", "상세 페이지 심리학", "크리에이터 성장", "영상 콘텐츠 스크립트"], color: "#06B6D4" },
                   { icon: "📝", title: "콘텐츠 뱅크 80개+", src: "@shoppduddn_", items: ["즉시 시선 끄는 훅 20개", "초보자/How-To 10개", "팁·도구·해킹 10개", "스토리텔링 10개"], color: "#F59E0B" },
                 ].map((u) => (
-                  <div key={u.title} style={{ padding: "12px", background: "#111827", borderRadius: "8px", borderLeft: `3px solid ${u.color}` }}>
+                  <div key={u.title} style={{ padding: "12px", background: "#f1f5f9", borderRadius: "8px", borderLeft: `3px solid ${u.color}` }}>
                     <div style={{ fontSize: "16px", marginBottom: "4px" }}>{u.icon}</div>
                     <div style={{ fontSize: "12px", fontWeight: "700", color: u.color, marginBottom: "2px" }}>{u.title}</div>
-                    <div style={{ fontSize: "10px", color: "#475569", marginBottom: "8px" }}>{u.src}</div>
+                    <div style={{ fontSize: "10px", color: "#334155", marginBottom: "8px" }}>{u.src}</div>
                     {u.items.map((i) => (
-                      <div key={i} style={{ fontSize: "10px", color: "#94a3b8", padding: "1px 0" }}>· {i}</div>
+                      <div key={i} style={{ fontSize: "10px", color: "#64748b", padding: "1px 0" }}>· {i}</div>
                     ))}
                   </div>
                 ))}
@@ -1700,20 +1700,20 @@ export default function BALMYGARDENDashboard() {
 
             {/* 도구 연결 현황 */}
             <div style={{ ...S.card(), marginBottom: "14px" }}>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>🔌 도구 연결 현황</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "12px" }}>🔌 도구 연결 현황</div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(5,1fr)", gap: "8px" }}>
                 {[
                   { name: "Notion", icon: "📒", status: "연결됨", color: "#10B981", note: "자동 로깅 ON" },
                   { name: "Google Drive", icon: "📁", status: "연결됨", color: "#1a73e8", note: "읽기 가능" },
-                  { name: "Slack", icon: "💬", status: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "연결됨" : "미연결", color: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "#22C55E" : "#475569", note: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "알림 ON" : "Bot Token 필요" },
+                  { name: "Slack", icon: "💬", status: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "연결됨" : "미연결", color: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "#22C55E" : "#334155", note: process.env.NEXT_PUBLIC_SLACK_ENABLED === "true" ? "알림 ON" : "Bot Token 필요" },
                   { name: "Zapier MCP", icon: "⚡", status: "대기", color: "#F59E0B", note: "9,000+ 앱 허브" },
                   { name: "Higgsfield", icon: "🎬", status: "제한됨", color: "#7C3AED", note: "LOD 전용 (CEO 승인)" },
                 ].map((t) => (
-                  <div key={t.name} style={{ padding: "10px", background: "#111827", borderRadius: "8px", borderLeft: `3px solid ${t.color}` }}>
+                  <div key={t.name} style={{ padding: "10px", background: "#f1f5f9", borderRadius: "8px", borderLeft: `3px solid ${t.color}` }}>
                     <div style={{ fontSize: "16px", marginBottom: "4px" }}>{t.icon}</div>
                     <div style={{ fontSize: "11px", fontWeight: "700", color: t.color }}>{t.name}</div>
-                    <div style={{ fontSize: "10px", color: t.color === "#475569" ? "#475569" : "#64748b", marginTop: "2px" }}>● {t.status}</div>
-                    <div style={{ fontSize: "9px", color: "#334155", marginTop: "3px" }}>{t.note}</div>
+                    <div style={{ fontSize: "10px", color: t.color === "#334155" ? "#334155" : "#475569", marginTop: "2px" }}>● {t.status}</div>
+                    <div style={{ fontSize: "9px", color: "#94a3b8", marginTop: "3px" }}>{t.note}</div>
                   </div>
                 ))}
               </div>
@@ -1722,7 +1722,7 @@ export default function BALMYGARDENDashboard() {
             {/* 7단계 레벨 현황 */}
             <div style={{ ...S.card(), marginBottom: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
-                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc" }}>📊 클로드 코드 7단계 — BALMYGARDEN 현황</div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5" }}>📊 클로드 코드 7단계 — BALMYGARDEN 현황</div>
                 <a href="/guide" target="_blank" rel="noreferrer" style={{ fontSize: "11px", color: "#d97757", textDecoration: "none", background: "#d9775715", border: "1px solid #d9775740", borderRadius: "20px", padding: "3px 10px" }}>📚 전체 가이드 →</a>
               </div>
               {[
@@ -1736,27 +1736,27 @@ export default function BALMYGARDENDashboard() {
               ].map((l) => (
                 <div key={l.lv} style={{ marginBottom: "8px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                    <span style={{ fontSize: "11px", color: "#475569", minWidth: "16px" }}>{l.lv}</span>
+                    <span style={{ fontSize: "11px", color: "#334155", minWidth: "16px" }}>{l.lv}</span>
                     <span style={{ fontSize: "12px", fontWeight: "700", color: l.color, minWidth: "90px" }}>{l.state} {l.name}</span>
-                    <div style={{ flex: 1, background: "#1e293b", borderRadius: "4px", height: "6px", overflow: "hidden" }}>
+                    <div style={{ flex: 1, background: "#e2e8f0", borderRadius: "4px", height: "6px", overflow: "hidden" }}>
                       <div style={{ width: `${l.pct}%`, height: "100%", background: l.color, borderRadius: "4px", transition: "width 0.5s" }} />
                     </div>
-                    <span style={{ fontSize: "10px", color: "#64748b", minWidth: "30px", textAlign: "right" }}>{l.pct}%</span>
+                    <span style={{ fontSize: "10px", color: "#475569", minWidth: "30px", textAlign: "right" }}>{l.pct}%</span>
                   </div>
-                  <div style={{ fontSize: "10px", color: "#475569", marginLeft: "24px" }}>{l.note}</div>
+                  <div style={{ fontSize: "10px", color: "#334155", marginLeft: "24px" }}>{l.note}</div>
                 </div>
               ))}
               {/* Context toggle */}
-              <div style={{ marginTop: "12px", padding: "10px 12px", background: "#111827", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ marginTop: "12px", padding: "10px 12px", background: "#f1f5f9", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
-                  <div style={{ fontSize: "12px", fontWeight: "700", color: ctxEnabled ? "#22c55e" : "#64748b" }}>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: ctxEnabled ? "#22c55e" : "#475569" }}>
                     {ctxEnabled ? "🟢" : "⚫"} Level 2 컨텍스트 주입 {ctxEnabled ? "ON" : "OFF"}
                   </div>
-                  <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>MEMORY {MEMORY.length}개를 모든 에이전트 시스템 프롬프트에 자동 추가</div>
+                  <div style={{ fontSize: "10px", color: "#334155", marginTop: "2px" }}>MEMORY {MEMORY.length}개를 모든 에이전트 시스템 프롬프트에 자동 추가</div>
                 </div>
                 <button
                   onClick={() => setCtxEnabled(!ctxEnabled)}
-                  style={{ padding: "5px 14px", background: ctxEnabled ? "#22c55e22" : "#334155", border: `1px solid ${ctxEnabled ? "#22c55e" : "#475569"}`, borderRadius: "20px", color: ctxEnabled ? "#22c55e" : "#94a3b8", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                  style={{ padding: "5px 14px", background: ctxEnabled ? "#22c55e22" : "#cbd5e1", border: `1px solid ${ctxEnabled ? "#22c55e" : "#334155"}`, borderRadius: "20px", color: ctxEnabled ? "#22c55e" : "#64748b", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
                 >
                   {ctxEnabled ? "ON" : "OFF"}
                 </button>
@@ -1764,7 +1764,7 @@ export default function BALMYGARDENDashboard() {
             </div>
 
             <div style={S.card()}>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "12px" }}>
                 ⚡ 빠른 시작 — 워크플로우 선택
               </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "8px" }}>
@@ -1772,11 +1772,11 @@ export default function BALMYGARDENDashboard() {
                   <button
                     key={wf.id}
                     onClick={() => { setWfId(wf.id); setTab("workflow"); }}
-                    style={{ padding: "10px 12px", background: "#111827", borderRadius: "8px", border: "1px solid #1e293b", cursor: "pointer", textAlign: "left", color: "#e2e8f0" }}
+                    style={{ padding: "10px 12px", background: "#f1f5f9", borderRadius: "8px", border: "1px solid #e2e8f0", cursor: "pointer", textAlign: "left", color: "#1e293b" }}
                   >
                     <span style={{ fontSize: "16px" }}>{wf.emoji}</span>
                     <span style={{ fontSize: "12px", fontWeight: "600", marginLeft: "6px" }}>{wf.name}</span>
-                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "3px" }}>{wf.chain.join(" → ")}</div>
+                    <div style={{ fontSize: "10px", color: "#334155", marginTop: "3px" }}>{wf.chain.join(" → ")}</div>
                   </button>
                 ))}
               </div>
@@ -1793,7 +1793,7 @@ export default function BALMYGARDENDashboard() {
               <select
                 value={wfId ?? ""}
                 onChange={(e) => { setWfId(e.target.value || null); setChainRes([]); setAwaitCEO(false); }}
-                style={{ width: "100%", padding: "10px 12px", background: "#0d1629", border: "1px solid #1e293b", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
+                style={{ width: "100%", padding: "10px 12px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "8px", color: "#1e293b", fontSize: "13px" }}
               >
                 <option value="">— 워크플로우 선택 —</option>
                 {WORKFLOWS.map((wf) => (
@@ -1802,7 +1802,7 @@ export default function BALMYGARDENDashboard() {
               </select>
             ) : (
               <div>
-                <div style={{ fontSize: "11px", color: "#475569", marginBottom: "8px" }}>워크플로우</div>
+                <div style={{ fontSize: "11px", color: "#334155", marginBottom: "8px" }}>워크플로우</div>
                 {WORKFLOWS.map((wf) => (
                   <div
                     key={wf.id}
@@ -1810,7 +1810,7 @@ export default function BALMYGARDENDashboard() {
                     onClick={() => { setWfId(wf.id); setChainRes([]); setAwaitCEO(false); }}
                   >
                     <div style={{ fontSize: "12px", fontWeight: "700" }}>{wf.emoji} {wf.name}</div>
-                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{wf.chain.join(" → ")}</div>
+                    <div style={{ fontSize: "10px", color: "#334155", marginTop: "2px" }}>{wf.chain.join(" → ")}</div>
                   </div>
                 ))}
               </div>
@@ -1825,7 +1825,7 @@ export default function BALMYGARDENDashboard() {
                       <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: "16px", fontWeight: "700" }}>{wf.emoji} {wf.name}</div>
-                          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>{wf.desc}</div>
+                          <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>{wf.desc}</div>
                         </div>
                         {wf.parallel && (
                           <span style={{ fontSize: "10px", padding: "2px 8px", background: "#22c55e22", border: "1px solid #22c55e44", borderRadius: "10px", color: "#22c55e", flexShrink: 0 }}>
@@ -1840,7 +1840,7 @@ export default function BALMYGARDENDashboard() {
                           <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                             {wf.parallel.map((group, gi) => (
                               <div key={gi} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                {gi > 0 && <span style={{ color: "#334155", fontSize: "14px" }}>→</span>}
+                                {gi > 0 && <span style={{ color: "#94a3b8", fontSize: "14px" }}>→</span>}
                                 <div style={{ display: "flex", gap: "4px", padding: group.length > 1 ? "4px 6px" : "0", background: group.length > 1 ? "#22c55e0d" : "transparent", border: group.length > 1 ? "1px dashed #22c55e44" : "none", borderRadius: "8px" }}>
                                   {group.map((k) => {
                                     const ag = AGENTS[k];
@@ -1866,7 +1866,7 @@ export default function BALMYGARDENDashboard() {
                                   <div style={{ padding: "5px 10px", borderRadius: "6px", background: active ? ag.color : ag.color + "22", border: `1px solid ${ag.color}`, fontSize: "11px", fontWeight: "700", color: active ? "#fff" : ag.color, boxShadow: active ? `0 0 10px ${ag.color}66` : "none", transition: "all 0.3s" }}>
                                     {ag.av} {k}
                                   </div>
-                                  {i < wf.chain.length - 1 && <span style={{ color: "#334155", fontSize: "14px" }}>→</span>}
+                                  {i < wf.chain.length - 1 && <span style={{ color: "#94a3b8", fontSize: "14px" }}>→</span>}
                                 </div>
                               );
                             })}
@@ -1890,13 +1890,13 @@ export default function BALMYGARDENDashboard() {
                         value={wfInput}
                         onChange={(e) => setWfInput(e.target.value)}
                         placeholder={`${wf.name} 업무 내용을 입력하세요...`}
-                        style={{ width: "100%", minHeight: "80px", background: "#111827", border: "1px solid #1e293b", borderRadius: "8px", padding: "10px", color: "#e2e8f0", fontSize: "13px", resize: "vertical", boxSizing: "border-box" }}
+                        style={{ width: "100%", minHeight: "80px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px", color: "#1e293b", fontSize: "13px", resize: "vertical", boxSizing: "border-box" }}
                       />
                       <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap", alignItems: "center" }}>
                         <button
                           onClick={runChain}
                           disabled={running || !wfInput.trim()}
-                          style={{ padding: "10px 22px", background: running ? "#334155" : "#6366F1", color: "#fff", border: "none", borderRadius: "8px", cursor: running ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "13px" }}
+                          style={{ padding: "10px 22px", background: running ? "#cbd5e1" : "#6366F1", color: "#fff", border: "none", borderRadius: "8px", cursor: running ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "13px" }}
                         >
                           {running ? `⏳ ${wf.parallel ? `병렬 그룹 ${step + 1}/${wf.parallel.length}` : `실행 중… ${wf.chain[step] || ""}`}` : "▶ 체인 실행"}
                         </button>
@@ -1905,7 +1905,7 @@ export default function BALMYGARDENDashboard() {
                             ■ 중단
                           </button>
                         )}
-                        <div style={{ marginLeft: "auto", fontSize: "11px", color: ctxEnabled ? "#22c55e" : "#475569" }}>
+                        <div style={{ marginLeft: "auto", fontSize: "11px", color: ctxEnabled ? "#22c55e" : "#334155" }}>
                           {ctxEnabled ? "🟢 컨텍스트 ON" : "⚫ 컨텍스트 OFF"}
                         </div>
                       </div>
@@ -1917,23 +1917,23 @@ export default function BALMYGARDENDashboard() {
                           <span style={{ fontSize: "20px" }}>{r.ag.av}</span>
                           <div>
                             <span style={{ color: r.ag.color, fontWeight: "700", fontSize: "14px" }}>{r.key}</span>
-                            <span style={{ color: "#475569", fontSize: "11px", marginLeft: "8px" }}>{r.ag.role}</span>
+                            <span style={{ color: "#334155", fontSize: "11px", marginLeft: "8px" }}>{r.ag.role}</span>
                           </div>
                           <span style={{ marginLeft: "auto", fontSize: "11px", color: r.done ? "#22C55E" : "#EF4444" }}>
                             {r.done ? "✓ 완료" : "✗ 오류"}
                           </span>
                         </div>
-                        <div style={{ background: "#111827", borderRadius: "8px", padding: "12px", fontSize: "13px", lineHeight: "1.7", whiteSpace: "pre-wrap", color: "#cbd5e1" }}>
+                        <div style={{ background: "#f1f5f9", borderRadius: "8px", padding: "12px", fontSize: "13px", lineHeight: "1.7", whiteSpace: "pre-wrap", color: "#94a3b8" }}>
                           {r.txt}
                         </div>
                       </div>
                     ))}
 
                     {awaitCEO && (
-                      <div style={{ ...S.card("#6366F1"), background: "#0f1d40", border: "2px solid #6366F1", textAlign: "center", padding: "24px" }}>
+                      <div style={{ ...S.card("#6366F1"), background: "#eef2ff", border: "2px solid #6366F1", textAlign: "center", padding: "24px" }}>
                         <div style={{ fontSize: "20px", marginBottom: "6px" }}>👑</div>
                         <div style={{ fontSize: "15px", fontWeight: "700", marginBottom: "4px" }}>CEO(대표이사) 최종 결재 대기</div>
-                        <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "16px" }}>QA 95/100 통과 완료 · 대표이사 승인 필요</div>
+                        <div style={{ fontSize: "11px", color: "#475569", marginBottom: "16px" }}>QA 95/100 통과 완료 · 대표이사 승인 필요</div>
                         <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
                           <button onClick={() => setAwaitCEO(false)} style={{ padding: "10px 22px", background: "#22C55E", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>✅ 최종 승인</button>
                           <button onClick={() => { setAwaitCEO(false); setChainRes([]); }} style={{ padding: "10px 22px", background: "#EF4444", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700" }}>🔄 반려 · 재검토</button>
@@ -1958,7 +1958,7 @@ export default function BALMYGARDENDashboard() {
                                     }
                                   }}
                                   disabled={notionSaving}
-                                  style={{ padding: "10px 18px", background: "#7C3AED66", color: "#c4b5fd", border: "1px solid #7C3AED", borderRadius: "8px", cursor: "pointer", fontWeight: "700", fontSize: "12px" }}
+                                  style={{ padding: "10px 18px", background: "#7C3AED66", color: "#7c3aed", border: "1px solid #7C3AED", borderRadius: "8px", cursor: "pointer", fontWeight: "700", fontSize: "12px" }}
                                 >
                                   🌿 GOSARI 로그 저장
                                 </button>
@@ -1983,7 +1983,7 @@ export default function BALMYGARDENDashboard() {
                               saveToDrive(`[BALMYGARDEN] ${wfName} — ${new Date().toLocaleDateString("ko-KR")}`, `업무 요청: ${wfInput}\n\n${content}`);
                             }}
                             disabled={driveSaving}
-                            style={{ padding: "10px 18px", background: driveSaving ? "#334155" : "#1a73e866", color: "#fff", border: "1px solid #1a73e8", borderRadius: "8px", cursor: driveSaving ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "12px" }}
+                            style={{ padding: "10px 18px", background: driveSaving ? "#cbd5e1" : "#1a73e866", color: "#fff", border: "1px solid #1a73e8", borderRadius: "8px", cursor: driveSaving ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "12px" }}
                           >
                             {driveSaving ? "저장 중…" : "📁 Drive 저장"}
                           </button>
@@ -1993,7 +1993,7 @@ export default function BALMYGARDENDashboard() {
                   </>
                 );
               })() : (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "200px", color: "#334155", fontSize: "14px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "200px", color: "#94a3b8", fontSize: "14px" }}>
                   ← 워크플로우를 선택하세요
                 </div>
               )}
@@ -2006,22 +2006,22 @@ export default function BALMYGARDENDashboard() {
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <span style={{ fontSize: "16px" }}>📁</span>
                 <div>
-                  <div style={{ fontSize: "12px", fontWeight: "700", color: "#60a5fa" }}>Google Drive 컨텍스트</div>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: "#2563eb" }}>Google Drive 컨텍스트</div>
                   {driveCtxName
                     ? <div style={{ fontSize: "10px", color: "#22c55e" }}>✓ 주입됨: {driveCtxName.slice(0, 30)}</div>
-                    : <div style={{ fontSize: "10px", color: "#475569" }}>Drive 파일을 읽어 에이전트에 자동 주입</div>
+                    : <div style={{ fontSize: "10px", color: "#334155" }}>Drive 파일을 읽어 에이전트에 자동 주입</div>
                   }
                 </div>
               </div>
               <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                 {driveCtxName && (
-                  <button onClick={() => { setDriveCtx(""); setDriveCtxName(""); }} style={{ padding: "4px 10px", background: "#334155", border: "1px solid #475569", borderRadius: "6px", color: "#94a3b8", fontSize: "10px", cursor: "pointer" }}>
+                  <button onClick={() => { setDriveCtx(""); setDriveCtxName(""); }} style={{ padding: "4px 10px", background: "#cbd5e1", border: "1px solid #334155", borderRadius: "6px", color: "#64748b", fontSize: "10px", cursor: "pointer" }}>
                     ✕ 제거
                   </button>
                 )}
                 <button
                   onClick={() => { setDrivePanel(!drivePanel); if (!drivePanel && driveFiles.length === 0) loadDriveFiles(); }}
-                  style={{ padding: "4px 12px", background: drivePanel ? "#1a73e822" : "#334155", border: `1px solid ${drivePanel ? "#1a73e8" : "#475569"}`, borderRadius: "6px", color: drivePanel ? "#60a5fa" : "#94a3b8", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
+                  style={{ padding: "4px 12px", background: drivePanel ? "#1a73e822" : "#cbd5e1", border: `1px solid ${drivePanel ? "#1a73e8" : "#334155"}`, borderRadius: "6px", color: drivePanel ? "#60a5fa" : "#64748b", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
                 >
                   {drivePanel ? "▲ 닫기" : "▼ 파일 선택"}
                 </button>
@@ -2030,13 +2030,13 @@ export default function BALMYGARDENDashboard() {
             {drivePanel && (
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                  <button onClick={loadDriveFiles} disabled={driveLoading} style={{ padding: "4px 10px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "10px", cursor: driveLoading ? "not-allowed" : "pointer" }}>
+                  <button onClick={loadDriveFiles} disabled={driveLoading} style={{ padding: "4px 10px", background: "#e2e8f0", border: "1px solid #cbd5e1", borderRadius: "6px", color: "#1e293b", fontSize: "10px", cursor: driveLoading ? "not-allowed" : "pointer" }}>
                     {driveLoading ? "로딩…" : "🔄 새로고침"}
                   </button>
-                  <span style={{ fontSize: "10px", color: "#475569" }}>클릭하면 파일 내용을 에이전트 컨텍스트로 주입합니다</span>
+                  <span style={{ fontSize: "10px", color: "#334155" }}>클릭하면 파일 내용을 에이전트 컨텍스트로 주입합니다</span>
                 </div>
                 {driveFiles.length === 0 && !driveLoading && (
-                  <div style={{ fontSize: "11px", color: "#334155", padding: "16px", textAlign: "center" }}>
+                  <div style={{ fontSize: "11px", color: "#94a3b8", padding: "16px", textAlign: "center" }}>
                     파일 없음 — GOOGLE_SERVICE_ACCOUNT_JSON 설정 확인
                   </div>
                 )}
@@ -2045,14 +2045,14 @@ export default function BALMYGARDENDashboard() {
                     <div
                       key={f.id}
                       onClick={() => injectDriveFile(f)}
-                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", background: driveCtxName === f.name ? "#1a73e822" : "#111827", borderRadius: "6px", border: `1px solid ${driveCtxName === f.name ? "#1a73e8" : "#1e293b"}`, cursor: "pointer" }}
+                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", background: driveCtxName === f.name ? "#1a73e822" : "#f1f5f9", borderRadius: "6px", border: `1px solid ${driveCtxName === f.name ? "#1a73e8" : "#e2e8f0"}`, cursor: "pointer" }}
                     >
                       <span style={{ fontSize: "14px" }}>
                         {f.mimeType.includes("document") ? "📄" : f.mimeType.includes("spreadsheet") ? "📊" : f.mimeType.includes("presentation") ? "📑" : "📁"}
                       </span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: "11px", color: "#e2e8f0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
-                        <div style={{ fontSize: "9px", color: "#475569" }}>{f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString("ko-KR") : ""}</div>
+                        <div style={{ fontSize: "11px", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</div>
+                        <div style={{ fontSize: "9px", color: "#334155" }}>{f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString("ko-KR") : ""}</div>
                       </div>
                       {driveCtxName === f.name && <span style={{ fontSize: "10px", color: "#22c55e" }}>✓</span>}
                     </div>
@@ -2063,14 +2063,14 @@ export default function BALMYGARDENDashboard() {
           </div>
 
           {/* ══ Slack 알림 토글 ══ */}
-          <div style={{ marginTop: "10px", padding: "10px 14px", background: slackConfigured ? "#0f2419" : "#1a1f2e", borderRadius: "10px", border: `1px solid ${slackConfigured ? (slackNotify ? "#22c55e44" : "#334155") : "#334155"}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+          <div style={{ marginTop: "10px", padding: "10px 14px", background: slackConfigured ? "#dcfce7" : "#f1f5f9", borderRadius: "10px", border: `1px solid ${slackConfigured ? (slackNotify ? "#22c55e44" : "#cbd5e1") : "#cbd5e1"}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <span style={{ fontSize: "16px" }}>💬</span>
               <div>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: slackConfigured ? "#4ade80" : "#64748b" }}>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: slackConfigured ? "#4ade80" : "#475569" }}>
                   Slack 알림 {slackConfigured === null ? "확인 중…" : slackConfigured ? (slackNotify ? "ON" : "OFF") : "미설정"}
                 </div>
-                <div style={{ fontSize: "9px", color: "#475569" }}>
+                <div style={{ fontSize: "9px", color: "#334155" }}>
                   {slackConfigured ? "워크플로우 완료 시 채널에 알림 전송" : ".env.local에 SLACK_BOT_TOKEN + SLACK_CHANNEL_ID 추가 필요"}
                 </div>
               </div>
@@ -2078,12 +2078,12 @@ export default function BALMYGARDENDashboard() {
             {slackConfigured ? (
               <button
                 onClick={() => setSlackNotify(!slackNotify)}
-                style={{ padding: "4px 14px", background: slackNotify ? "#22c55e22" : "#334155", border: `1px solid ${slackNotify ? "#22c55e" : "#475569"}`, borderRadius: "20px", color: slackNotify ? "#22c55e" : "#94a3b8", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
+                style={{ padding: "4px 14px", background: slackNotify ? "#22c55e22" : "#cbd5e1", border: `1px solid ${slackNotify ? "#22c55e" : "#334155"}`, borderRadius: "20px", color: slackNotify ? "#22c55e" : "#64748b", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
               >
                 {slackNotify ? "ON" : "OFF"}
               </button>
             ) : (
-              <span style={{ fontSize: "9px", color: "#334155", padding: "4px 10px", background: "#0f1629", borderRadius: "6px", border: "1px solid #1e293b" }}>
+              <span style={{ fontSize: "9px", color: "#94a3b8", padding: "4px 10px", background: "#f1f5f9", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
                 api.slack.com/apps
               </span>
             )}
@@ -2094,11 +2094,11 @@ export default function BALMYGARDENDashboard() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
               <div>
                 <div style={{ fontSize: "13px", fontWeight: "700", color: "#f97316" }}>🏆 Level 7 — 에이전트 팀 (듀얼 체인)</div>
-                <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>두 워크플로우를 동시에 실행해 결과를 비교합니다</div>
+                <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>두 워크플로우를 동시에 실행해 결과를 비교합니다</div>
               </div>
               <button
                 onClick={() => setTeamMode(!teamMode)}
-                style={{ padding: "5px 14px", background: teamMode ? "#f9731622" : "#334155", border: `1px solid ${teamMode ? "#f97316" : "#475569"}`, borderRadius: "20px", color: teamMode ? "#f97316" : "#94a3b8", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                style={{ padding: "5px 14px", background: teamMode ? "#f9731622" : "#cbd5e1", border: `1px solid ${teamMode ? "#f97316" : "#334155"}`, borderRadius: "20px", color: teamMode ? "#f97316" : "#64748b", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
               >
                 {teamMode ? "팀 모드 ON ▲" : "팀 모드 열기 ▼"}
               </button>
@@ -2106,14 +2106,14 @@ export default function BALMYGARDENDashboard() {
             {teamMode && (
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
                 {/* Chain A (current) */}
-                <div style={{ padding: "14px", background: "#0d1629", borderRadius: "10px", border: "1px solid #6366F144" }}>
+                <div style={{ padding: "14px", background: "#ffffff", borderRadius: "10px", border: "1px solid #6366F144" }}>
                   <div style={{ fontSize: "12px", fontWeight: "700", color: "#6366F1", marginBottom: "10px" }}>🔵 체인 A (현재 워크플로우)</div>
                   {wfId ? (
                     <>
-                      <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "8px" }}>
+                      <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "8px" }}>
                         {WORKFLOWS.find(w => w.id === wfId)?.emoji} {WORKFLOWS.find(w => w.id === wfId)?.name}
                       </div>
-                      <div style={{ fontSize: "11px", color: wfInput ? "#e2e8f0" : "#475569" }}>
+                      <div style={{ fontSize: "11px", color: wfInput ? "#1e293b" : "#334155" }}>
                         {wfInput ? `"${wfInput.slice(0, 60)}..."` : "← 워크플로우 탭에서 입력 필요"}
                       </div>
                       {chainRes.length > 0 && (
@@ -2121,17 +2121,17 @@ export default function BALMYGARDENDashboard() {
                       )}
                     </>
                   ) : (
-                    <div style={{ fontSize: "11px", color: "#475569" }}>← 좌측에서 워크플로우 선택</div>
+                    <div style={{ fontSize: "11px", color: "#334155" }}>← 좌측에서 워크플로우 선택</div>
                   )}
                 </div>
 
                 {/* Chain B (team) */}
-                <div style={{ padding: "14px", background: "#0d1629", borderRadius: "10px", border: "1px solid #f9731644" }}>
+                <div style={{ padding: "14px", background: "#ffffff", borderRadius: "10px", border: "1px solid #f9731644" }}>
                   <div style={{ fontSize: "12px", fontWeight: "700", color: "#f97316", marginBottom: "10px" }}>🟠 체인 B (비교 워크플로우)</div>
                   <select
                     value={teamWfId ?? ""}
                     onChange={(e) => { setTeamWfId(e.target.value || null); setTeamRes([]); }}
-                    style={{ width: "100%", padding: "7px 10px", background: "#111827", border: "1px solid #1e293b", borderRadius: "6px", color: "#e2e8f0", fontSize: "11px", marginBottom: "8px" }}
+                    style={{ width: "100%", padding: "7px 10px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "6px", color: "#1e293b", fontSize: "11px", marginBottom: "8px" }}
                   >
                     <option value="">— 비교 워크플로우 선택 —</option>
                     {WORKFLOWS.map((wf) => (
@@ -2142,12 +2142,12 @@ export default function BALMYGARDENDashboard() {
                     value={teamInput}
                     onChange={(e) => setTeamInput(e.target.value)}
                     placeholder="체인 B 업무 내용 (체인 A와 다르게 설정 가능)"
-                    style={{ width: "100%", minHeight: "60px", background: "#111827", border: "1px solid #1e293b", borderRadius: "6px", padding: "8px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", boxSizing: "border-box", marginBottom: "8px" }}
+                    style={{ width: "100%", minHeight: "60px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "8px", color: "#1e293b", fontSize: "11px", resize: "vertical", boxSizing: "border-box", marginBottom: "8px" }}
                   />
                   <button
                     onClick={runTeamChain}
                     disabled={teamRunning || !teamWfId || !teamInput.trim()}
-                    style={{ padding: "8px 16px", background: teamRunning ? "#334155" : "#f97316", color: "#fff", border: "none", borderRadius: "6px", cursor: teamRunning ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "11px" }}
+                    style={{ padding: "8px 16px", background: teamRunning ? "#cbd5e1" : "#f97316", color: "#fff", border: "none", borderRadius: "6px", cursor: teamRunning ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "11px" }}
                   >
                     {teamRunning ? "⏳ B 실행 중..." : "▶ 체인 B 실행"}
                   </button>
@@ -2162,18 +2162,18 @@ export default function BALMYGARDENDashboard() {
                     <div>
                       <div style={{ fontSize: "11px", fontWeight: "700", color: "#6366F1", marginBottom: "8px" }}>🔵 체인 A 결과</div>
                       {chainRes.map((r, i) => (
-                        <div key={i} style={{ marginBottom: "6px", padding: "10px", background: "#111827", borderRadius: "8px", borderLeft: `3px solid ${r.ag.color}` }}>
+                        <div key={i} style={{ marginBottom: "6px", padding: "10px", background: "#f1f5f9", borderRadius: "8px", borderLeft: `3px solid ${r.ag.color}` }}>
                           <div style={{ fontSize: "11px", color: r.ag.color, fontWeight: "700", marginBottom: "4px" }}>{r.ag.av} {r.key}</div>
-                          <div style={{ fontSize: "11px", color: "#94a3b8", lineHeight: "1.6" }}>{r.txt.slice(0, 200)}{r.txt.length > 200 ? "..." : ""}</div>
+                          <div style={{ fontSize: "11px", color: "#64748b", lineHeight: "1.6" }}>{r.txt.slice(0, 200)}{r.txt.length > 200 ? "..." : ""}</div>
                         </div>
                       ))}
                     </div>
                     <div>
                       <div style={{ fontSize: "11px", fontWeight: "700", color: "#f97316", marginBottom: "8px" }}>🟠 체인 B 결과</div>
                       {teamRes.map((r, i) => (
-                        <div key={i} style={{ marginBottom: "6px", padding: "10px", background: "#111827", borderRadius: "8px", borderLeft: `3px solid ${r.ag.color}` }}>
+                        <div key={i} style={{ marginBottom: "6px", padding: "10px", background: "#f1f5f9", borderRadius: "8px", borderLeft: `3px solid ${r.ag.color}` }}>
                           <div style={{ fontSize: "11px", color: r.ag.color, fontWeight: "700", marginBottom: "4px" }}>{r.ag.av} {r.key}</div>
-                          <div style={{ fontSize: "11px", color: "#94a3b8", lineHeight: "1.6" }}>{r.txt.slice(0, 200)}{r.txt.length > 200 ? "..." : ""}</div>
+                          <div style={{ fontSize: "11px", color: "#64748b", lineHeight: "1.6" }}>{r.txt.slice(0, 200)}{r.txt.length > 200 ? "..." : ""}</div>
                         </div>
                       ))}
                     </div>
@@ -2191,25 +2191,25 @@ export default function BALMYGARDENDashboard() {
             {Object.entries(AGENTS).map(([k, a]) => (
               <div
                 key={k}
-                style={S.card(agentOpen === k ? a.color : "#1e293b")}
+                style={S.card(agentOpen === k ? a.color : "#e2e8f0")}
                 onClick={() => setAgentOpen(agentOpen === k ? null : k)}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
                   <span style={{ fontSize: "26px" }}>{a.av}</span>
                   <div>
                     <div style={{ color: a.color, fontWeight: "800", fontSize: "15px" }}>{k}</div>
-                    <div style={{ fontSize: "10px", color: "#475569" }}>{a.code} · {a.type}</div>
+                    <div style={{ fontSize: "10px", color: "#334155" }}>{a.code} · {a.type}</div>
                   </div>
                 </div>
                 <div style={{ fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>{a.role}</div>
-                <div style={{ fontSize: "11px", color: "#64748b", marginBottom: agentOpen === k ? "12px" : "0" }}>{a.desc}</div>
+                <div style={{ fontSize: "11px", color: "#475569", marginBottom: agentOpen === k ? "12px" : "0" }}>{a.desc}</div>
                 {agentOpen === k && (
-                  <div style={{ background: "#111827", borderRadius: "8px", padding: "10px", fontSize: "11px", color: "#94a3b8", lineHeight: "1.7", whiteSpace: "pre-wrap", borderLeft: `3px solid ${a.color}` }}>
+                  <div style={{ background: "#f1f5f9", borderRadius: "8px", padding: "10px", fontSize: "11px", color: "#64748b", lineHeight: "1.7", whiteSpace: "pre-wrap", borderLeft: `3px solid ${a.color}` }}>
                     {a.sys}
                   </div>
                 )}
                 <div style={{ display: "flex", gap: "8px", marginTop: "10px", alignItems: "center" }}>
-                  <div style={{ fontSize: "10px", color: "#334155", flex: 1 }}>{agentOpen === k ? "▲ 닫기" : "▼ 시스템 프롬프트 보기"}</div>
+                  <div style={{ fontSize: "10px", color: "#94a3b8", flex: 1 }}>{agentOpen === k ? "▲ 닫기" : "▼ 시스템 프롬프트 보기"}</div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setChatAgent(k); setChatMsgs([]); setTab("chat"); }}
                     style={{ padding: "4px 10px", background: a.color + "33", color: a.color, border: `1px solid ${a.color}55`, borderRadius: "6px", cursor: "pointer", fontSize: "10px", fontWeight: "700" }}
@@ -2229,7 +2229,7 @@ export default function BALMYGARDENDashboard() {
               <select
                 value={chatAgent ?? ""}
                 onChange={(e) => { setChatAgent(e.target.value || null); setChatMsgs([]); }}
-                style={{ width: "100%", padding: "10px 12px", background: "#0d1629", border: "1px solid #1e293b", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
+                style={{ width: "100%", padding: "10px 12px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "8px", color: "#1e293b", fontSize: "13px" }}
               >
                 <option value="">— 에이전트 선택 —</option>
                 {Object.entries(AGENTS).map(([k, a]) => (
@@ -2238,7 +2238,7 @@ export default function BALMYGARDENDashboard() {
               </select>
             ) : (
               <div>
-                <div style={{ fontSize: "11px", color: "#475569", marginBottom: "8px" }}>에이전트 선택</div>
+                <div style={{ fontSize: "11px", color: "#334155", marginBottom: "8px" }}>에이전트 선택</div>
                 {Object.entries(AGENTS).map(([k, a]) => (
                   <div
                     key={k}
@@ -2247,7 +2247,7 @@ export default function BALMYGARDENDashboard() {
                   >
                     <span style={{ fontSize: "14px" }}>{a.av}</span>
                     <span style={{ fontSize: "12px", fontWeight: "700", marginLeft: "8px", color: a.color }}>{k}</span>
-                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{a.role}</div>
+                    <div style={{ fontSize: "10px", color: "#334155", marginTop: "2px" }}>{a.role}</div>
                   </div>
                 ))}
               </div>
@@ -2261,25 +2261,25 @@ export default function BALMYGARDENDashboard() {
                     <div style={{ ...S.card(ag.color + "44"), marginBottom: "12px", padding: "12px 16px" }}>
                       <span style={{ fontSize: "18px" }}>{ag.av}</span>
                       <span style={{ color: ag.color, fontWeight: "800", fontSize: "15px", marginLeft: "8px" }}>{chatAgent}</span>
-                      <span style={{ color: "#475569", fontSize: "11px", marginLeft: "8px" }}>{ag.role}</span>
+                      <span style={{ color: "#334155", fontSize: "11px", marginLeft: "8px" }}>{ag.role}</span>
                     </div>
 
                     <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
                       {chatMsgs.length === 0 && (
-                        <div style={{ textAlign: "center", color: "#334155", fontSize: "13px", marginTop: "40px" }}>
+                        <div style={{ textAlign: "center", color: "#94a3b8", fontSize: "13px", marginTop: "40px" }}>
                           {ag.av} {chatAgent}에게 메시지를 보내세요
                         </div>
                       )}
                       {chatMsgs.map((m, i) => (
                         <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-                          <div style={{ maxWidth: "75%", padding: "10px 14px", borderRadius: "12px", fontSize: "13px", lineHeight: "1.7", whiteSpace: "pre-wrap", background: m.role === "user" ? "#6366F1" : "#111827", color: m.role === "user" ? "#fff" : "#cbd5e1", border: m.role === "agent" ? `1px solid ${ag.color}44` : "none" }}>
+                          <div style={{ maxWidth: "75%", padding: "10px 14px", borderRadius: "12px", fontSize: "13px", lineHeight: "1.7", whiteSpace: "pre-wrap", background: m.role === "user" ? "#6366F1" : "#f1f5f9", color: m.role === "user" ? "#fff" : "#cbd5e1", border: m.role === "agent" ? `1px solid ${ag.color}44` : "none" }}>
                             {m.text}
                           </div>
                         </div>
                       ))}
                       {chatLoading && (
                         <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                          <div style={{ padding: "10px 14px", borderRadius: "12px", background: "#111827", color: ag.color, fontSize: "13px", border: `1px solid ${ag.color}44` }}>
+                          <div style={{ padding: "10px 14px", borderRadius: "12px", background: "#f1f5f9", color: ag.color, fontSize: "13px", border: `1px solid ${ag.color}44` }}>
                             {ag.av} 응답 중…
                           </div>
                         </div>
@@ -2294,12 +2294,12 @@ export default function BALMYGARDENDashboard() {
                           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
                           placeholder={`${chatAgent}에게 메시지 입력 (Enter 전송, Shift+Enter 줄바꿈)`}
                           rows={2}
-                          style={{ flex: 1, background: "#111827", border: "1px solid #1e293b", borderRadius: "8px", padding: "10px", color: "#e2e8f0", fontSize: "13px", resize: "none" }}
+                          style={{ flex: 1, background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px", color: "#1e293b", fontSize: "13px", resize: "none" }}
                         />
                         <button
                           onClick={sendChat}
                           disabled={chatLoading || !chatInput.trim()}
-                          style={{ padding: "0 20px", background: chatLoading ? "#334155" : ag.color, color: "#fff", border: "none", borderRadius: "8px", cursor: chatLoading ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "13px" }}
+                          style={{ padding: "0 20px", background: chatLoading ? "#cbd5e1" : ag.color, color: "#fff", border: "none", borderRadius: "8px", cursor: chatLoading ? "not-allowed" : "pointer", fontWeight: "700", fontSize: "13px" }}
                         >
                           전송
                         </button>
@@ -2318,7 +2318,7 @@ export default function BALMYGARDENDashboard() {
                   </div>
                 );
               })() : (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "200px", color: "#334155", fontSize: "14px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "200px", color: "#94a3b8", fontSize: "14px" }}>
                   ← 에이전트를 선택하세요
                 </div>
               )}
@@ -2344,9 +2344,9 @@ export default function BALMYGARDENDashboard() {
               return (
                 <div>
                   <div style={{ ...S.card("#06B6D422"), marginBottom: "16px", padding: "14px 18px" }}>
-                    <div style={{ fontSize: "14px", fontWeight: "800", color: "#67e8f9", marginBottom: "4px" }}>⚡ 업무 자동화 프롬프트 (누끼토끼 정리)</div>
-                    <div style={{ fontSize: "11px", color: "#64748b" }}>4개 카테고리 · ★ = 대표 프롬프트 · Claude Cowork 최적화</div>
-                    <div style={{ marginTop: "8px", padding: "8px 10px", background: "#2d1e0e", border: "1px solid #F59E0B44", borderRadius: "6px", fontSize: "10px", color: "#fbbf24" }}>
+                    <div style={{ fontSize: "14px", fontWeight: "800", color: "#0e7490", marginBottom: "4px" }}>⚡ 업무 자동화 프롬프트 (누끼토끼 정리)</div>
+                    <div style={{ fontSize: "11px", color: "#475569" }}>4개 카테고리 · ★ = 대표 프롬프트 · Claude Cowork 최적화</div>
+                    <div style={{ marginTop: "8px", padding: "8px 10px", background: "#fffbeb", border: "1px solid #F59E0B44", borderRadius: "6px", fontSize: "10px", color: "#b45309" }}>
                       ⚠️ 안전 규칙: 발송·결제·삭제처럼 되돌릴 수 없는 일은 자동화 금지. 항상 초안까지만 생성 후 CEO 확인.
                     </div>
                   </div>
@@ -2357,7 +2357,7 @@ export default function BALMYGARDENDashboard() {
                       <div key={cat} style={{ marginBottom: "20px" }}>
                         <div style={{ fontSize: "12px", fontWeight: "700", color, marginBottom: "10px", display: "flex", alignItems: "center", gap: "8px" }}>
                           <span style={{ padding: "2px 10px", background: color + "22", border: `1px solid ${color}44`, borderRadius: "10px" }}>{cat}</span>
-                          <span style={{ fontSize: "10px", color: "#334155" }}>{catPrompts.length}개 프롬프트</span>
+                          <span style={{ fontSize: "10px", color: "#94a3b8" }}>{catPrompts.length}개 프롬프트</span>
                         </div>
                         {catPrompts.map((p) => (
                           <div key={p.id} style={{ ...S.card(color + "18"), marginBottom: "10px" }}>
@@ -2365,17 +2365,17 @@ export default function BALMYGARDENDashboard() {
                               <span style={S.badge(color)}>{p.id}</span>
                               {p.star && <span style={{ fontSize: "10px", color: "#F59E0B", fontWeight: "700" }}>★ 대표</span>}
                               <span style={{ fontSize: "13px", fontWeight: "700", color }}>{p.name}</span>
-                              <span style={{ fontSize: "10px", color: "#475569", marginLeft: "auto" }}>{p.tools}</span>
+                              <span style={{ fontSize: "10px", color: "#334155", marginLeft: "auto" }}>{p.tools}</span>
                             </div>
                             <div style={{ display: "grid", gap: "6px" }}>
                               {p.items.map((item, i) => (
-                                <div key={i} style={{ background: "#111827", borderRadius: "8px", padding: "10px 12px" }}>
+                                <div key={i} style={{ background: "#f1f5f9", borderRadius: "8px", padding: "10px 12px" }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                                     {i === 0 && p.star && <span style={{ fontSize: "9px", color: "#F59E0B", fontWeight: "700" }}>★</span>}
                                     <span style={{ fontSize: "11px", fontWeight: "700", color, flex: 1 }}>{item.title}</span>
                                     <CopyBtn text={item.desc} id={`${p.id}-${i}`} small />
                                   </div>
-                                  <div style={{ fontSize: "11px", color: "#64748b", lineHeight: "1.6" }}>{item.desc}</div>
+                                  <div style={{ fontSize: "11px", color: "#475569", lineHeight: "1.6" }}>{item.desc}</div>
                                 </div>
                               ))}
                             </div>
@@ -2393,11 +2393,11 @@ export default function BALMYGARDENDashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
                   <span style={S.badge("#6366F1")}>{p.id}</span>
                   <span style={{ fontSize: "14px", fontWeight: "700" }}>{p.name}</span>
-                  <span style={{ fontSize: "10px", color: "#475569", marginLeft: "auto" }}>{p.src}</span>
+                  <span style={{ fontSize: "10px", color: "#334155", marginLeft: "auto" }}>{p.src}</span>
                   <CopyBtn text={p.tpl} id={p.id} />
                   <NotionBtn action="save_prompt" payload={{ id: p.id, name: p.name, content: p.tpl, category: "학습" }} small />
                 </div>
-                <div style={{ background: "#111827", borderRadius: "8px", padding: "12px", fontSize: "12px", color: "#94a3b8", lineHeight: "1.8", whiteSpace: "pre-wrap" }}>
+                <div style={{ background: "#f1f5f9", borderRadius: "8px", padding: "12px", fontSize: "12px", color: "#64748b", lineHeight: "1.8", whiteSpace: "pre-wrap" }}>
                   {p.tpl}
                 </div>
               </div>
@@ -2408,13 +2408,13 @@ export default function BALMYGARDENDashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                   <span style={S.badge(p.color)}>{p.id}</span>
                   <span style={{ fontSize: "14px", fontWeight: "700", color: p.color }}>{p.name}</span>
-                  <span style={{ fontSize: "10px", color: "#475569", marginLeft: "auto" }}>{p.src}</span>
+                  <span style={{ fontSize: "10px", color: "#334155", marginLeft: "auto" }}>{p.src}</span>
                 </div>
                 <div style={{ display: "grid", gap: "8px" }}>
                   {p.items.map((item, i) => (
-                    <div key={i} style={{ display: "flex", gap: "8px", alignItems: "center", background: "#111827", borderRadius: "8px", padding: "10px 12px" }}>
+                    <div key={i} style={{ display: "flex", gap: "8px", alignItems: "center", background: "#f1f5f9", borderRadius: "8px", padding: "10px 12px" }}>
                       <span style={{ fontSize: "11px", color: p.color, minWidth: "16px", fontWeight: "700" }}>{i + 1}.</span>
-                      <span style={{ fontSize: "12px", color: "#94a3b8", flex: 1 }}>{item}</span>
+                      <span style={{ fontSize: "12px", color: "#64748b", flex: 1 }}>{item}</span>
                       <CopyBtn text={item} id={`${p.id}-${i}`} small />
                     </div>
                   ))}
@@ -2428,7 +2428,7 @@ export default function BALMYGARDENDashboard() {
                   value={hookQ}
                   onChange={(e) => setHookQ(e.target.value)}
                   placeholder="훅 검색... (예: 실수, 변화, 진실)"
-                  style={{ width: "100%", padding: "10px 14px", background: "#0d1629", border: "1px solid #1e293b", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px", marginBottom: "12px", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "10px 14px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "8px", color: "#1e293b", fontSize: "13px", marginBottom: "12px", boxSizing: "border-box" }}
                 />
                 {filteredHooks.map((h, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", ...S.card(), marginBottom: "8px", padding: "10px 14px" }}>
@@ -2466,28 +2466,28 @@ export default function BALMYGARDENDashboard() {
         {tab === "system" && (
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
             <div>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>🧠 메모리 ({MEMORY.length}건)</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>🧠 메모리 ({MEMORY.length}건)</div>
               {MEMORY.map((m) => (
                 <div key={m.id} style={{ ...S.card(), marginBottom: "8px", padding: "10px 14px" }}>
                   <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
                     <span style={{ fontSize: "10px", color: "#6366F1", fontWeight: "700" }}>{m.id}</span>
                     <span style={S.badge("#6366F1")}>{m.tag}</span>
                   </div>
-                  <div style={{ fontSize: "11px", color: "#64748b" }}>{m.txt}</div>
+                  <div style={{ fontSize: "11px", color: "#475569" }}>{m.txt}</div>
                 </div>
               ))}
             </div>
             <div>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>📅 자동 스케줄 (8건)</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>📅 자동 스케줄 (8건)</div>
               {SCHEDULES.map((s, i) => (
                 <div key={i} style={{ ...S.card(), marginBottom: "8px", padding: "10px 14px" }}>
                   <div style={{ fontSize: "11px", color: "#F59E0B", fontWeight: "700" }}>⏰ {s.time}</div>
                   <div style={{ fontSize: "11px", color: "#06B6D4", margin: "2px 0" }}>👤 {s.agent}</div>
-                  <div style={{ fontSize: "11px", color: "#94a3b8" }}>{s.task}</div>
+                  <div style={{ fontSize: "11px", color: "#64748b" }}>{s.task}</div>
                 </div>
               ))}
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "4px", marginTop: "18px" }}>🎨 AI 생성 도구 (SCOUT 감시)</div>
-              <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "8px" }}>Higgsfield 크레딧 소진(2026-08-01) → 무료 대체 체계 전환</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "4px", marginTop: "18px" }}>🎨 AI 생성 도구 (SCOUT 감시)</div>
+              <div style={{ fontSize: "10px", color: "#475569", marginBottom: "8px" }}>Higgsfield 크레딧 소진(2026-08-01) → 무료 대체 체계 전환</div>
               {AI_TOOLS.map((t) => {
                 const m = STATUS_META[t.status];
                 return (
@@ -2495,25 +2495,25 @@ export default function BALMYGARDENDashboard() {
                     <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
                       <span style={{ fontSize: "12px", fontWeight: "700", color: m.color }}>{t.name}</span>
                       <span style={S.badge(m.color)}>{m.label}</span>
-                      <span style={{ fontSize: "10px", color: "#94a3b8", marginLeft: "auto", fontFamily: "monospace" }}>{t.freeLimit}</span>
+                      <span style={{ fontSize: "10px", color: "#64748b", marginLeft: "auto", fontFamily: "monospace" }}>{t.freeLimit}</span>
                     </div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "3px" }}>{t.use}</div>
-                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>{t.note}</div>
+                    <div style={{ fontSize: "11px", color: "#64748b", marginTop: "3px" }}>{t.use}</div>
+                    <div style={{ fontSize: "10px", color: "#334155", marginTop: "2px" }}>{t.note}</div>
                   </div>
                 );
               })}
               <div style={{ ...S.card(), padding: "10px 12px", marginBottom: "6px" }}>
-                <div style={{ fontSize: "10px", color: "#64748b", letterSpacing: "1px", marginBottom: "5px" }}>매일 07:00 SCOUT 점검 항목</div>
+                <div style={{ fontSize: "10px", color: "#475569", letterSpacing: "1px", marginBottom: "5px" }}>매일 07:00 SCOUT 점검 항목</div>
                 {DAILY_CHECK.map((c, i) => (
-                  <div key={i} style={{ fontSize: "11px", color: "#94a3b8", padding: "1px 0" }}>· {c}</div>
+                  <div key={i} style={{ fontSize: "11px", color: "#64748b", padding: "1px 0" }}>· {c}</div>
                 ))}
               </div>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px", marginTop: "18px" }}>🛠️ Tool Pool</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px", marginTop: "18px" }}>🛠️ Tool Pool</div>
               {TOOLS.map((t, i) => (
-                <div key={i} style={{ display: "flex", gap: "8px", alignItems: "center", ...S.card(t.warn ? "#EF444433" : "#1e293b"), marginBottom: "6px", padding: "8px 12px" }}>
+                <div key={i} style={{ display: "flex", gap: "8px", alignItems: "center", ...S.card(t.warn ? "#EF444433" : "#e2e8f0"), marginBottom: "6px", padding: "8px 12px" }}>
                   <span style={{ fontSize: "12px", fontWeight: "700", color: t.warn ? "#EF4444" : "#22C55E", minWidth: "110px" }}>{t.name}</span>
-                  <span style={{ fontSize: "11px", color: "#94a3b8", flex: 1 }}>{t.use}</span>
-                  {t.fb !== "—" && <span style={{ fontSize: "10px", color: "#475569" }}>↳ {t.fb}</span>}
+                  <span style={{ fontSize: "11px", color: "#64748b", flex: 1 }}>{t.use}</span>
+                  {t.fb !== "—" && <span style={{ fontSize: "10px", color: "#334155" }}>↳ {t.fb}</span>}
                 </div>
               ))}
             </div>
@@ -2524,7 +2524,7 @@ export default function BALMYGARDENDashboard() {
         {tab === "ladder" && (
           <div>
             <div style={{ ...S.card(), marginBottom: "18px", padding: "20px" }}>
-              <div style={{ fontSize: "14px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>
+              <div style={{ fontSize: "14px", fontWeight: "700", color: "#4f46e5", marginBottom: "12px" }}>
                 🎯 BALMYGARDEN 현재 단계 진단 (@platformtree_)
               </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "10px", marginBottom: "16px" }}>
@@ -2533,22 +2533,22 @@ export default function BALMYGARDENDashboard() {
                   { label: "🗂️ 영수증 OCR 앱", stage: 3, name: "제품판매", next: "정보 상품화 (가이드/SaaS 교육)", color: "#6366F1" },
                   { label: "⚔️ LOD 게임", stage: 3, name: "제품판매", next: "주목 확보 (커뮤니티/팬베이스)", color: "#8B5CF6" },
                 ].map((b) => (
-                  <div key={b.label} style={{ background: "#111827", borderRadius: "10px", border: `2px solid ${b.color}`, padding: "14px" }}>
-                    <div style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "6px" }}>{b.label}</div>
+                  <div key={b.label} style={{ background: "#f1f5f9", borderRadius: "10px", border: `2px solid ${b.color}`, padding: "14px" }}>
+                    <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px" }}>{b.label}</div>
                     <div style={{ fontSize: "22px", fontWeight: "800", color: b.color }}>{b.stage}단계</div>
                     <div style={{ fontSize: "11px", color: b.color, fontWeight: "600", marginBottom: "6px" }}>{b.name}</div>
-                    <div style={{ fontSize: "10px", color: "#64748b" }}>▶ 다음: {b.next}</div>
+                    <div style={{ fontSize: "10px", color: "#475569" }}>▶ 다음: {b.next}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div style={{ fontSize: "14px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>📈 12단계 사업 성장 사다리</div>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#4f46e5", marginBottom: "12px" }}>📈 12단계 사업 성장 사다리</div>
             <div style={{ display: "grid", gap: "10px" }}>
               {LADDER_12.map((l) => {
                 const isCurrent = l.step === 2 || l.step === 3;
                 return (
-                  <div key={l.step} style={{ background: "#0d1629", borderRadius: "10px", border: `1px solid ${isCurrent ? l.color : "#1e293b"}`, borderLeft: `4px solid ${l.color}`, padding: "14px 16px", boxShadow: isCurrent ? `0 0 12px ${l.color}33` : "none" }}>
+                  <div key={l.step} style={{ background: "#ffffff", borderRadius: "10px", border: `1px solid ${isCurrent ? l.color : "#e2e8f0"}`, borderLeft: `4px solid ${l.color}`, padding: "14px 16px", boxShadow: isCurrent ? `0 0 12px ${l.color}33` : "none" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
                       <span style={{ fontSize: "20px" }}>{l.icon}</span>
                       <div style={{ flex: 1 }}>
@@ -2561,19 +2561,19 @@ export default function BALMYGARDENDashboard() {
                         )}
                       </div>
                     </div>
-                    <div style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "8px" }}>{l.desc}</div>
+                    <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "8px" }}>{l.desc}</div>
                     <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "8px" }}>
-                      <div style={{ background: "#111827", borderRadius: "6px", padding: "8px" }}>
+                      <div style={{ background: "#f1f5f9", borderRadius: "6px", padding: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#22C55E", fontWeight: "700", marginBottom: "4px" }}>✓ 현재 이 단계 신호</div>
-                        {l.signal.map((s, i) => <div key={i} style={{ fontSize: "10px", color: "#64748b", marginBottom: "2px" }}>· {s}</div>)}
+                        {l.signal.map((s, i) => <div key={i} style={{ fontSize: "10px", color: "#475569", marginBottom: "2px" }}>· {s}</div>)}
                       </div>
-                      <div style={{ background: "#111827", borderRadius: "6px", padding: "8px" }}>
+                      <div style={{ background: "#f1f5f9", borderRadius: "6px", padding: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#EF4444", fontWeight: "700", marginBottom: "4px" }}>⚠️ 핵심 문제</div>
-                        <div style={{ fontSize: "10px", color: "#64748b" }}>{l.problem}</div>
+                        <div style={{ fontSize: "10px", color: "#475569" }}>{l.problem}</div>
                       </div>
-                      <div style={{ background: "#111827", borderRadius: "6px", padding: "8px" }}>
+                      <div style={{ background: "#f1f5f9", borderRadius: "6px", padding: "8px" }}>
                         <div style={{ fontSize: "10px", color: "#06B6D4", fontWeight: "700", marginBottom: "4px" }}>→ 다음 단계</div>
-                        <div style={{ fontSize: "10px", color: "#64748b" }}>{l.next}</div>
+                        <div style={{ fontSize: "10px", color: "#475569" }}>{l.next}</div>
                       </div>
                     </div>
                   </div>
@@ -2597,8 +2597,8 @@ export default function BALMYGARDENDashboard() {
             <div>
               {/* Header */}
               <div style={{ ...S.card("#06B6D422"), marginBottom: "16px", padding: "16px 20px" }}>
-                <div style={{ fontSize: "15px", fontWeight: "800", color: "#67e8f9", marginBottom: "4px" }}>⏰ 작업 예약 (Claude Routines)</div>
-                <div style={{ fontSize: "11px", color: "#64748b" }}>
+                <div style={{ fontSize: "15px", fontWeight: "800", color: "#0e7490", marginBottom: "4px" }}>⏰ 작업 예약 (Claude Routines)</div>
+                <div style={{ fontSize: "11px", color: "#475569" }}>
                   정해진 루틴마다 자동 실행 · Notion 저장 · ALINN 6단계 기준
                 </div>
                 <div style={{ marginTop: "10px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
@@ -2623,7 +2623,7 @@ export default function BALMYGARDENDashboard() {
                     <div style={{ fontSize: "12px", fontWeight: "700", color: ct.color, marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
                       <span>{ct.emoji}</span>
                       <span>{ct.label} 루틴</span>
-                      <span style={{ fontSize: "10px", color: "#334155", fontWeight: "400" }}>— {items.length}개 작업</span>
+                      <span style={{ fontSize: "10px", color: "#94a3b8", fontWeight: "400" }}>— {items.length}개 작업</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                       {items.map((s, i) => (
@@ -2633,11 +2633,11 @@ export default function BALMYGARDENDashboard() {
                             <div style={{ fontSize: "10px", color: ct.color, fontWeight: "700" }}>{s.time}</div>
                           </div>
                           {/* Agent badge */}
-                          <div style={{ fontSize: "10px", color: "#94a3b8", background: "#1e293b", padding: "3px 8px", borderRadius: "4px", whiteSpace: "nowrap" }}>
+                          <div style={{ fontSize: "10px", color: "#64748b", background: "#e2e8f0", padding: "3px 8px", borderRadius: "4px", whiteSpace: "nowrap" }}>
                             {s.agent}
                           </div>
                           {/* Task */}
-                          <div style={{ flex: 1, fontSize: "12px", color: "#e2e8f0", minWidth: "120px" }}>{s.task}</div>
+                          <div style={{ flex: 1, fontSize: "12px", color: "#1e293b", minWidth: "120px" }}>{s.task}</div>
                           {/* Action button */}
                           {s.wfId ? (
                             <button
@@ -2649,7 +2649,7 @@ export default function BALMYGARDENDashboard() {
                           ) : s.chatAgent ? (
                             <button
                               onClick={() => { setChatAgent(s.chatAgent!); setChatMsgs([]); setTab("chat"); }}
-                              style={{ padding: "6px 14px", background: "#1e293b", border: `1px solid ${ct.color}`, borderRadius: "6px", color: ct.color, fontSize: "11px", fontWeight: "700", cursor: "pointer", whiteSpace: "nowrap" }}
+                              style={{ padding: "6px 14px", background: "#e2e8f0", border: `1px solid ${ct.color}`, borderRadius: "6px", color: ct.color, fontSize: "11px", fontWeight: "700", cursor: "pointer", whiteSpace: "nowrap" }}
                             >
                               💬 에이전트 대화
                             </button>
@@ -2663,8 +2663,8 @@ export default function BALMYGARDENDashboard() {
 
               {/* Claude Routines 안내 */}
               <div style={{ ...S.card("#F59E0B22"), padding: "14px 16px", border: "1px solid #F59E0B33" }}>
-                <div style={{ fontSize: "12px", fontWeight: "700", color: "#fbbf24", marginBottom: "6px" }}>💡 Claude Routines 자동화 팁 (ALINN 6단계)</div>
-                <div style={{ fontSize: "11px", color: "#94a3b8", lineHeight: "1.7" }}>
+                <div style={{ fontSize: "12px", fontWeight: "700", color: "#b45309", marginBottom: "6px" }}>💡 Claude Routines 자동화 팁 (ALINN 6단계)</div>
+                <div style={{ fontSize: "11px", color: "#64748b", lineHeight: "1.7" }}>
                   • 위 "▶ 워크플로우" 버튼으로 수동 즉시 실행 가능<br />
                   • 클라우드 자동화: Claude Code 웹 환경 → CronJob으로 예약 실행<br />
                   • Notion에 결과 자동 전달 — 워크플로우 완료 시 자동 저장됨<br />
@@ -2682,19 +2682,19 @@ export default function BALMYGARDENDashboard() {
             <div style={{ ...S.card("#7C3AED33"), marginBottom: "16px", padding: "20px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
                 <div>
-                  <div style={{ fontSize: "18px", fontWeight: "800", color: "#a78bfa", marginBottom: "4px" }}>🌿 PROJECT GOSARI</div>
-                  <div style={{ fontSize: "12px", color: "#64748b" }}>BALMY MUSIC OS v1.0 · 첫 번째 테스트 프로젝트</div>
+                  <div style={{ fontSize: "18px", fontWeight: "800", color: "#7c3aed", marginBottom: "4px" }}>🌿 PROJECT GOSARI</div>
+                  <div style={{ fontSize: "12px", color: "#475569" }}>BALMY MUSIC OS v1.0 · 첫 번째 테스트 프로젝트</div>
                   <div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
                     {[["테마", "시간(Time)"], ["메시지", "우리는 모두 누군가의 고사리였다"], ["트랙", "EP 6곡"]].map(([k, v]) => (
-                      <span key={k} style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "#7C3AED22", border: "1px solid #7C3AED44", color: "#c4b5fd" }}>
+                      <span key={k} style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "#7C3AED22", border: "1px solid #7C3AED44", color: "#7c3aed" }}>
                         {k}: {v}
                       </span>
                     ))}
                   </div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "28px", fontWeight: "900", color: "#a78bfa" }}>{gosariStep}</div>
-                  <div style={{ fontSize: "10px", color: "#64748b" }}>/ 12 STEP</div>
+                  <div style={{ fontSize: "28px", fontWeight: "900", color: "#7c3aed" }}>{gosariStep}</div>
+                  <div style={{ fontSize: "10px", color: "#475569" }}>/ 12 STEP</div>
                   <div style={{ fontSize: "10px", color: gosariStep >= 12 ? "#22c55e" : "#7C3AED", marginTop: "4px", fontWeight: "700" }}>
                     {gosariStep === 0 ? "시작 전" : gosariStep >= 12 ? "✅ 완료" : "진행 중"}
                   </div>
@@ -2703,13 +2703,13 @@ export default function BALMYGARDENDashboard() {
             </div>
 
             {/* 15-Step Pipeline Tracker */}
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>📌 STEP 상태 — 15단계 파이프라인</div>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>📌 STEP 상태 — 15단계 파이프라인</div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: "8px", marginBottom: "20px" }}>
               {GOSARI_PIPELINE.map((p) => {
                 const done = gosariStep >= p.step;
                 const active = gosariStep + 1 === p.step;
-                const color = done ? "#22c55e" : active ? "#a78bfa" : "#334155";
-                const bg = done ? "#0d2d1a" : active ? "#1e1040" : "#0d1117";
+                const color = done ? "#22c55e" : active ? "#a78bfa" : "#cbd5e1";
+                const bg = done ? "#dcfce7" : active ? "#1e1040" : "#f1f5f9";
                 return (
                   <div
                     key={p.step}
@@ -2723,8 +2723,8 @@ export default function BALMYGARDENDashboard() {
                       <span style={{ fontSize: "14px" }}>{done ? "✅" : active ? "▶️" : "○"}</span>
                       <span style={{ fontSize: "10px", color, fontWeight: "700" }}>STEP {p.step}</span>
                     </div>
-                    <div style={{ fontSize: "12px", fontWeight: "700", color: done ? "#86efac" : active ? "#c4b5fd" : "#475569", marginBottom: "3px" }}>{p.name}</div>
-                    <div style={{ fontSize: "10px", color: "#475569" }}>{p.agent}</div>
+                    <div style={{ fontSize: "12px", fontWeight: "700", color: done ? "#86efac" : active ? "#c4b5fd" : "#334155", marginBottom: "3px" }}>{p.name}</div>
+                    <div style={{ fontSize: "10px", color: "#334155" }}>{p.agent}</div>
                     {active && (
                       <button
                         onClick={(e) => { e.stopPropagation(); setWfId(p.wfId); setTab("workflow"); }}
@@ -2741,10 +2741,10 @@ export default function BALMYGARDENDashboard() {
             {/* Current Step Detail */}
             {gosariStep < 12 && (
               <div style={{ ...S.card("#7C3AED22"), marginBottom: "20px", padding: "16px", border: "1px solid #7C3AED44" }}>
-                <div style={{ fontSize: "12px", fontWeight: "700", color: "#a78bfa", marginBottom: "8px" }}>
+                <div style={{ fontSize: "12px", fontWeight: "700", color: "#7c3aed", marginBottom: "8px" }}>
                   🎯 다음 액션 — STEP {gosariStep + 1}: {GOSARI_PIPELINE[gosariStep]?.name}
                 </div>
-                <div style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "10px" }}>{GOSARI_PIPELINE[gosariStep]?.desc}</div>
+                <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "10px" }}>{GOSARI_PIPELINE[gosariStep]?.desc}</div>
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   <button
                     onClick={() => { setWfId(GOSARI_PIPELINE[gosariStep].wfId); setTab("workflow"); }}
@@ -2756,7 +2756,7 @@ export default function BALMYGARDENDashboard() {
                     onClick={() => {
                       if (gosariStep < 12) setGosariStep(gosariStep + 1);
                     }}
-                    style={{ padding: "8px 14px", background: "#1e293b", border: "1px solid #334155", borderRadius: "8px", color: "#94a3b8", fontSize: "12px", cursor: "pointer" }}
+                    style={{ padding: "8px 14px", background: "#e2e8f0", border: "1px solid #cbd5e1", borderRadius: "8px", color: "#64748b", fontSize: "12px", cursor: "pointer" }}
                   >
                     ✓ 완료 처리
                   </button>
@@ -2765,14 +2765,14 @@ export default function BALMYGARDENDashboard() {
             )}
 
             {/* Decision Log */}
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>📖 Decision Log</div>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>📖 Decision Log</div>
             <div style={{ ...S.card(), marginBottom: "16px", padding: "14px" }}>
               {/* Add decision */}
               <div style={{ display: "flex", gap: "6px", marginBottom: "12px", flexWrap: "wrap" }}>
                 <select
                   value={newDecisionTag}
                   onChange={(e) => setNewDecisionTag(e.target.value as "결정" | "변경" | "보류")}
-                  style={{ padding: "6px 10px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "12px" }}
+                  style={{ padding: "6px 10px", background: "#e2e8f0", border: "1px solid #cbd5e1", borderRadius: "6px", color: "#1e293b", fontSize: "12px" }}
                 >
                   <option value="결정">결정</option>
                   <option value="변경">변경</option>
@@ -2795,7 +2795,7 @@ export default function BALMYGARDENDashboard() {
                     }
                   }}
                   placeholder="결정/변경 사항 입력 후 Enter"
-                  style={{ flex: 1, minWidth: "180px", padding: "6px 10px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "12px" }}
+                  style={{ flex: 1, minWidth: "180px", padding: "6px 10px", background: "#e2e8f0", border: "1px solid #cbd5e1", borderRadius: "6px", color: "#1e293b", fontSize: "12px" }}
                 />
                 <button
                   onClick={() => {
@@ -2829,7 +2829,7 @@ export default function BALMYGARDENDashboard() {
                       });
                       setProjectSaving(false);
                     }}
-                    style={{ padding: "6px 12px", background: projectSaving ? "#334155" : "#0d2d1a", border: "1px solid #22c55e44", borderRadius: "6px", color: "#86efac", fontSize: "11px", cursor: "pointer" }}
+                    style={{ padding: "6px 12px", background: projectSaving ? "#cbd5e1" : "#dcfce7", border: "1px solid #22c55e44", borderRadius: "6px", color: "#16a34a", fontSize: "11px", cursor: "pointer" }}
                   >
                     {projectSaving ? "저장 중…" : "📎 Notion 저장"}
                   </button>
@@ -2837,23 +2837,23 @@ export default function BALMYGARDENDashboard() {
               </div>
               {/* Log list */}
               {decisionLog.length === 0 ? (
-                <div style={{ textAlign: "center", color: "#334155", fontSize: "12px", padding: "20px" }}>
+                <div style={{ textAlign: "center", color: "#94a3b8", fontSize: "12px", padding: "20px" }}>
                   결정/변경 사항을 입력하면 여기에 누적됩니다
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "320px", overflowY: "auto" }}>
                   {decisionLog.map((d, i) => {
-                    const tagColor: Record<string, string> = { 결정: "#22c55e", 변경: "#f59e0b", 보류: "#94a3b8" };
+                    const tagColor: Record<string, string> = { 결정: "#22c55e", 변경: "#f59e0b", 보류: "#64748b" };
                     return (
-                      <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start", padding: "8px 10px", background: "#0d1117", borderRadius: "6px", border: "1px solid #1e293b" }}>
-                        <span style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: (tagColor[d.tag] ?? "#94a3b8") + "22", color: tagColor[d.tag] ?? "#94a3b8", border: `1px solid ${(tagColor[d.tag] ?? "#94a3b8")}44`, whiteSpace: "nowrap", marginTop: "1px" }}>
+                      <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start", padding: "8px 10px", background: "#f1f5f9", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                        <span style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: (tagColor[d.tag] ?? "#64748b") + "22", color: tagColor[d.tag] ?? "#64748b", border: `1px solid ${(tagColor[d.tag] ?? "#64748b")}44`, whiteSpace: "nowrap", marginTop: "1px" }}>
                           {d.tag}
                         </span>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "2px" }}>STEP {d.step} {d.stepName} · {new Date(d.date).toLocaleString("ko-KR")}</div>
-                          <div style={{ fontSize: "13px", color: "#e2e8f0" }}>{d.decision}</div>
+                          <div style={{ fontSize: "11px", color: "#475569", marginBottom: "2px" }}>STEP {d.step} {d.stepName} · {new Date(d.date).toLocaleString("ko-KR")}</div>
+                          <div style={{ fontSize: "13px", color: "#1e293b" }}>{d.decision}</div>
                         </div>
-                        <button onClick={() => setDecisionLog(decisionLog.filter((_, j) => j !== i))} style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "14px", padding: "0 4px" }}>✕</button>
+                        <button onClick={() => setDecisionLog(decisionLog.filter((_, j) => j !== i))} style={{ background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: "14px", padding: "0 4px" }}>✕</button>
                       </div>
                     );
                   })}
@@ -2864,14 +2864,14 @@ export default function BALMYGARDENDashboard() {
             {/* Changelog — 완료된 스텝 목록 */}
             {gosariStep > 0 && (
               <>
-                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>🔄 Changelog</div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>🔄 Changelog</div>
                 <div style={{ ...S.card(), padding: "14px" }}>
                   {GOSARI_PIPELINE.filter((p) => gosariStep >= p.step).map((p) => (
-                    <div key={p.step} style={{ display: "flex", gap: "10px", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #1e293b" }}>
+                    <div key={p.step} style={{ display: "flex", gap: "10px", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #e2e8f0" }}>
                       <span style={{ fontSize: "14px" }}>✅</span>
                       <span style={{ fontSize: "10px", color: "#22c55e", whiteSpace: "nowrap", fontWeight: "700" }}>STEP {p.step}</span>
-                      <span style={{ fontSize: "12px", color: "#86efac", fontWeight: "700" }}>{p.name}</span>
-                      <span style={{ fontSize: "11px", color: "#64748b" }}>{p.desc}</span>
+                      <span style={{ fontSize: "12px", color: "#16a34a", fontWeight: "700" }}>{p.name}</span>
+                      <span style={{ fontSize: "11px", color: "#475569" }}>{p.desc}</span>
                     </div>
                   ))}
                 </div>
@@ -2879,7 +2879,7 @@ export default function BALMYGARDENDashboard() {
             )}
 
             {/* Project Bible Quick Reference */}
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginTop: "20px", marginBottom: "10px" }}>📖 Project Bible — EP 트랙 리스트</div>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginTop: "20px", marginBottom: "10px" }}>📖 Project Bible — EP 트랙 리스트</div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "8px" }}>
               {[
                 { num: "01", title: "늦게 알았네", symbol: "전화, 시간", emotion: "후회·깨달음" },
@@ -2892,10 +2892,10 @@ export default function BALMYGARDENDashboard() {
                 <div key={t.num} style={{ ...S.card("#7C3AED11"), padding: "10px 14px", border: "1px solid #7C3AED22" }}>
                   <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
                     <span style={{ fontSize: "11px", color: "#7C3AED", fontWeight: "700" }}>#{t.num}</span>
-                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#e2e8f0" }}>{t.title}</span>
+                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#1e293b" }}>{t.title}</span>
                   </div>
-                  <div style={{ fontSize: "10px", color: "#64748b" }}>심볼: {t.symbol}</div>
-                  <div style={{ fontSize: "10px", color: "#a78bfa" }}>감정: {t.emotion}</div>
+                  <div style={{ fontSize: "10px", color: "#475569" }}>심볼: {t.symbol}</div>
+                  <div style={{ fontSize: "10px", color: "#7c3aed" }}>감정: {t.emotion}</div>
                 </div>
               ))}
             </div>
@@ -2907,8 +2907,8 @@ export default function BALMYGARDENDashboard() {
           <div>
             {/* 헤더 */}
             <div style={{ ...S.card("#7C3AED44"), marginBottom: "16px", padding: "16px 20px" }}>
-              <div style={{ fontSize: "15px", fontWeight: "800", color: "#a78bfa", marginBottom: "4px" }}>🎬 BALMY MUSIC OS v4.0 — AI 크리에이티브 스튜디오</div>
-              <div style={{ fontSize: "11px", color: "#64748b" }}>Quality Gate · Producer Review · Production Memory · Creative Conflict — 창작 품질 루프 통합 관제</div>
+              <div style={{ fontSize: "15px", fontWeight: "800", color: "#7c3aed", marginBottom: "4px" }}>🎬 BALMY MUSIC OS v4.0 — AI 크리에이티브 스튜디오</div>
+              <div style={{ fontSize: "11px", color: "#475569" }}>Quality Gate · Producer Review · Production Memory · Creative Conflict — 창작 품질 루프 통합 관제</div>
             </div>
 
             {/* 서브탭 네비게이션 */}
@@ -2919,8 +2919,8 @@ export default function BALMYGARDENDashboard() {
                   onClick={() => setStudioTab(t)}
                   style={{
                     padding: "6px 16px", fontSize: "12px", fontWeight: "700", borderRadius: "6px", cursor: "pointer", border: "none",
-                    background: studioTab === t ? "#7C3AED" : "#1e293b",
-                    color: studioTab === t ? "#fff" : "#64748b",
+                    background: studioTab === t ? "#7C3AED" : "#e2e8f0",
+                    color: studioTab === t ? "#fff" : "#475569",
                   }}
                 >
                   {t === "채점" ? "🎯 채점" : t === "리뷰" ? "📝 리뷰" : t === "PM" ? "🧠 PM" : "⚔️ 토론"}
@@ -2934,11 +2934,11 @@ export default function BALMYGARDENDashboard() {
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
               {/* 왼쪽: 채점 패널 */}
               <div>
-                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>채점 입력</div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>채점 입력</div>
 
                 {/* 게이트 선택 */}
                 <div style={{ ...S.card(), marginBottom: "10px" }}>
-                  <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>게이트 선택 (QG-01~12)</div>
+                  <div style={{ fontSize: "11px", color: "#475569", marginBottom: "6px" }}>게이트 선택 (QG-01~12)</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                     {GOSARI_GATES.map((g) => (
                       <button
@@ -2946,8 +2946,8 @@ export default function BALMYGARDENDashboard() {
                         onClick={() => setActiveQG(g.gate)}
                         style={{
                           padding: "3px 8px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", border: "none",
-                          background: activeQG === g.gate ? "#7C3AED" : "#1e293b",
-                          color: activeQG === g.gate ? "#fff" : "#64748b",
+                          background: activeQG === g.gate ? "#7C3AED" : "#e2e8f0",
+                          color: activeQG === g.gate ? "#fff" : "#475569",
                           fontWeight: activeQG === g.gate ? "700" : "400",
                         }}
                       >
@@ -2958,10 +2958,10 @@ export default function BALMYGARDENDashboard() {
                   {(() => {
                     const g = GOSARI_GATES.find((x) => x.gate === activeQG)!;
                     return (
-                      <div style={{ marginTop: "10px", padding: "8px 10px", background: "#111827", borderRadius: "6px" }}>
-                        <div style={{ fontSize: "12px", fontWeight: "700", color: "#a78bfa" }}>QG-{String(g.gate).padStart(2, "0")} {g.name}</div>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>담당: {g.agent}</div>
-                        <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "2px" }}>{g.desc}</div>
+                      <div style={{ marginTop: "10px", padding: "8px 10px", background: "#f1f5f9", borderRadius: "6px" }}>
+                        <div style={{ fontSize: "12px", fontWeight: "700", color: "#7c3aed" }}>QG-{String(g.gate).padStart(2, "0")} {g.name}</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginTop: "2px" }}>담당: {g.agent}</div>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>{g.desc}</div>
                       </div>
                     );
                   })()}
@@ -2969,7 +2969,7 @@ export default function BALMYGARDENDashboard() {
 
                 {/* 트랙 선택 */}
                 <div style={{ ...S.card(), marginBottom: "10px" }}>
-                  <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>트랙 선택</div>
+                  <div style={{ fontSize: "11px", color: "#475569", marginBottom: "6px" }}>트랙 선택</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                     {GOSARI_TRACKS.map((t) => (
                       <button
@@ -2977,8 +2977,8 @@ export default function BALMYGARDENDashboard() {
                         onClick={() => setQgTrack(t)}
                         style={{
                           padding: "3px 8px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", border: "none",
-                          background: qgTrack === t ? "#0369A1" : "#1e293b",
-                          color: qgTrack === t ? "#fff" : "#64748b",
+                          background: qgTrack === t ? "#0369A1" : "#e2e8f0",
+                          color: qgTrack === t ? "#fff" : "#475569",
                         }}
                       >
                         {t}
@@ -2989,17 +2989,17 @@ export default function BALMYGARDENDashboard() {
 
                 {/* 8개 항목 채점 */}
                 <div style={{ ...S.card(), marginBottom: "10px" }}>
-                  <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "10px" }}>8개 평가 항목 (0~100점, 전항목 90+ = PASS)</div>
+                  <div style={{ fontSize: "11px", color: "#475569", marginBottom: "10px" }}>8개 평가 항목 (0~100점, 전항목 90+ = PASS)</div>
                   {QG_CATEGORIES.map((cat) => {
                     const score = qgScores[cat];
                     const ok = score >= 90;
-                    const color = score === 0 ? "#334155" : ok ? "#22C55E" : "#EF4444";
+                    const color = score === 0 ? "#cbd5e1" : ok ? "#22C55E" : "#EF4444";
                     return (
                       <div key={cat} style={{ marginBottom: "8px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                          <span style={{ fontSize: "11px", minWidth: "64px", color: "#94a3b8" }}>{cat}</span>
-                          <span style={{ fontSize: "9px", color: "#475569", minWidth: "50px" }}>담당: {QG_CATEGORY_AGENT[cat]}</span>
-                          <div style={{ flex: 1, background: "#1e293b", borderRadius: "3px", height: "5px", overflow: "hidden" }}>
+                          <span style={{ fontSize: "11px", minWidth: "64px", color: "#64748b" }}>{cat}</span>
+                          <span style={{ fontSize: "9px", color: "#334155", minWidth: "50px" }}>담당: {QG_CATEGORY_AGENT[cat]}</span>
+                          <div style={{ flex: 1, background: "#e2e8f0", borderRadius: "3px", height: "5px", overflow: "hidden" }}>
                             <div style={{ width: `${score}%`, height: "100%", background: color, transition: "width 0.3s, background 0.3s" }} />
                           </div>
                           <input
@@ -3011,9 +3011,9 @@ export default function BALMYGARDENDashboard() {
                             }}
                             placeholder="0"
                             style={{
-                              width: "44px", padding: "2px 4px", background: "#111827",
+                              width: "44px", padding: "2px 4px", background: "#f1f5f9",
                               border: `1px solid ${color}`, borderRadius: "4px",
-                              color: "#e2e8f0", fontSize: "11px", textAlign: "center",
+                              color: "#1e293b", fontSize: "11px", textAlign: "center",
                             }}
                           />
                           <span style={{ fontSize: "10px", color, minWidth: "28px", fontWeight: "700" }}>
@@ -3025,19 +3025,19 @@ export default function BALMYGARDENDashboard() {
                   })}
 
                   {/* 총점 및 PASS/FAIL */}
-                  <div style={{ marginTop: "12px", padding: "10px 12px", borderRadius: "8px", background: qgPass(qgScores) ? "#0d2e14" : Object.values(qgScores).every((v) => v === 0) ? "#111827" : "#2d1010", border: `1px solid ${qgPass(qgScores) ? "#22C55E" : Object.values(qgScores).every((v) => v === 0) ? "#1e293b" : "#EF4444"}` }}>
+                  <div style={{ marginTop: "12px", padding: "10px 12px", borderRadius: "8px", background: qgPass(qgScores) ? "#dcfce7" : Object.values(qgScores).every((v) => v === 0) ? "#f1f5f9" : "#fef2f2", border: `1px solid ${qgPass(qgScores) ? "#22C55E" : Object.values(qgScores).every((v) => v === 0) ? "#e2e8f0" : "#EF4444"}` }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div>
-                        <div style={{ fontSize: "20px", fontWeight: "800", color: qgPass(qgScores) ? "#22C55E" : Object.values(qgScores).every((v) => v === 0) ? "#475569" : "#EF4444" }}>
+                        <div style={{ fontSize: "20px", fontWeight: "800", color: qgPass(qgScores) ? "#22C55E" : Object.values(qgScores).every((v) => v === 0) ? "#334155" : "#EF4444" }}>
                           {Object.values(qgScores).every((v) => v === 0) ? "미입력" : qgPass(qgScores) ? "PASS" : "FAIL"}
                         </div>
-                        <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
+                        <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>
                           평균 {qgTotal(qgScores)}점 · 미달 항목: {QG_CATEGORIES.filter((c) => qgScores[c] > 0 && qgScores[c] < 90).join(", ") || "없음"}
                         </div>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: "28px", fontWeight: "900", color: "#a78bfa" }}>{qgTotal(qgScores)}</div>
-                        <div style={{ fontSize: "9px", color: "#475569" }}>/ 100</div>
+                        <div style={{ fontSize: "28px", fontWeight: "900", color: "#7c3aed" }}>{qgTotal(qgScores)}</div>
+                        <div style={{ fontSize: "9px", color: "#334155" }}>/ 100</div>
                       </div>
                     </div>
                   </div>
@@ -3046,14 +3046,14 @@ export default function BALMYGARDENDashboard() {
                 {/* FAIL 시 피드백 */}
                 {!qgPass(qgScores) && Object.values(qgScores).some((v) => v > 0) && (
                   <div style={{ ...S.card("#EF444422"), marginBottom: "10px" }}>
-                    <div style={{ fontSize: "11px", color: "#fca5a5", marginBottom: "6px" }}>개선 루프 — 피드백 입력</div>
+                    <div style={{ fontSize: "11px", color: "#dc2626", marginBottom: "6px" }}>개선 루프 — 피드백 입력</div>
                     <textarea
                       value={qgFeedback}
                       onChange={(e) => setQgFeedback(e.target.value)}
                       placeholder={`미달 항목: ${QG_CATEGORIES.filter((c) => qgScores[c] > 0 && qgScores[c] < 90).join(", ")} — 구체적 개선 방향을 입력하세요`}
-                      style={{ width: "100%", padding: "8px", background: "#0d1117", border: "1px solid #EF444444", borderRadius: "6px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "60px", boxSizing: "border-box" }}
+                      style={{ width: "100%", padding: "8px", background: "#f1f5f9", border: "1px solid #EF444444", borderRadius: "6px", color: "#1e293b", fontSize: "11px", resize: "vertical", minHeight: "60px", boxSizing: "border-box" }}
                     />
-                    <div style={{ fontSize: "10px", color: "#475569", marginTop: "4px" }}>
+                    <div style={{ fontSize: "10px", color: "#334155", marginTop: "4px" }}>
                       담당 에이전트: {QG_CATEGORIES.filter((c) => qgScores[c] > 0 && qgScores[c] < 90).map((c) => QG_CATEGORY_AGENT[c]).filter((v, i, a) => a.indexOf(v) === i).join(", ")} → 수정 후 재평가
                     </div>
                   </div>
@@ -3062,7 +3062,7 @@ export default function BALMYGARDENDashboard() {
                 <button
                   onClick={submitQG}
                   disabled={Object.values(qgScores).every((v) => v === 0)}
-                  style={{ width: "100%", padding: "10px", background: Object.values(qgScores).every((v) => v === 0) ? "#1e293b" : "#7C3AED", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: Object.values(qgScores).every((v) => v === 0) ? "not-allowed" : "pointer" }}
+                  style={{ width: "100%", padding: "10px", background: Object.values(qgScores).every((v) => v === 0) ? "#94a3b8" : "#7C3AED", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: Object.values(qgScores).every((v) => v === 0) ? "not-allowed" : "pointer" }}
                 >
                   QG 평가 기록 저장
                 </button>
@@ -3070,9 +3070,9 @@ export default function BALMYGARDENDashboard() {
 
               {/* 오른쪽: 평가 히스토리 + CHANGELOG */}
               <div>
-                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>평가 기록</div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>평가 기록</div>
                 {qgHistory.length === 0 ? (
-                  <div style={{ ...S.card(), marginBottom: "10px", textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>
+                  <div style={{ ...S.card(), marginBottom: "10px", textAlign: "center", color: "#94a3b8", padding: "24px", fontSize: "12px" }}>
                     평가 기록 없음 — 왼쪽에서 채점 후 저장
                   </div>
                 ) : (
@@ -3082,10 +3082,10 @@ export default function BALMYGARDENDashboard() {
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}>
                           <span style={{ fontSize: "11px", fontWeight: "800", color: e.pass ? "#22C55E" : "#EF4444" }}>{e.pass ? "PASS" : "FAIL"}</span>
                           <span style={{ ...S.badge("#7C3AED") }}>QG-{String(e.gate).padStart(2, "0")}</span>
-                          <span style={{ fontSize: "11px", color: "#94a3b8" }}>{e.gateName}</span>
-                          <span style={{ fontSize: "10px", color: "#475569", marginLeft: "auto" }}>{new Date(e.date).toLocaleString("ko-KR")}</span>
+                          <span style={{ fontSize: "11px", color: "#64748b" }}>{e.gateName}</span>
+                          <span style={{ fontSize: "10px", color: "#334155", marginLeft: "auto" }}>{new Date(e.date).toLocaleString("ko-KR")}</span>
                         </div>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "4px" }}>트랙: {e.track} · 평균 {qgTotal(e.scores)}점</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "4px" }}>트랙: {e.track} · 평균 {qgTotal(e.scores)}점</div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "3px" }}>
                           {QG_CATEGORIES.map((c) => (
                             <span key={c} style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "3px", background: e.scores[c] >= 90 ? "#22C55E22" : "#EF444422", color: e.scores[c] >= 90 ? "#86efac" : "#fca5a5", border: `1px solid ${e.scores[c] >= 90 ? "#22C55E44" : "#EF444444"}` }}>
@@ -3094,13 +3094,13 @@ export default function BALMYGARDENDashboard() {
                           ))}
                         </div>
                         {e.feedback && (
-                          <div style={{ fontSize: "10px", color: "#fca5a5", marginTop: "4px", padding: "4px 6px", background: "#2d1010", borderRadius: "4px" }}>
+                          <div style={{ fontSize: "10px", color: "#dc2626", marginTop: "4px", padding: "4px 6px", background: "#fef2f2", borderRadius: "4px" }}>
                             개선 피드백: {e.feedback}
                           </div>
                         )}
                         <button
                           onClick={() => setQgHistory((prev) => prev.filter((x) => x.id !== e.id))}
-                          style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}
+                          style={{ marginTop: "4px", background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: "10px" }}
                         >
                           삭제
                         </button>
@@ -3110,26 +3110,26 @@ export default function BALMYGARDENDashboard() {
                 )}
 
                 {/* CHANGELOG */}
-                <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px", marginTop: "4px" }}>CHANGELOG</div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px", marginTop: "4px" }}>CHANGELOG</div>
                 <div style={{ ...S.card(), marginBottom: "10px" }}>
                   <div style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
                     <input
                       value={newChangelogDesc}
                       onChange={(e) => setNewChangelogDesc(e.target.value)}
                       placeholder="변경 내용 입력"
-                      style={{ flex: 1, minWidth: "120px", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}
+                      style={{ flex: 1, minWidth: "120px", padding: "5px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px" }}
                     />
                     <select
                       value={newChangelogType}
                       onChange={(e) => setNewChangelogType(e.target.value as "신규" | "수정" | "삭제" | "보류")}
-                      style={{ padding: "5px 6px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}
+                      style={{ padding: "5px 6px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px" }}
                     >
                       {(["신규", "수정", "삭제", "보류"] as const).map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                     <select
                       value={newChangelogAgent}
                       onChange={(e) => setNewChangelogAgent(e.target.value)}
-                      style={{ padding: "5px 6px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}
+                      style={{ padding: "5px 6px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px" }}
                     >
                       {Object.keys(AGENTS).map((k) => <option key={k} value={k}>{k}</option>)}
                     </select>
@@ -3150,12 +3150,12 @@ export default function BALMYGARDENDashboard() {
                   {changelog.map((c, i) => {
                     const typeColor: Record<string, string> = { 신규: "#22C55E", 수정: "#06B6D4", 삭제: "#EF4444", 보류: "#F59E0B" };
                     return (
-                      <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start", padding: "6px 0", borderBottom: "1px solid #1e293b" }}>
-                        <span style={{ fontSize: "10px", color: "#a78bfa", fontWeight: "700", minWidth: "34px" }}>{c.version}</span>
-                        <span style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "3px", background: (typeColor[c.type] ?? "#94a3b8") + "22", color: typeColor[c.type] ?? "#94a3b8", border: `1px solid ${(typeColor[c.type] ?? "#94a3b8")}44`, whiteSpace: "nowrap", marginTop: "1px" }}>{c.type}</span>
-                        <span style={{ flex: 1, fontSize: "11px", color: "#94a3b8" }}>{c.desc}</span>
-                        <span style={{ fontSize: "9px", color: "#475569", whiteSpace: "nowrap" }}>{c.agent}</span>
-                        <span style={{ fontSize: "9px", color: "#334155", whiteSpace: "nowrap" }}>{c.date}</span>
+                      <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start", padding: "6px 0", borderBottom: "1px solid #e2e8f0" }}>
+                        <span style={{ fontSize: "10px", color: "#7c3aed", fontWeight: "700", minWidth: "34px" }}>{c.version}</span>
+                        <span style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "3px", background: (typeColor[c.type] ?? "#64748b") + "22", color: typeColor[c.type] ?? "#64748b", border: `1px solid ${(typeColor[c.type] ?? "#64748b")}44`, whiteSpace: "nowrap", marginTop: "1px" }}>{c.type}</span>
+                        <span style={{ flex: 1, fontSize: "11px", color: "#64748b" }}>{c.desc}</span>
+                        <span style={{ fontSize: "9px", color: "#334155", whiteSpace: "nowrap" }}>{c.agent}</span>
+                        <span style={{ fontSize: "9px", color: "#94a3b8", whiteSpace: "nowrap" }}>{c.date}</span>
                       </div>
                     );
                   })}
@@ -3164,13 +3164,13 @@ export default function BALMYGARDENDashboard() {
             </div>
 
             {/* 게이트 전체 현황 */}
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px", marginTop: "4px" }}>QG 전체 현황 — QG-01~12</div>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px", marginTop: "4px" }}>QG 전체 현황 — QG-01~12</div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "8px" }}>
               {GOSARI_GATES.map((g) => {
                 const passed = qgHistory.filter((h) => h.gate === g.gate && h.pass).length;
                 const failed = qgHistory.filter((h) => h.gate === g.gate && !h.pass).length;
                 const status = passed > 0 ? "pass" : failed > 0 ? "fail" : "pending";
-                const color = status === "pass" ? "#22C55E" : status === "fail" ? "#EF4444" : "#334155";
+                const color = status === "pass" ? "#22C55E" : status === "fail" ? "#EF4444" : "#cbd5e1";
                 return (
                   <div
                     key={g.gate}
@@ -3179,15 +3179,15 @@ export default function BALMYGARDENDashboard() {
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
                       <span style={{ fontSize: "10px", fontWeight: "700", color }}>QG-{String(g.gate).padStart(2, "0")}</span>
-                      <span style={{ fontSize: "10px", fontWeight: "700", color: "#e2e8f0" }}>{g.name}</span>
+                      <span style={{ fontSize: "10px", fontWeight: "700", color: "#1e293b" }}>{g.name}</span>
                       <span style={{ marginLeft: "auto", fontSize: "11px" }}>
                         {status === "pass" ? "✅" : status === "fail" ? "❌" : "⏳"}
                       </span>
                     </div>
-                    <div style={{ fontSize: "9px", color: "#475569" }}>{g.agent}</div>
-                    <div style={{ fontSize: "9px", color: "#334155", marginTop: "2px" }}>{g.desc}</div>
+                    <div style={{ fontSize: "9px", color: "#334155" }}>{g.agent}</div>
+                    <div style={{ fontSize: "9px", color: "#94a3b8", marginTop: "2px" }}>{g.desc}</div>
                     {(passed > 0 || failed > 0) && (
-                      <div style={{ fontSize: "9px", color: "#64748b", marginTop: "4px" }}>
+                      <div style={{ fontSize: "9px", color: "#475569", marginTop: "4px" }}>
                         PASS {passed}회 / FAIL {failed}회
                       </div>
                     )}
@@ -3202,25 +3202,25 @@ export default function BALMYGARDENDashboard() {
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
                 {/* 왼쪽: 리뷰 입력 */}
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>프로듀서 리뷰 작성</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>프로듀서 리뷰 작성</div>
                   <div style={{ ...S.card(), marginBottom: "10px" }}>
                     <div style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>버전</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>버전</div>
                         <input value={reviewVersion} onChange={(e) => setReviewVersion(e.target.value)}
-                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", boxSizing: "border-box" }} />
+                          style={{ width: "100%", padding: "5px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px", boxSizing: "border-box" }} />
                       </div>
                       <div style={{ flex: 2 }}>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>트랙</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>트랙</div>
                         <select value={reviewTrack} onChange={(e) => setReviewTrack(e.target.value)}
-                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          style={{ width: "100%", padding: "5px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px" }}>
                           {GOSARI_TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}
                         </select>
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>담당</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>담당</div>
                         <select value={reviewAgent} onChange={(e) => setReviewAgent(e.target.value)}
-                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          style={{ width: "100%", padding: "5px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px" }}>
                           {["LYRA", "MUSE", "SAGE", "STROBE", "NOVA", "CONDUCTOR"].map((a) => <option key={a} value={a}>{a}</option>)}
                         </select>
                       </div>
@@ -3231,10 +3231,10 @@ export default function BALMYGARDENDashboard() {
                       const setters = { good: setReviewGood, bad: setReviewBad, improve: setReviewImprove, next: setReviewNext };
                       return (
                         <div key={field} style={{ marginBottom: "8px" }}>
-                          <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>{labels[field]}</div>
+                          <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>{labels[field]}</div>
                           <textarea value={vals[field]} onChange={(e) => setters[field](e.target.value)}
                             placeholder={`${labels[field]}을 입력하세요`}
-                            style={{ width: "100%", padding: "6px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "50px", boxSizing: "border-box" }} />
+                            style={{ width: "100%", padding: "6px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px", resize: "vertical", minHeight: "50px", boxSizing: "border-box" }} />
                         </div>
                       );
                     })}
@@ -3260,7 +3260,7 @@ export default function BALMYGARDENDashboard() {
                           }
                           setReviewGenerating(false);
                         }}
-                        style={{ flex: 1, padding: "8px", background: reviewGenerating ? "#1e293b" : "#7C3AED", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: reviewGenerating ? "not-allowed" : "pointer" }}
+                        style={{ flex: 1, padding: "8px", background: reviewGenerating ? "#94a3b8" : "#7C3AED", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: reviewGenerating ? "not-allowed" : "pointer" }}
                       >
                         {reviewGenerating ? "AI 생성 중…" : `${reviewAgent} 자동 생성`}
                       </button>
@@ -3286,17 +3286,17 @@ export default function BALMYGARDENDashboard() {
 
                 {/* 오른쪽: 리뷰 히스토리 */}
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>리뷰 히스토리</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>리뷰 히스토리</div>
                   {reviews.length === 0 ? (
-                    <div style={{ ...S.card(), textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>리뷰 기록 없음</div>
+                    <div style={{ ...S.card(), textAlign: "center", color: "#94a3b8", padding: "24px", fontSize: "12px" }}>리뷰 기록 없음</div>
                   ) : (
                     reviews.map((r) => (
                       <div key={r.id} style={{ ...S.card("#0369A133"), marginBottom: "8px", padding: "10px 14px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", flexWrap: "wrap" }}>
                           <span style={{ ...S.badge("#0369A1"), fontSize: "10px" }}>{r.version}</span>
-                          <span style={{ fontSize: "11px", color: "#94a3b8" }}>{r.track}</span>
-                          <span style={{ fontSize: "10px", color: "#64748b" }}>by {r.agent}</span>
-                          <span style={{ fontSize: "9px", color: "#475569", marginLeft: "auto" }}>{new Date(r.date).toLocaleDateString("ko-KR")}</span>
+                          <span style={{ fontSize: "11px", color: "#64748b" }}>{r.track}</span>
+                          <span style={{ fontSize: "10px", color: "#475569" }}>by {r.agent}</span>
+                          <span style={{ fontSize: "9px", color: "#334155", marginLeft: "auto" }}>{new Date(r.date).toLocaleDateString("ko-KR")}</span>
                         </div>
                         {[{ label: "✅ 좋았던 점", val: r.good, color: "#22C55E" },
                           { label: "❌ 부족한 점", val: r.bad, color: "#EF4444" },
@@ -3304,11 +3304,11 @@ export default function BALMYGARDENDashboard() {
                           { label: "➡️ 다음 수정", val: r.next, color: "#06B6D4" }].map((item) => item.val && (
                             <div key={item.label} style={{ marginBottom: "4px" }}>
                               <span style={{ fontSize: "9px", color: item.color, fontWeight: "700" }}>{item.label}</span>
-                              <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "1px" }}>{item.val}</div>
+                              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "1px" }}>{item.val}</div>
                             </div>
                           ))}
                         <button onClick={() => setReviews((prev) => prev.filter((x) => x.id !== r.id))}
-                          style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}>삭제</button>
+                          style={{ marginTop: "4px", background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: "10px" }}>삭제</button>
                       </div>
                     ))
                   )}
@@ -3321,33 +3321,33 @@ export default function BALMYGARDENDashboard() {
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
                 {/* 왼쪽: PM 등록 */}
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>Production Memory 등록</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>Production Memory 등록</div>
                   <div style={{ ...S.card(), marginBottom: "10px" }}>
                     <div style={{ display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }}>
                       <div style={{ flex: 2 }}>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>트랙</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>트랙</div>
                         <select value={pmTrack} onChange={(e) => setPmTrack(e.target.value)}
-                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          style={{ width: "100%", padding: "5px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px" }}>
                           {GOSARI_TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}
                         </select>
                       </div>
                       <div style={{ flex: 2 }}>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>카테고리</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>카테고리</div>
                         <select value={pmCategory} onChange={(e) => setPmCategory(e.target.value)}
-                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px" }}>
+                          style={{ width: "100%", padding: "5px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px" }}>
                           {["Hook", "Structure", "Lyric", "Melody", "Mood", "Prompt", "Visual", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
                         </select>
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>점수</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>점수</div>
                         <input type="number" min={0} max={100} value={pmScore} onChange={(e) => setPmScore(Number(e.target.value))}
-                          style={{ width: "100%", padding: "5px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", boxSizing: "border-box" }} />
+                          style={{ width: "100%", padding: "5px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px", boxSizing: "border-box" }} />
                       </div>
                     </div>
-                    <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "3px" }}>성공 이유 / 패턴</div>
+                    <div style={{ fontSize: "10px", color: "#475569", marginBottom: "3px" }}>성공 이유 / 패턴</div>
                     <textarea value={pmReason} onChange={(e) => setPmReason(e.target.value)}
                       placeholder="어떤 결정·방식이 성공했는지 기록"
-                      style={{ width: "100%", padding: "6px 8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "5px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "80px", boxSizing: "border-box", marginBottom: "8px" }} />
+                      style={{ width: "100%", padding: "6px 8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "5px", color: "#1e293b", fontSize: "11px", resize: "vertical", minHeight: "80px", boxSizing: "border-box", marginBottom: "8px" }} />
                     <button
                       onClick={() => {
                         if (!pmReason.trim()) return;
@@ -3363,7 +3363,7 @@ export default function BALMYGARDENDashboard() {
                   </div>
                   <div style={{ ...S.card("#F59E0B22"), padding: "10px 14px" }}>
                     <div style={{ fontSize: "11px", fontWeight: "700", color: "#F59E0B", marginBottom: "4px" }}>Production Memory 원칙</div>
-                    <div style={{ fontSize: "10px", color: "#94a3b8", lineHeight: "1.6" }}>
+                    <div style={{ fontSize: "10px", color: "#64748b", lineHeight: "1.6" }}>
                       성공 패턴을 PM-001 형식으로 기록.<br/>
                       다음 트랙에 재사용 가능한 결정·기술만 저장.<br/>
                       점수 90+ 사례 우선 보존.
@@ -3373,24 +3373,24 @@ export default function BALMYGARDENDashboard() {
 
                 {/* 오른쪽: PM 목록 */}
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>
                     성공 패턴 라이브러리 ({productionMemories.length}개)
                   </div>
                   {productionMemories.length === 0 ? (
-                    <div style={{ ...S.card(), textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>PM 기록 없음 — 왼쪽에서 성공 패턴 등록</div>
+                    <div style={{ ...S.card(), textAlign: "center", color: "#94a3b8", padding: "24px", fontSize: "12px" }}>PM 기록 없음 — 왼쪽에서 성공 패턴 등록</div>
                   ) : (
                     productionMemories.map((pm) => (
                       <div key={pm.id} style={{ ...S.card("#F59E0B22"), marginBottom: "8px", padding: "10px 14px", borderLeft: "3px solid #F59E0B" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px", flexWrap: "wrap" }}>
                           <span style={{ fontSize: "10px", fontWeight: "700", color: "#F59E0B" }}>{pm.id}</span>
                           <span style={{ ...S.badge("#0369A1"), fontSize: "9px" }}>{pm.category}</span>
-                          <span style={{ fontSize: "10px", color: "#94a3b8" }}>{pm.track}</span>
+                          <span style={{ fontSize: "10px", color: "#64748b" }}>{pm.track}</span>
                           <span style={{ fontSize: "10px", fontWeight: "700", color: pm.score >= 90 ? "#22C55E" : "#EF4444", marginLeft: "auto" }}>{pm.score}점</span>
                         </div>
-                        <div style={{ fontSize: "11px", color: "#94a3b8" }}>{pm.reason}</div>
-                        <div style={{ fontSize: "9px", color: "#475569", marginTop: "4px" }}>{new Date(pm.date).toLocaleDateString("ko-KR")}</div>
+                        <div style={{ fontSize: "11px", color: "#64748b" }}>{pm.reason}</div>
+                        <div style={{ fontSize: "9px", color: "#334155", marginTop: "4px" }}>{new Date(pm.date).toLocaleDateString("ko-KR")}</div>
                         <button onClick={() => setProductionMemories((prev) => prev.filter((x) => x.id !== pm.id))}
-                          style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}>삭제</button>
+                          style={{ marginTop: "4px", background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: "10px" }}>삭제</button>
                       </div>
                     ))
                   )}
@@ -3402,22 +3402,22 @@ export default function BALMYGARDENDashboard() {
             {studioTab === "토론" && (
               <div>
                 <div style={{ ...S.card("#EF444422"), marginBottom: "14px", padding: "14px 18px" }}>
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#fca5a5", marginBottom: "4px" }}>⚔️ Creative Conflict — 에이전트 토론 시스템</div>
-                  <div style={{ fontSize: "10px", color: "#64748b" }}>에이전트별 창작 의견 병렬 수집 → CONDUCTOR 최종 결정 → Decision Log 자동 기록</div>
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#dc2626", marginBottom: "4px" }}>⚔️ Creative Conflict — 에이전트 토론 시스템</div>
+                  <div style={{ fontSize: "10px", color: "#475569" }}>에이전트별 창작 의견 병렬 수집 → CONDUCTOR 최종 결정 → Decision Log 자동 기록</div>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "14px" }}>
                   {/* 왼쪽: 토론 설정 */}
                   <div>
                     <div style={{ ...S.card(), marginBottom: "10px" }}>
-                      <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>토론 주제</div>
+                      <div style={{ fontSize: "11px", color: "#475569", marginBottom: "6px" }}>토론 주제</div>
                       <textarea
                         value={conflictTopic}
                         onChange={(e) => setConflictTopic(e.target.value)}
                         placeholder="예: 1번 트랙의 시작을 피아노로 열어야 하는가, 보컬로 열어야 하는가"
-                        style={{ width: "100%", padding: "8px", background: "#111827", border: "1px solid #1e293b", borderRadius: "6px", color: "#e2e8f0", fontSize: "11px", resize: "vertical", minHeight: "70px", boxSizing: "border-box", marginBottom: "8px" }}
+                        style={{ width: "100%", padding: "8px", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "6px", color: "#1e293b", fontSize: "11px", resize: "vertical", minHeight: "70px", boxSizing: "border-box", marginBottom: "8px" }}
                       />
-                      <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "6px" }}>참여 에이전트 선택</div>
+                      <div style={{ fontSize: "11px", color: "#475569", marginBottom: "6px" }}>참여 에이전트 선택</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "10px" }}>
                         {["LYRA", "MUSE", "SAGE", "NOVA", "STROBE", "CONDUCTOR", "ARIA", "PHANTOM"].map((ag) => (
                           <button
@@ -3427,8 +3427,8 @@ export default function BALMYGARDENDashboard() {
                             )}
                             style={{
                               padding: "3px 10px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", border: "none",
-                              background: conflictAgents.includes(ag) ? (AGENTS[ag]?.color ?? "#334155") : "#1e293b",
-                              color: conflictAgents.includes(ag) ? "#fff" : "#64748b",
+                              background: conflictAgents.includes(ag) ? (AGENTS[ag]?.color ?? "#cbd5e1") : "#e2e8f0",
+                              color: conflictAgents.includes(ag) ? "#fff" : "#475569",
                               fontWeight: conflictAgents.includes(ag) ? "700" : "400",
                             }}
                           >
@@ -3439,7 +3439,7 @@ export default function BALMYGARDENDashboard() {
                       <button
                         onClick={runConflict}
                         disabled={conflictRunning || !conflictTopic.trim() || conflictAgents.length === 0}
-                        style={{ width: "100%", padding: "9px", background: conflictRunning || !conflictTopic.trim() ? "#1e293b" : "#EF4444", border: "none", borderRadius: "6px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: conflictRunning || !conflictTopic.trim() ? "not-allowed" : "pointer", marginBottom: "8px" }}
+                        style={{ width: "100%", padding: "9px", background: conflictRunning || !conflictTopic.trim() ? "#94a3b8" : "#EF4444", border: "none", borderRadius: "6px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: conflictRunning || !conflictTopic.trim() ? "not-allowed" : "pointer", marginBottom: "8px" }}
                       >
                         {conflictRunning ? "에이전트 토론 중…" : "⚔️ 토론 시작"}
                       </button>
@@ -3447,7 +3447,7 @@ export default function BALMYGARDENDashboard() {
                         <button
                           onClick={runConflictDecision}
                           disabled={conflictDecisionLoading}
-                          style={{ width: "100%", padding: "9px", background: conflictDecisionLoading ? "#1e293b" : "#7C3AED", border: "none", borderRadius: "6px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: conflictDecisionLoading ? "not-allowed" : "pointer" }}
+                          style={{ width: "100%", padding: "9px", background: conflictDecisionLoading ? "#94a3b8" : "#7C3AED", border: "none", borderRadius: "6px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: conflictDecisionLoading ? "not-allowed" : "pointer" }}
                         >
                           {conflictDecisionLoading ? "CONDUCTOR 결정 중…" : "CONDUCTOR 최종 결정"}
                         </button>
@@ -3457,11 +3457,11 @@ export default function BALMYGARDENDashboard() {
                     {/* 에이전트 의견 */}
                     {conflictOpinions.length > 0 && (
                       <div>
-                        <div style={{ fontSize: "12px", fontWeight: "700", color: "#a5b4fc", marginBottom: "8px" }}>에이전트 의견</div>
+                        <div style={{ fontSize: "12px", fontWeight: "700", color: "#4f46e5", marginBottom: "8px" }}>에이전트 의견</div>
                         {conflictOpinions.map((op) => (
-                          <div key={op.agent} style={{ ...S.card((AGENTS[op.agent]?.color ?? "#334155") + "22"), marginBottom: "6px", padding: "8px 12px", borderLeft: `3px solid ${AGENTS[op.agent]?.color ?? "#334155"}` }}>
-                            <div style={{ fontSize: "10px", fontWeight: "700", color: AGENTS[op.agent]?.color ?? "#64748b", marginBottom: "3px" }}>{AGENTS[op.agent]?.av} {op.agent}</div>
-                            <div style={{ fontSize: "11px", color: "#94a3b8" }}>{op.text}</div>
+                          <div key={op.agent} style={{ ...S.card((AGENTS[op.agent]?.color ?? "#cbd5e1") + "22"), marginBottom: "6px", padding: "8px 12px", borderLeft: `3px solid ${AGENTS[op.agent]?.color ?? "#cbd5e1"}` }}>
+                            <div style={{ fontSize: "10px", fontWeight: "700", color: AGENTS[op.agent]?.color ?? "#475569", marginBottom: "3px" }}>{AGENTS[op.agent]?.av} {op.agent}</div>
+                            <div style={{ fontSize: "11px", color: "#64748b" }}>{op.text}</div>
                           </div>
                         ))}
                       </div>
@@ -3470,16 +3470,16 @@ export default function BALMYGARDENDashboard() {
                     {/* CONDUCTOR 결정 */}
                     {conflictDecision && (
                       <div style={{ ...S.card("#7C3AED44"), marginTop: "10px", padding: "12px 16px", borderLeft: "3px solid #7C3AED" }}>
-                        <div style={{ fontSize: "11px", fontWeight: "700", color: "#a78bfa", marginBottom: "6px" }}>CONDUCTOR 최종 결정</div>
-                        <div style={{ fontSize: "12px", color: "#e2e8f0", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>{conflictDecision}</div>
+                        <div style={{ fontSize: "11px", fontWeight: "700", color: "#7c3aed", marginBottom: "6px" }}>CONDUCTOR 최종 결정</div>
+                        <div style={{ fontSize: "12px", color: "#1e293b", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>{conflictDecision}</div>
                       </div>
                     )}
 
                     {/* CEO Approval Gate */}
                     {conflictDecision && (
                       <div style={{ ...S.card("#22C55E22"), marginTop: "10px", padding: "12px 16px" }}>
-                        <div style={{ fontSize: "11px", fontWeight: "700", color: "#86efac", marginBottom: "6px" }}>CEO Approval Gate</div>
-                        <div style={{ fontSize: "10px", color: "#64748b", marginBottom: "8px" }}>
+                        <div style={{ fontSize: "11px", fontWeight: "700", color: "#16a34a", marginBottom: "6px" }}>CEO Approval Gate</div>
+                        <div style={{ fontSize: "10px", color: "#475569", marginBottom: "8px" }}>
                           CONDUCTOR 결정 → CEO 최종 승인 (예술성 + 사업성 이중 확인)
                         </div>
                         <div style={{ display: "flex", gap: "6px" }}>
@@ -3496,19 +3496,19 @@ export default function BALMYGARDENDashboard() {
                               setConductorApprovalLoading(false);
                             }}
                             disabled={conductorApprovalLoading}
-                            style={{ flex: 1, padding: "7px", background: conductorApprovalLoading ? "#1e293b" : "#0369A1", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: conductorApprovalLoading ? "not-allowed" : "pointer" }}
+                            style={{ flex: 1, padding: "7px", background: conductorApprovalLoading ? "#94a3b8" : "#0369A1", border: "none", borderRadius: "6px", color: "#fff", fontSize: "11px", fontWeight: "700", cursor: conductorApprovalLoading ? "not-allowed" : "pointer" }}
                           >
                             {conductorApprovalLoading ? "준비 중…" : "CEO 보고서 생성"}
                           </button>
                           <button
                             onClick={() => setCeoApproved(true)}
-                            style={{ flex: 1, padding: "7px", background: ceoApproved ? "#22C55E" : "#1e293b", border: `1px solid ${ceoApproved ? "#22C55E" : "#334155"}`, borderRadius: "6px", color: ceoApproved ? "#fff" : "#64748b", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                            style={{ flex: 1, padding: "7px", background: ceoApproved ? "#22C55E" : "#e2e8f0", border: `1px solid ${ceoApproved ? "#22C55E" : "#cbd5e1"}`, borderRadius: "6px", color: ceoApproved ? "#fff" : "#475569", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
                           >
                             {ceoApproved ? "CEO 승인 완료" : "CEO 승인"}
                           </button>
                         </div>
                         {conductorApproval && (
-                          <div style={{ marginTop: "8px", padding: "8px 10px", background: "#0d1117", borderRadius: "6px", fontSize: "11px", color: "#94a3b8", lineHeight: "1.6" }}>
+                          <div style={{ marginTop: "8px", padding: "8px 10px", background: "#f1f5f9", borderRadius: "6px", fontSize: "11px", color: "#64748b", lineHeight: "1.6" }}>
                             {conductorApproval}
                           </div>
                         )}
@@ -3518,26 +3518,26 @@ export default function BALMYGARDENDashboard() {
 
                   {/* 오른쪽: 토론 히스토리 */}
                   <div>
-                    <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "10px" }}>토론 히스토리 ({conflictHistory.length}건)</div>
+                    <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "10px" }}>토론 히스토리 ({conflictHistory.length}건)</div>
                     {conflictHistory.length === 0 ? (
-                      <div style={{ ...S.card(), textAlign: "center", color: "#334155", padding: "24px", fontSize: "12px" }}>토론 기록 없음</div>
+                      <div style={{ ...S.card(), textAlign: "center", color: "#94a3b8", padding: "24px", fontSize: "12px" }}>토론 기록 없음</div>
                     ) : (
                       conflictHistory.map((c) => (
                         <div key={c.id} style={{ ...S.card("#EF444422"), marginBottom: "8px", padding: "10px 14px" }}>
-                          <div style={{ fontSize: "11px", fontWeight: "700", color: "#fca5a5", marginBottom: "4px" }}>{c.topic}</div>
+                          <div style={{ fontSize: "11px", fontWeight: "700", color: "#dc2626", marginBottom: "4px" }}>{c.topic}</div>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", marginBottom: "6px" }}>
                             {c.opinions.map((op) => (
-                              <span key={op.agent} style={{ fontSize: "9px", padding: "1px 6px", borderRadius: "3px", background: (AGENTS[op.agent]?.color ?? "#334155") + "33", color: AGENTS[op.agent]?.color ?? "#64748b" }}>{op.agent}</span>
+                              <span key={op.agent} style={{ fontSize: "9px", padding: "1px 6px", borderRadius: "3px", background: (AGENTS[op.agent]?.color ?? "#cbd5e1") + "33", color: AGENTS[op.agent]?.color ?? "#475569" }}>{op.agent}</span>
                             ))}
                           </div>
                           {c.decision && (
-                            <div style={{ fontSize: "10px", color: "#a78bfa", padding: "4px 8px", background: "#1e1033", borderRadius: "4px" }}>
+                            <div style={{ fontSize: "10px", color: "#7c3aed", padding: "4px 8px", background: "#f5f3ff", borderRadius: "4px" }}>
                               결정: {c.decision.slice(0, 120)}{c.decision.length > 120 ? "…" : ""}
                             </div>
                           )}
-                          <div style={{ fontSize: "9px", color: "#475569", marginTop: "4px" }}>{new Date(c.date).toLocaleString("ko-KR")}</div>
+                          <div style={{ fontSize: "9px", color: "#334155", marginTop: "4px" }}>{new Date(c.date).toLocaleString("ko-KR")}</div>
                           <button onClick={() => setConflictHistory((prev) => prev.filter((x) => x.id !== c.id))}
-                            style={{ marginTop: "4px", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "10px" }}>삭제</button>
+                            style={{ marginTop: "4px", background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: "10px" }}>삭제</button>
                         </div>
                       ))
                     )}
@@ -3559,32 +3559,32 @@ export default function BALMYGARDENDashboard() {
         {tab === "history" && (
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc" }}>📒 노션 활동 히스토리</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5" }}>📒 노션 활동 히스토리</div>
               <button
                 onClick={fetchHistory}
                 disabled={histLoading}
-                style={{ padding: "5px 14px", background: "#1e293b", border: "1px solid #334155", borderRadius: "6px", color: "#e2e8f0", fontSize: "12px", cursor: histLoading ? "not-allowed" : "pointer" }}
+                style={{ padding: "5px 14px", background: "#e2e8f0", border: "1px solid #cbd5e1", borderRadius: "6px", color: "#1e293b", fontSize: "12px", cursor: histLoading ? "not-allowed" : "pointer" }}
               >
                 {histLoading ? "로딩 중…" : "🔄 새로고침"}
               </button>
-              <span style={{ fontSize: "11px", color: "#475569" }}>워크플로우·대화·로그가 자동으로 기록됩니다</span>
+              <span style={{ fontSize: "11px", color: "#334155" }}>워크플로우·대화·로그가 자동으로 기록됩니다</span>
             </div>
             {notionHistory.length === 0 && !histLoading && (
-              <div style={{ textAlign: "center", color: "#334155", padding: "40px", fontSize: "13px" }}>
+              <div style={{ textAlign: "center", color: "#94a3b8", padding: "40px", fontSize: "13px" }}>
                 새로고침 버튼을 눌러 최근 기록을 불러오세요
               </div>
             )}
             {notionHistory.map((e) => {
               const typeColor: Record<string, string> = { "워크플로우": "#6366F1", "대화": "#06B6D4", "프롬프트": "#F59E0B", "로그": "#10B981" };
-              const color = typeColor[e.type] ?? "#64748b";
+              const color = typeColor[e.type] ?? "#475569";
               return (
                 <div key={e.id} style={{ ...S.card(color + "33"), marginBottom: "8px", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
                   <span style={{ fontSize: "10px", padding: "2px 7px", borderRadius: "4px", background: color + "22", color, border: `1px solid ${color}44`, whiteSpace: "nowrap" }}>
                     {e.type}
                   </span>
-                  <span style={{ fontSize: "13px", flex: 1, color: "#e2e8f0" }}>{e.title}</span>
-                  <span style={{ fontSize: "10px", color: "#475569", whiteSpace: "nowrap" }}>{e.date ? new Date(e.date).toLocaleString("ko-KR") : ""}</span>
-                  <a href={e.url} target="_blank" rel="noreferrer" style={{ fontSize: "11px", color: "#a5b4fc", whiteSpace: "nowrap", textDecoration: "none" }}>
+                  <span style={{ fontSize: "13px", flex: 1, color: "#1e293b" }}>{e.title}</span>
+                  <span style={{ fontSize: "10px", color: "#334155", whiteSpace: "nowrap" }}>{e.date ? new Date(e.date).toLocaleString("ko-KR") : ""}</span>
+                  <a href={e.url} target="_blank" rel="noreferrer" style={{ fontSize: "11px", color: "#4f46e5", whiteSpace: "nowrap", textDecoration: "none" }}>
                     열기 →
                   </a>
                 </div>
@@ -3598,7 +3598,7 @@ export default function BALMYGARDENDashboard() {
           <div>
             <div style={{ ...S.card("#d9775730"), marginBottom: "16px", padding: "20px" }}>
               <div style={{ fontSize: "16px", fontWeight: "800", color: "#d97757", marginBottom: "4px" }}>📚 클로드 코드 7단계 가이드</div>
-              <div style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "16px" }}>ⓒ @3dragon_pd — BALMYGARDEN Agency 가이드로 채택 · 활용 중</div>
+              <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "16px" }}>ⓒ @3dragon_pd — BALMYGARDEN Agency 가이드로 채택 · 활용 중</div>
               <a
                 href="/guide"
                 target="_blank"
@@ -3607,11 +3607,11 @@ export default function BALMYGARDENDashboard() {
               >
                 📖 전체 가이드 열기 (새 탭) →
               </a>
-              <div style={{ fontSize: "12px", color: "#64748b" }}>가이드 페이지에서 각 레벨별 설명, 복붙 예시, 체크리스트, 참고 링크를 확인할 수 있습니다.</div>
+              <div style={{ fontSize: "12px", color: "#475569" }}>가이드 페이지에서 각 레벨별 설명, 복붙 예시, 체크리스트, 참고 링크를 확인할 수 있습니다.</div>
             </div>
 
             {/* Agency Level Assessment */}
-            <div style={{ fontSize: "14px", fontWeight: "700", color: "#a5b4fc", marginBottom: "12px" }}>📊 BALMYGARDEN Agency — 7단계 달성 현황</div>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#4f46e5", marginBottom: "12px" }}>📊 BALMYGARDEN Agency — 7단계 달성 현황</div>
             <div style={{ display: "grid", gap: "10px" }}>
               {[
                 { lv: 1, emoji: "💬", name: "프롬프트", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["ARIA·PHANTOM·ZERO·MUSE·AEGIS·NOVA·REX·SCOUT·CONDUCTOR", "9개 에이전트 각각 전문화된 시스템 프롬프트", "300자 이내 핵심만, BALMYGARDEN 컨텍스트 내장"], next: "—" },
@@ -3622,7 +3622,7 @@ export default function BALMYGARDENDashboard() {
                 { lv: 6, emoji: "🪄", name: "서브에이전트", pct: 80, state: "✅ 적용", color: "#22c55e", impl: ["병렬 그룹 실행 (Promise.all)", "8개 워크플로우에 parallel 그룹 정의", "예: 사업 단계 진단 = [SCOUT+NOVA 병렬] → [AEGIS] → [CONDUCTOR]", "시각적 병렬 표시 (녹색 점선 박스)"], next: "독립 에이전트 인스턴스 분리 실행 (Worker API)" },
                 { lv: 7, emoji: "🏆", name: "에이전트 팀", pct: 55, state: "🔧 베타", color: "#f97316", impl: ["듀얼 체인 팀 모드 — 워크플로우 탭 하단", "체인 A(메인) + 체인 B(비교)를 동시 실행", "결과 사이드바이사이드 비교 뷰"], next: "영구 에이전트 멀티인스턴스 · 에이전트간 메시지 패싱" },
               ].map((l) => (
-                <div key={l.lv} style={{ background: "#0d1629", borderRadius: "12px", border: `1px solid ${l.color}33`, borderLeft: `4px solid ${l.color}`, padding: "16px" }}>
+                <div key={l.lv} style={{ background: "#ffffff", borderRadius: "12px", border: `1px solid ${l.color}33`, borderLeft: `4px solid ${l.color}`, padding: "16px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
                     <span style={{ fontSize: "20px" }}>{l.emoji}</span>
                     <div style={{ flex: 1 }}>
@@ -3632,25 +3632,25 @@ export default function BALMYGARDENDashboard() {
                         <span style={{ fontSize: "10px", padding: "2px 8px", background: l.color + "22", color: l.color, borderRadius: "10px", border: `1px solid ${l.color}44` }}>{l.state}</span>
                       </div>
                     </div>
-                    <div style={{ background: "#1e293b", borderRadius: "4px", height: "6px", width: "80px", overflow: "hidden" }}>
+                    <div style={{ background: "#e2e8f0", borderRadius: "4px", height: "6px", width: "80px", overflow: "hidden" }}>
                       <div style={{ width: `${l.pct}%`, height: "100%", background: l.color, borderRadius: "4px" }} />
                     </div>
                     <span style={{ fontSize: "11px", color: l.color, fontWeight: "700", minWidth: "32px" }}>{l.pct}%</span>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "8px" }}>
                     {l.impl.map((s, i) => (
-                      <div key={i} style={{ fontSize: "11px", color: "#94a3b8", paddingLeft: "8px", borderLeft: `2px solid ${l.color}33` }}>· {s}</div>
+                      <div key={i} style={{ fontSize: "11px", color: "#64748b", paddingLeft: "8px", borderLeft: `2px solid ${l.color}33` }}>· {s}</div>
                     ))}
                   </div>
                   {l.next !== "—" && (
-                    <div style={{ fontSize: "10px", color: "#475569" }}>▶ 다음 단계: {l.next}</div>
+                    <div style={{ fontSize: "10px", color: "#334155" }}>▶ 다음 단계: {l.next}</div>
                   )}
                 </div>
               ))}
             </div>
 
             <div style={{ ...S.card("#6366F133"), marginTop: "16px", padding: "16px" }}>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: "#a5b4fc", marginBottom: "8px" }}>🚀 v3.x 로드맵 — Phase 2 업그레이드</div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#4f46e5", marginBottom: "8px" }}>🚀 v3.x 로드맵 — Phase 2 업그레이드</div>
               {[
                 "스트리밍 응답 (Claude API streaming → 실시간 타이핑)",
                 "Notion → 실시간 컨텍스트 주입 (최근 N개 로그 자동 포함)",
@@ -3659,7 +3659,7 @@ export default function BALMYGARDENDashboard() {
                 "Google Drive · Slack MCP 연동",
                 "영수증 앱 하위 프로젝트 연동 (monorepo apps/receipt)",
               ].map((item, i) => (
-                <div key={i} style={{ fontSize: "12px", color: "#94a3b8", padding: "4px 0", display: "flex", gap: "8px" }}>
+                <div key={i} style={{ fontSize: "12px", color: "#64748b", padding: "4px 0", display: "flex", gap: "8px" }}>
                   <span style={{ color: "#6366F1" }}>{i + 1}.</span> {item}
                 </div>
               ))}
