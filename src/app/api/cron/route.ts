@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { STAFF, type ZoneId } from "@/app/agency/office";
 import { MEMORY } from "@/app/agency/memory";
 import { SCOUT_PRESETS } from "@/app/api/naver-news/route";
+import { publishToBlogger } from "@/lib/blogger";
 
 /**
  * 일일 자동화 배치 — Vercel Cron이 매일 00:00 UTC(09:00 KST)에 호출한다.
@@ -61,6 +62,14 @@ async function saveLog(source: string, title: string, content: string, businessT
   }
 }
 
+/** INK 초안("제목: ...\n\n본문...") → {title, body} 파싱. 형식이 어긋나면 첫 줄을 제목으로 폴백. */
+function parseTitleBody(draft: string): { title: string; body: string } {
+  const match = draft.match(/^\s*제목\s*[:：]\s*(.+?)\n+([\s\S]+)$/);
+  if (match) return { title: match[1].trim(), body: match[2].trim() };
+  const lines = draft.trim().split("\n");
+  return { title: (lines[0] || "제목 없음").slice(0, 100), body: lines.slice(1).join("\n").trim() || draft };
+}
+
 type ScoutResult = {
   preset: string;
   status?: number;
@@ -104,7 +113,8 @@ export async function GET(req: NextRequest) {
       "INK",
       "블로그 초안 정리",
       `아래는 SCOUT가 오늘 조사한 트렌드 뉴스다. 이 중 네이버 블로그 글감으로 가장 좋은 주제 1개를 골라 ` +
-        `1200자 내외 블로그 초안(제목+본문)을 작성해라.\n\n` +
+        `1200자 내외 블로그 초안(제목+본문)을 작성해라. 반드시 첫 줄은 "제목: "으로 시작하고, ` +
+        `그 다음 줄부터 빈 줄 하나 띄우고 본문을 쓴다(자동 발행 시스템이 첫 줄을 제목으로 파싱한다).\n\n` +
         `너는 이 분야 상위 1% 수익형 네이버 블로거다. 아마추어가 정보를 나열하는 방식이 아니라, ` +
         `그 주제로 실제 상위 노출·수익화에 성공한 블로거라면 어떤 제목·구조·분량·키워드 배치로 썼을지를 ` +
         `먼저 스스로 떠올려 그 수준을 기준(벤치마킹)으로 삼아 써라 — 흔한 글솜씨가 아니라 "무엇을 ` +
@@ -142,7 +152,20 @@ export async function GET(req: NextRequest) {
             `"반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n[초안]\n${draft}\n\n[1차 검토]\n${check}`
         );
         if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief, "블로그팀");
-        results.blogTeam = { ok: !!chief };
+
+        if (chief && chief.includes("승인")) {
+          const { title, body } = parseTitleBody(draft);
+          try {
+            const postUrl = await publishToBlogger(title, body);
+            await saveLog("블로그팀", `블로그 발행 완료 ${today}`, `${title}\n${postUrl}`, "블로그팀");
+            results.blogTeam = { ok: true, published: postUrl };
+          } catch (e: unknown) {
+            await saveLog("블로그팀", `블로그 발행 실패 ${today}`, (e as Error).message, "블로그팀");
+            results.blogTeam = { ok: false, stage: "발행 실패", error: (e as Error).message };
+          }
+        } else {
+          results.blogTeam = { ok: !!chief, published: false };
+        }
       } else {
         results.blogTeam = { ok: false, stage: "CHECK 실패" };
       }
