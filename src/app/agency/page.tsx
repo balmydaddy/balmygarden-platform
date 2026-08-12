@@ -906,6 +906,41 @@ interface DirectChatMsg { role: "user" | "agent"; text: string; }
 ══════════════════════════════════════════════════════ */
 export default function BALMYGARDENDashboard() {
   const [tab, setTab] = useState("office");
+
+  // 공개 링크 잠금 — CEO가 비밀번호로 풀기 전까지 방문자는 업무화면 탭만 본다.
+  const [unlocked, setUnlocked] = useState(false);
+  const [unlockOpen, setUnlockOpen] = useState(false);
+  const [unlockPw, setUnlockPw] = useState("");
+  const [unlockErr, setUnlockErr] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("balmygarden_unlocked") === "1") {
+      setUnlocked(true);
+    }
+  }, []);
+  useEffect(() => {
+    if (!unlocked && tab !== "office") setTab("office");
+  }, [unlocked, tab]);
+  const submitUnlock = useCallback(async () => {
+    try {
+      const res = await fetch("/api/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: unlockPw }),
+      });
+      if (res.ok) {
+        localStorage.setItem("balmygarden_unlocked", "1");
+        setUnlocked(true);
+        setUnlockOpen(false);
+        setUnlockPw("");
+        setUnlockErr(false);
+      } else {
+        setUnlockErr(true);
+      }
+    } catch {
+      setUnlockErr(true);
+    }
+  }, [unlockPw]);
+
   const [wfId, setWfId] = useState<string | null>(null);
   const [wfInput, setWfInput] = useState("");
   const [chainRes, setChainRes] = useState<ChainResult[]>([]);
@@ -1532,14 +1567,16 @@ export default function BALMYGARDENDashboard() {
           )}
         </div>
         {/* 탭 — 모바일에선 가로 스크롤 */}
-        <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap" }}>
+        <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap", alignItems: "center" }}>
           {[
             { id: "office", label: "🏢 업무화면" },
             { id: "projects", label: "🌿 업무" },
             { id: "chat", label: "🎙️ 지시창" },
             { id: "trading", label: "📈 트레이딩" },
             { id: "wiki", label: "📚 위키" },
-          ].map((t) => (
+          ]
+            .filter((t) => unlocked || t.id === "office")
+            .map((t) => (
             <button
               key={t.id}
               style={{
@@ -1553,8 +1590,56 @@ export default function BALMYGARDENDashboard() {
               {t.label}
             </button>
           ))}
+          <button
+            onClick={() => (unlocked ? undefined : setUnlockOpen(true))}
+            title={unlocked ? "CEO 잠금해제 상태" : "CEO 잠금해제"}
+            style={{
+              marginLeft: "auto",
+              flexShrink: 0,
+              padding: "5px 10px",
+              borderRadius: "20px",
+              border: "1px solid #e2e8f0",
+              background: "#ffffff",
+              color: "#94a3b8",
+              fontSize: "11px",
+              cursor: unlocked ? "default" : "pointer",
+            }}
+          >
+            {unlocked ? "🔓" : "🔒"}
+          </button>
         </div>
       </div>
+
+      {/* ── CEO 잠금해제 모달 ── */}
+      {unlockOpen && (
+        <div
+          onClick={() => setUnlockOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "#000000b3", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "20px", width: "min(320px, 100%)" }}
+          >
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#1e293b", marginBottom: "10px" }}>🔒 CEO 잠금해제</div>
+            <input
+              type="password"
+              autoFocus
+              value={unlockPw}
+              onChange={(e) => { setUnlockPw(e.target.value); setUnlockErr(false); }}
+              onKeyDown={(e) => e.key === "Enter" && submitUnlock()}
+              placeholder="비밀번호"
+              style={{ width: "100%", padding: "8px 10px", border: `1px solid ${unlockErr ? "#EF4444" : "#e2e8f0"}`, borderRadius: "6px", fontSize: "13px", marginBottom: "8px", boxSizing: "border-box" }}
+            />
+            {unlockErr && <div style={{ fontSize: "11px", color: "#dc2626", marginBottom: "8px" }}>비밀번호가 틀렸습니다.</div>}
+            <button
+              onClick={submitUnlock}
+              style={{ width: "100%", padding: "8px", background: "#6366F1", color: "#fff", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── NOTION TOAST */}
       {notionToast && (
@@ -1648,7 +1733,7 @@ export default function BALMYGARDENDashboard() {
         )}
 
         {/* ══════ OFFICE ══════ */}
-        {tab === "office" && <OfficeTab isMobile={isMobile} />}
+        {tab === "office" && <OfficeTab isMobile={isMobile} locked={!unlocked} />}
 
         {/* ══════ HOME ══════ */}
         {tab === "home" && (

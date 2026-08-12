@@ -215,7 +215,7 @@ function Person({
   );
 }
 
-export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
+export default function OfficeTab({ isMobile, locked = false }: { isMobile: boolean; locked?: boolean }) {
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
   const [log, setLog] = useState<LogLine[]>([]);
   const [threads, setThreads] = useState<Threads>({});
@@ -580,12 +580,20 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
             a={a}
             scale={scale}
             selected={a.staff.key === selected}
-            onClick={() => setSelected(a.staff.key === selected ? null : a.staff.key)}
+            onClick={() => { if (!locked) setSelected(a.staff.key === selected ? null : a.staff.key); }}
           />
         ))}
       </div>
 
-      {/* ── 지시창(원위치, 접힘) + 로그 ── */}
+      {/* ── 지시창(원위치, 접힘) + 로그 ── 잠금 상태(공개 링크)에서는 실제 지시·업무
+          내용이 보이지 않도록 자리만 안내 문구로 대체한다. ── */}
+      {locked ? (
+        <div style={card("#e2e8f0")}>
+          <div style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", padding: "10px 0" }}>
+            🔒 업무화면 보기 전용 — 지시·업무 로그는 CEO 잠금해제 후 확인 가능
+          </div>
+        </div>
+      ) : (
       <div
         style={{
           display: "grid",
@@ -625,10 +633,11 @@ export default function OfficeTab({ isMobile }: { isMobile: boolean }) {
           </div>
         </div>
       </div>
+      )}
 
       {/* ── 확대 대화창(모달) — 담당자 선택 시에만 뜬다.
           바깥(배경) 클릭 시 자동으로 닫혀 위 "원래 지시창 위치"로 돌아간다. ── */}
-      {sel && (
+      {sel && !locked && (
         <div
           onClick={() => setSelected(null)}
           style={{
