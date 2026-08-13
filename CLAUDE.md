@@ -134,6 +134,17 @@ Rule Adoption Log: 신규 Rule 채택 시 제안자(Claude/ChatGPT/CEO)와 날�
 - CEO 요청 항목(C)과 AI 발견 항목(D)은 반드시 분리 — CEO가 요청하지 않은 AI 제안은 D 카테고리, CEO 승인 전 실행 금지
 - 매 세션 종료 시 Executive Summary(4개 프로젝트 현황) 포함 최신화 필수
 
+## 채용 권한 예외 (HIRE-01)
+
+**부서팀장(ARIA/PHANTOM/ZERO/MUSE/AEGIS/NOVA/REX/WARDEN 등)은 업무 담당자 추가가 필요하면 CONDUCTOR와 협의 후, CEO 사전승인 없이 채용을 진행할 수 있다.** Rule PM-01의 "CEO 승인 전 실행 금지" 원칙에 대한 명시적 예외 — 채용(에이전트 페르소나 추가)에 한정된다.
+
+- 부서팀장 단독 결정 아님 — 채용 사유(어떤 역할이 왜 필요한지)를 CONDUCTOR에게 먼저 제시하고 CONDUCTOR 승인이 있어야 실행한다.
+- 채용 즉시 Notion 미결 사항 페이지(AI발견/D 카테고리, "채용 완료" 표기)와 세션 로그에 기록한다.
+- CEO에게는 **채용 후 사후보고**만 한다 — 목적은 승인이 아니라 신규 인력의 업무 능력 수준을 CEO가 확인하는 것이다.
+- 예외 범위는 인력 추가에 한정 — 예산 집행(Higgsfield 크레딧 등)·외부 배급·계약·Kill 결정은 FAP 원칙대로 CEO 사전 보고가 여전히 필수다.
+
+Rule Adoption: CEO 지시 (2026-08-13). 최초 적용: PHANTOM — LOD 게임 개발 인력 필요 시 채용 사전승인.
+
 ## AEGIS QA 게이트
 
 - 기준: 95/100 이상 통과 후 CEO 보고
@@ -341,3 +352,30 @@ CEO의 실제 안전보건 실무 경력(4년, 산업안전기사, ISO 45001/140
 - 근거 없는 비교·최상급 표현 금지 (90-ad-compliance-audit.md 기준)
 - SNS 게시글은 사전검토 없이 업로드 금지 (balmydaddy-safety `CLAUDE.md` 참조)
 - 판매 페이지 수정보다 실제 결함 수정이 항상 우선
+
+---
+
+# [D] PROJECT LOD — 게임 프로덕션 규칙
+
+> 코드·에셋은 별도 저장소 [lord-of-dark](https://github.com/balmydaddy/lord-of-dark)에 있다.
+> Unity 프로젝트는 CEO 로컬 PC(`C:\Users\gogok\lord-of-dark`)에서만 빌드·Play 테스트 가능 —
+> 이 플랫폼(클라우드) 세션은 해당 PC에 접근할 수 없다.
+
+## 자동화 (CEO 지시 2026-08-13, `src/app/api/cron/route.ts`)
+
+- **PHANTOM 일일 진행 확인**: lord-of-dark 저장소의 실제 GitHub 커밋 활동(`lib/lodGithub.ts`)을 근거로 매일 개발자 독려 메시지 작성 + 인력 필요 여부 판단. 채용 필요 판단 시 HIRE-01 절차로 사전승인 진행.
+- **ZERO 3일 주기 시스템 논의**: PHANTOM·MUSE·NOVA·SCOUT·SAGE가 "2007-8년식 전투·성장 시스템을 2026년 이후에도 통하게 개편"할 아이디어를 병렬(PRP) 제출 → ZERO가 기술 실현 가능성 종합 → CONDUCTOR 최종 결정. 전 단계 Notion 기록 + Slack CEO 알림.
+- 두 자동화 모두 실패해도 나머지 파이프라인(SCOUT/블로그팀/전 직원 일일업무)을 막지 않는다.
+
+## 세계관 (SAGE, 2026-08-13 최초 수립)
+
+기존 GDD에 없던 스토리를 신규 작성 — `lord-of-dark` 저장소 `docs/world-story-bible.md` 참조. 중세 다크판타지(아르카나 대륙) 기본 배경 + "현실+게임 시스템 각성" 웹툰 트렌드(균열/시스템)를 결합한 절충 구조. 기존 전투 수치(직업/속성/장비)는 변경 없음.
+
+## 현재 진행 상태
+
+| 항목 | 상태 |
+|---|---|
+| 개발 | Unity 6 LTS, CEO 로컬 PC에서 진행 중 (턴제 배틀·파티 시스템 등 활발히 업데이트) |
+| 세계관/스토리 | v1.0 수립 완료 (2026-08-13, SAGE) |
+| 시스템 현대화 | ZERO 3일 주기 논의 시작 (2026-08-13~) |
+| 로드맵 | 미수립 — PHANTOM 담당, Notion "BALMYGARDEN — 미결 사항" C-12 참조 |
