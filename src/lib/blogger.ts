@@ -83,14 +83,23 @@ function buildImageUrl(prompt: string): string {
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleaned)}?width=1024&height=576&nologo=true`;
 }
 
+/** "## 소제목" 줄은 <h2>로, 나머지 문단은 <p>로 변환한다(INK의 구조 규칙과 맞춘 렌더링). */
+function toHtml(bodyText: string): string {
+  return bodyText
+    .split(/\n{2,}/)
+    .map((block) => {
+      const heading = block.trim().match(/^##\s+(.+)$/);
+      if (heading) return `<h2>${heading[1].trim()}</h2>`;
+      return `<p>${block.replace(/\n/g, "<br/>")}</p>`;
+    })
+    .join("\n");
+}
+
 /** 텍스트 초안 → Blogger HTML 포스트로 실제 발행. imagePrompt가 있으면 대표 이미지를 생성해 맨 위에 넣는다. 성공 시 게시글 URL 반환. */
 export async function publishToBlogger(title: string, bodyText: string, imagePrompt?: string): Promise<string> {
   const accessToken = await getAccessToken();
   const blogId = await getBlogId(accessToken);
-  const bodyHtml = bodyText
-    .split(/\n{2,}/)
-    .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
-    .join("\n");
+  const bodyHtml = toHtml(bodyText);
   const imageHtml = imagePrompt
     ? `<img src="${buildImageUrl(imagePrompt)}" alt="${title.replace(/"/g, "&quot;")}" style="max-width:100%;border-radius:8px;margin-bottom:16px" />\n`
     : "";

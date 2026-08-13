@@ -8,8 +8,9 @@ import { publishToBlogger } from "@/lib/blogger";
  * 일일 자동화 배치 — Vercel Cron이 매일 00:00 UTC(09:00 KST)에 호출한다.
  *
  * 1) SCOUT: 프리셋 전량(music/app/game/safety/trend) 수집 + Notion 저장.
- * 2) 블로그팀: trend 조사 결과를 INK(정리)→CHECK(1차검토)→CHIEF(최종검토)로
- *    넘겨 네이버 블로그 초안을 만든다. 단계별 결과 전부 Notion 기록.
+ * 2) 블로그팀: trend 조사 결과를 INK(정리)→CHECK(1차검토)→CHIEF(최종검토)→
+ *    AEGIS(법무·수익화 정책 검증)로 넘겨 통과한 것만 Google Blogger에 실제
+ *    발행한다. 단계별 결과 전부 Notion 기록.
  * 3) 나머지 전 직원: 병렬로 하루 업무 1건씩 실행 — 화면 애니메이션과 별개로
  *    서버에서 실제로 진행되는 자동화.
  *
@@ -151,6 +152,16 @@ export async function GET(req: NextRequest) {
         `- 직관적으로 확인 가능한 사실만 근거로 쓴다. 확인 안 된 정보를 사실처럼 단정하지 않는다. ` +
         `예측·추측이 꼭 필요하면 "~일 가능성이 있다", "~로 추정된다"처럼 사실이 아니라 추측임을 문장에서 ` +
         `명확히 구분해 표시한다 — 이후 문제(정정 요청, 신뢰도 하락)가 생기지 않게 하기 위함이다.\n\n` +
+        `[구조 규칙 — 2026년 상위 블로그 벤치마킹, 초보 티 벗기]\n` +
+        `- 소제목(##으로 시작하는 줄)을 4~6개 넣어 글을 구획한다. 각 소제목 바로 다음 문장이 그 ` +
+        `소제목이 다루는 질문에 대한 직접적인 답이 되게 쓴다(스크롤만 해도 요점이 파악되도록).\n` +
+        `- 첫 문단에서 이 글의 핵심 결론·답을 먼저 던진다 — 끝까지 안 읽어도 핵심은 파악되게 쓰고, ` +
+        `그 뒤 문단들이 근거·구체 사례로 살을 붙이는 구조로 간다.\n` +
+        `- 문단은 2~3문장을 넘기지 않는다(모바일에서 한 화면에 다 보이는 길이).\n` +
+        `- 개인이 실제로 겪은 듯한 구체적 소감·경험 문장을 최소 1군데 넣는다(정보 나열이 아니라 ` +
+        `"경험한 사람이 쓴 글"이라는 신호를 준다).\n` +
+        `- 마지막 소제목은 "## 자주 묻는 질문"으로 하고, 이 글 주제에 대해 독자가 실제로 궁금해할 ` +
+        `질문 2~3개와 짧은 답을 붙인다.\n\n` +
         `작성 전 아래 기준을 스스로 순서대로 적용하되, 결과물에는 완성된 최종 글(제목+본문)만 남겨라:\n` +
         `1) 검색 의도 파악 — 이 주제를 검색하는 사람이 진짜 알고 싶어하는 것 3가지를 먼저 정리하고, ` +
         `그 3가지에 실제로 답하는 글이 되도록 쓴다 (내가 쓰고 싶은 글이 아니라 사람들이 찾는 글).\n` +
@@ -176,7 +187,9 @@ export async function GET(req: NextRequest) {
           `시작하는지 ⑤마크다운 강조(**)를 쓰지 않았는지 ⑥이모지를 남발하지 않았는지 ` +
           `⑦확인 안 된 정보를 사실처럼 단정하지 않고, 예측·추측은 "~로 추정된다" 식으로 명확히 ` +
           `구분했는지 ⑧"다음 소재 후보" 같은 내부용 문구가 본문(===다음소재=== 마커 이전)에 섞여 ` +
-          `있지 않은지. 수정 필요 시 구체적으로, 문제없으면 "승인"이라 명확히 밝혀라.\n\n${draft}`
+          `있지 않은지 ⑨소제목(##)이 4~6개 있고 첫 문단에서 핵심 결론을 먼저 제시하는지 ⑩문단이 ` +
+          `2~3문장을 넘지 않는지 ⑪"자주 묻는 질문" 섹션이 있는지. 수정 필요 시 구체적으로, ` +
+          `문제없으면 "승인"이라 명확히 밝혀라.\n\n${draft}`
       );
       if (check) {
         await saveLog("블로그팀", `블로그 1차 검토 ${today} (CHECK)`, check, "블로그팀");
@@ -191,14 +204,33 @@ export async function GET(req: NextRequest) {
         if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief, "블로그팀");
 
         if (chief && chief.includes("승인")) {
-          const { title, imagePrompt, body } = parseDraft(draft);
-          try {
-            const postUrl = await publishToBlogger(title, body, imagePrompt);
-            await saveLog("블로그팀", `블로그 발행 완료 ${today}`, `${title}\n${postUrl}`, "블로그팀");
-            results.blogTeam = { ok: true, published: postUrl };
-          } catch (e: unknown) {
-            await saveLog("블로그팀", `블로그 발행 실패 ${today}`, (e as Error).message, "블로그팀");
-            results.blogTeam = { ok: false, stage: "발행 실패", error: (e as Error).message };
+          // AEGIS 법무 게이트 — 광고 수익 정책(구글 애드센스·네이버 애드포스트 등) 위반으로
+          // 수익화 대상에서 제외되지 않도록 발행 직전 마지막으로 검증한다.
+          const aegis = await callAgent(
+            "AEGIS",
+            "블로그 법무·수익화 정책 검증",
+            `아래는 CHIEF까지 승인한 블로그 최종본이다. 법무·QA 게이트로서, 이 글이 구글 애드센스· ` +
+              `네이버 애드포스트 등 광고 수익 프로그램 정책을 위반해 이 글 또는 블로그 전체가 수익화 ` +
+              `대상에서 제외될 소지가 있는지 검증해라. 확인 항목: ①폭력·성인·도박·불법약물 등 금지 ` +
+              `콘텐츠 ②원문 기사를 그대로 베낀 저작권 침해 소지 ③의료·금융 등 민감 주제에 대한 ` +
+              `근거 없는 단정이나 오해를 부를 수 있는 표현 ④낚시성·기만적 제목이나 표현 ⑤개인정보 ` +
+              `노출. 문제없으면 "통과"라고 명확히 밝히고, 문제가 있으면 "보류"와 구체적 사유를 ` +
+              `밝혀라.\n\n${draft}`
+          );
+          if (aegis) await saveLog("블로그팀", `블로그 법무 검증 ${today} (AEGIS)`, aegis, "블로그팀");
+
+          if (aegis && aegis.includes("통과")) {
+            const { title, imagePrompt, body } = parseDraft(draft);
+            try {
+              const postUrl = await publishToBlogger(title, body, imagePrompt);
+              await saveLog("블로그팀", `블로그 발행 완료 ${today}`, `${title}\n${postUrl}`, "블로그팀");
+              results.blogTeam = { ok: true, published: postUrl };
+            } catch (e: unknown) {
+              await saveLog("블로그팀", `블로그 발행 실패 ${today}`, (e as Error).message, "블로그팀");
+              results.blogTeam = { ok: false, stage: "발행 실패", error: (e as Error).message };
+            }
+          } else {
+            results.blogTeam = { ok: false, stage: "AEGIS 법무 검증 보류", published: false };
           }
         } else {
           results.blogTeam = { ok: !!chief, published: false };
@@ -214,7 +246,7 @@ export async function GET(req: NextRequest) {
   }
 
   // 3) 나머지 전 직원 — 병렬로 하루 업무 1건씩 (SCOUT·블로그팀은 위에서 이미 실행)
-  const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF"].includes(s.key));
+  const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF", "AEGIS"].includes(s.key));
   const dailySettled = await Promise.allSettled(
     dailyStaff.map(async (s) => {
       const text = await callAgent(
