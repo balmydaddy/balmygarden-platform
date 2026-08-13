@@ -63,21 +63,33 @@ async function saveLog(source: string, title: string, content: string, businessT
 }
 
 /**
- * INK 초안("제목: ...\n이미지프롬프트: ...\n\n본문...") → {title, imagePrompt, body} 파싱.
- * 형식이 어긋나면 첫 줄을 제목으로, 이미지프롬프트는 제목으로 대체 폴백.
+ * INK 초안("제목: ...\n이미지프롬프트: ...\n\n본문...\n\n===다음소재===\n(내부용)")
+ * → {title, imagePrompt, body} 파싱. body는 "===다음소재===" 이전까지만 —
+ * 그 뒤는 팀 내부 참고용이라 발행 대상에서 제외한다. 형식이 어긋나면
+ * 첫 줄을 제목으로 대체 폴백. 마크다운 강조(**)는 발행용 텍스트가 아니므로
+ * 제목·본문 모두에서 제거한다(AI 티 나는 강조 남발 방지 + Blogger에는
+ * 마크다운이 렌더링되지 않아 그대로 두면 별표가 글자 그대로 노출됨).
  */
 function parseDraft(draft: string): { title: string; imagePrompt: string; body: string } {
+  const stripBold = (s: string) => s.replace(/\*\*/g, "");
+  const stripNextTopics = (s: string) => s.split(/\n+===\s*다음\s*소재\s*===[\s\S]*$/)[0].trim();
+
   const match = draft.match(/^\s*제목\s*[:：]\s*(.+?)\n\s*이미지\s*프롬프트\s*[:：]\s*(.+?)\n+([\s\S]+)$/);
   if (match) {
-    return { title: match[1].trim(), imagePrompt: match[2].trim(), body: match[3].trim() };
+    return {
+      title: stripBold(match[1].trim()),
+      imagePrompt: match[2].trim(),
+      body: stripBold(stripNextTopics(match[3])),
+    };
   }
   const titleOnly = draft.match(/^\s*제목\s*[:：]\s*(.+?)\n+([\s\S]+)$/);
   if (titleOnly) {
-    return { title: titleOnly[1].trim(), imagePrompt: titleOnly[1].trim(), body: titleOnly[2].trim() };
+    const title = stripBold(titleOnly[1].trim());
+    return { title, imagePrompt: title, body: stripBold(stripNextTopics(titleOnly[2])) };
   }
   const lines = draft.trim().split("\n");
-  const title = (lines[0] || "제목 없음").slice(0, 100);
-  return { title, imagePrompt: title, body: lines.slice(1).join("\n").trim() || draft };
+  const title = stripBold((lines[0] || "제목 없음").slice(0, 100));
+  return { title, imagePrompt: title, body: stripBold(stripNextTopics(lines.slice(1).join("\n"))) || draft };
 }
 
 type ScoutResult = {
@@ -131,6 +143,14 @@ export async function GET(req: NextRequest) {
         `그 주제로 실제 상위 노출·수익화에 성공한 블로거라면 어떤 제목·구조·분량·키워드 배치로 썼을지를 ` +
         `먼저 스스로 떠올려 그 수준을 기준(벤치마킹)으로 삼아 써라 — 흔한 글솜씨가 아니라 "무엇을 ` +
         `기준으로 썼는가"의 차이로 상위 1%가 된다는 전제로 접근한다.\n\n` +
+        `[문체 규칙 — 반드시 지켜라]\n` +
+        `- 마크다운 강조(**단어**)를 쓰지 않는다. AI가 쓴 티가 나고, Blogger에는 마크다운이 렌더링되지 ` +
+        `않아 별표가 글자 그대로 노출된다. 강조하고 싶으면 문장 자체를 명확하게 쓴다.\n` +
+        `- 이모지는 이 글 성격에 필요한 만큼만 정해서 쓴다(예: 소제목 앞 1개 정도) — 남발 금지. 정말 ` +
+        `필요하면 늘려도 되지만 기본은 최소한으로.\n` +
+        `- 직관적으로 확인 가능한 사실만 근거로 쓴다. 확인 안 된 정보를 사실처럼 단정하지 않는다. ` +
+        `예측·추측이 꼭 필요하면 "~일 가능성이 있다", "~로 추정된다"처럼 사실이 아니라 추측임을 문장에서 ` +
+        `명확히 구분해 표시한다 — 이후 문제(정정 요청, 신뢰도 하락)가 생기지 않게 하기 위함이다.\n\n` +
         `작성 전 아래 기준을 스스로 순서대로 적용하되, 결과물에는 완성된 최종 글(제목+본문)만 남겨라:\n` +
         `1) 검색 의도 파악 — 이 주제를 검색하는 사람이 진짜 알고 싶어하는 것 3가지를 먼저 정리하고, ` +
         `그 3가지에 실제로 답하는 글이 되도록 쓴다 (내가 쓰고 싶은 글이 아니라 사람들이 찾는 글).\n` +
@@ -139,8 +159,10 @@ export async function GET(req: NextRequest) {
         `3) 도입부 — 궁금증이나 공감을 유발하는 문장으로 시작한다 (첫 세 줄에서 이탈하면 나머지는 아무도 안 읽는다).\n` +
         `4) 구체화 — "좋다/편하다/추천한다" 같은 막연한 표현을 전부 실제 경험·수치·근거로 바꾼다.\n` +
         `5) 이탈 포인트 점검 — 글을 읽다가 지루해서 나갈 만한 지점이 있는지 스스로 점검하고 보완한다.\n` +
-        `6) 마지막 줄에 "다음 소재 후보"로 이어질 만한 주제 2~3개를 팀 내부 참고용으로 짧게 덧붙인다 ` +
-        `(발행 본문과는 구분해서 표시).\n\n[오늘 조사 내용]\n${research}`
+        `6) 본문을 다 쓴 뒤, 빈 줄을 두 번 띄우고 정확히 "===다음소재===" 한 줄만 쓴 다음, 그 아래에 ` +
+        `"다음 소재 후보" 2~3개를 짧게 적는다. 이 부분은 팀 내부 참고용이며 자동 발행 시스템이 이 마커 ` +
+        `기준으로 잘라내 절대 블로그에 게시되지 않으니, 본문 안에는 "다음 소재 후보" 같은 문구를 ` +
+        `절대 섞어 쓰지 않는다.\n\n[오늘 조사 내용]\n${research}`
     );
     if (draft) {
       await saveLog("블로그팀", `블로그 초안 ${today} (INK)`, draft, "블로그팀");
@@ -151,7 +173,10 @@ export async function GET(req: NextRequest) {
         `아래는 INK가 쓴 블로그 초안이다. 과장급 검토자로서 다음을 점검해라: ` +
           `①사실관계·톤·표시광고 리스크 ②검색 의도 3가지에 실제로 답하고 있는지 ` +
           `③"좋다/편하다" 식 막연한 표현이 구체적 경험·수치로 바뀌었는지 ④도입부가 궁금증·공감으로 ` +
-          `시작하는지. 수정 필요 시 구체적으로, 문제없으면 "승인"이라 명확히 밝혀라.\n\n${draft}`
+          `시작하는지 ⑤마크다운 강조(**)를 쓰지 않았는지 ⑥이모지를 남발하지 않았는지 ` +
+          `⑦확인 안 된 정보를 사실처럼 단정하지 않고, 예측·추측은 "~로 추정된다" 식으로 명확히 ` +
+          `구분했는지 ⑧"다음 소재 후보" 같은 내부용 문구가 본문(===다음소재=== 마커 이전)에 섞여 ` +
+          `있지 않은지. 수정 필요 시 구체적으로, 문제없으면 "승인"이라 명확히 밝혀라.\n\n${draft}`
       );
       if (check) {
         await saveLog("블로그팀", `블로그 1차 검토 ${today} (CHECK)`, check, "블로그팀");
