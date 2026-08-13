@@ -3,6 +3,7 @@ import { STAFF, type ZoneId } from "@/app/agency/office";
 import { MEMORY } from "@/app/agency/memory";
 import { SCOUT_PRESETS } from "@/app/api/naver-news/route";
 import { publishToBlogger } from "@/lib/blogger";
+import { getLodRecentActivity, summarizeLodActivity } from "@/lib/lodGithub";
 
 /**
  * 일일 자동화 배치 — Vercel Cron이 매일 00:00 UTC(09:00 KST)에 호출한다.
@@ -11,7 +12,12 @@ import { publishToBlogger } from "@/lib/blogger";
  * 2) 블로그팀: trend 조사 결과를 INK(정리)→CHECK(1차검토)→CHIEF(최종검토)→
  *    AEGIS(법무·수익화 정책 검증)로 넘겨 통과한 것만 Google Blogger에 실제
  *    발행한다. 단계별 결과 전부 Notion 기록.
- * 3) 나머지 전 직원: 병렬로 하루 업무 1건씩 실행 — 화면 애니메이션과 별개로
+ * 3) PHANTOM: lord-of-dark 저장소 실제 커밋 활동을 확인해 개발자를 독려하고,
+ *    인력 필요 여부를 판단한다(CEO 지시 2026-08-13, 일일 실행).
+ * 4) ZERO: 3일 주기로 PHANTOM·MUSE·NOVA·SCOUT·SAGE와 "2007-8년식 시스템을
+ *    2026년 이후에도 먹히게 개편할 방법"을 병렬 논의(PRP) → CONDUCTOR 결정
+ *    (CEO 지시 2026-08-13).
+ * 5) 나머지 전 직원: 병렬로 하루 업무 1건씩 실행 — 화면 애니메이션과 별개로
  *    서버에서 실제로 진행되는 자동화.
  *
  * Hobby 플랜은 cron 실행 빈도가 1일 1회로 제한된다.
@@ -60,6 +66,19 @@ async function saveLog(source: string, title: string, content: string, businessT
     });
   } catch {
     /* 저장 실패해도 파이프라인은 계속 진행 */
+  }
+}
+
+/** CEO 알림 — SLACK_BOT_TOKEN 미설정 시 조용히 스킵(Notion 로그로는 항상 남음). */
+async function sendCeoNotice(text: string) {
+  try {
+    await fetch(`${SITE_ORIGIN}/api/slack`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "send", payload: { text: `[BALMYGARDEN] ${text}` } }),
+    });
+  } catch {
+    /* Slack 미설정이면 실패 — Notion 로그가 대체 기록 역할 */
   }
 }
 
@@ -250,8 +269,93 @@ export async function GET(req: NextRequest) {
     results.blogTeam = { ok: false, stage: "트렌드 조사 결과 없음" };
   }
 
-  // 3) 나머지 전 직원 — 병렬로 하루 업무 1건씩 (SCOUT·블로그팀은 위에서 이미 실행)
-  const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF", "AEGIS"].includes(s.key));
+  // 3) PHANTOM — LOD 실제 개발 진행 확인(GitHub 커밋) + 개발자 독려 + 채용 필요 여부 판단
+  //    CEO 지시(2026-08-13): 일일단위 확인·독려, 인력 필요 시 PHANTOM 채용 사전승인.
+  const lodActivity = await getLodRecentActivity(3);
+  const lodSummary = summarizeLodActivity(lodActivity);
+  const phantomText = await callAgent(
+    "PHANTOM",
+    "LOD 게임 PM",
+    `아래는 lord-of-dark 저장소의 최근 3일 실제 커밋 활동이다. 이 데이터를 근거로만 판단해라 ` +
+      `(확인 안 된 진행상황을 추측해서 단정하지 말 것).\n\n${lodSummary}\n\n` +
+      `1) 이 활동을 근거로 개발자에게 보낼 짧은 독려 메시지를 써라(구체적 커밋 내용을 언급해 ` +
+      `실제로 보고 있다는 느낌을 줄 것 — 커밋이 없다면 독려 대신 진행상황을 직접 물어보는 톤으로).\n` +
+      `2) 현재 인력으로 이 속도가 유지 가능한지 판단하고, 추가 인력이 필요하다고 판단되면 ` +
+      `"채용필요: (어떤 역할이 왜 필요한지)"로 명확히 시작하는 문장을 남겨라. 필요 없으면 ` +
+      `"채용불필요"라고 밝혀라 — 너는 이 판단에 대해 CONDUCTOR와 협의 후 채용을 사전승인받았다 ` +
+      `(CEO에게는 채용 후 사후보고).\n\n300자 이내로 답해라.`
+  );
+  if (phantomText) {
+    await saveLog("PHANTOM", `LOD 진행 확인·독려 ${today}`, `${lodSummary}\n\n${phantomText}`, "게임");
+    if (phantomText.includes("채용필요")) {
+      await sendCeoNotice(`[PHANTOM] LOD 채용 필요 판단 — ${phantomText.slice(0, 300)}`);
+    }
+  }
+  results.phantomLodCheck = { ok: !!phantomText, lodActivityOk: lodActivity.ok };
+
+  // 4) ZERO — 3일 주기 "2007-8년식 시스템 → 2026년 이후에도 먹힐 시스템" PRP 논의
+  //    CEO 지시(2026-08-13): PHANTOM·MUSE·NOVA·SCOUT·SAGE 병렬 관점 → ZERO 기술 종합 →
+  //    CONDUCTOR 최종 판단·실행. 항상 Notion 기록 + CEO 알림.
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  if (dayIndex % 3 === 0) {
+    const topic =
+      "LOD의 현재 전투·성장 시스템(레벨/장비강화/속성상성 등)은 2007-8년대 모바일게임 설계를 " +
+      "그대로 복원(레저렉션)한 것이다. 2026년 이후 유저에게도 통할 시스템 개편 아이디어를 " +
+      "각자 전문 영역 관점에서 1개씩, 근거와 함께 제시해라. 200자 이내.";
+    const panel = ["PHANTOM", "MUSE", "NOVA", "SCOUT", "SAGE"] as const;
+    const panelRoles: Record<(typeof panel)[number], string> = {
+      PHANTOM: "LOD 게임 PM 관점 — 개발 리소스·일정 현실성",
+      MUSE: "크리에이티브 관점 — 연출·비주얼 임팩트",
+      NOVA: "전략·마케팅 관점 — 시장성·경쟁작 대비 차별화",
+      SCOUT: "리서치 관점 — 2026년 흥행 모바일 RPG 트렌드 근거",
+      SAGE: "세계관 관점 — 신규 세계관(아르카나/균열/시스템)과의 정합성",
+    };
+    const panelSettled = await Promise.allSettled(
+      panel.map(async (name) => ({
+        name,
+        text: await callAgent(name, panelRoles[name], topic),
+      }))
+    );
+    const panelResults = panelSettled.map((r) =>
+      r.status === "fulfilled" ? r.value : { name: "?", text: null }
+    );
+    const panelDigest = panelResults
+      .filter((r) => r.text)
+      .map((r) => `[${r.name}] ${r.text}`)
+      .join("\n\n");
+
+    if (panelDigest) {
+      await saveLog("게임 시스템 논의 (PRP)", `3일 주기 시스템 논의 — 병렬 의견 ${today}`, panelDigest, "게임");
+
+      const zeroSynthesis = await callAgent(
+        "ZERO",
+        "풀스택 개발",
+        `아래는 팀원들이 낸 시스템 개편 아이디어다. 개발 관점에서 기술적으로 실현 가능한 것만 ` +
+          `골라 종합하고, 구현 난이도(상/중/하)를 매겨라. 400자 이내.\n\n${panelDigest}`
+      );
+      if (zeroSynthesis) await saveLog("게임 시스템 논의 (PRP)", `3일 주기 시스템 논의 — ZERO 기술 종합 ${today}`, zeroSynthesis, "게임");
+
+      const conductorDecision = await callAgent(
+        "CONDUCTOR",
+        "지휘자·최종 결정",
+        `아래는 3일 주기 LOD 시스템 개편 논의다. PRP 병렬 의견과 ZERO의 기술 종합을 보고 ` +
+          `이번 주기에 실제로 착수할 것 1개(또는 "이번엔 보류")를 최종 결정하고 이유를 밝혀라. ` +
+          `300자 이내.\n\n[팀 의견]\n${panelDigest}\n\n[ZERO 기술 종합]\n${zeroSynthesis ?? "(실패)"}`
+      );
+      if (conductorDecision) {
+        await saveLog("게임 시스템 논의 (PRP)", `3일 주기 시스템 논의 — CONDUCTOR 결정 ${today}`, conductorDecision, "게임");
+        await sendCeoNotice(`[LOD 시스템 논의] CONDUCTOR 결정 — ${conductorDecision.slice(0, 400)}`);
+      }
+      results.zeroSystemDiscussion = { ok: true, panelCount: panelResults.filter((r) => r.text).length };
+    } else {
+      results.zeroSystemDiscussion = { ok: false, stage: "팀 의견 전체 실패" };
+    }
+  } else {
+    results.zeroSystemDiscussion = { ok: true, skipped: true, reason: "3일 주기 아님" };
+  }
+
+  // 5) 나머지 전 직원 — 병렬로 하루 업무 1건씩 (SCOUT·블로그팀·PHANTOM은 위에서 이미 실행)
+  const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF", "AEGIS", "PHANTOM"].includes(s.key));
   const dailySettled = await Promise.allSettled(
     dailyStaff.map(async (s) => {
       const text = await callAgent(

@@ -176,6 +176,7 @@ export const MEETINGS: { title: string; members: string[] }[] = [
   { title: "음악 결정 (PRP)", members: ["SAGE", "LYRA", "NOVA", "SCOUT"] },
   { title: "전략 결정 (PRP)", members: ["NOVA", "AEGIS", "SCOUT"] },
   { title: "개발 결정 (PRP)", members: ["ZERO", "ARIA", "PHANTOM", "AEGIS"] },
+  { title: "게임 시스템 논의 (PRP, 3일 주기)", members: ["ZERO", "PHANTOM", "MUSE", "NOVA", "SCOUT", "SAGE"] },
   { title: "CDG 찬반 토론", members: ["CONDUCTOR", "AEGIS", "NOVA"] },
 ];
 
