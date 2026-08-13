@@ -62,12 +62,22 @@ async function saveLog(source: string, title: string, content: string, businessT
   }
 }
 
-/** INK 초안("제목: ...\n\n본문...") → {title, body} 파싱. 형식이 어긋나면 첫 줄을 제목으로 폴백. */
-function parseTitleBody(draft: string): { title: string; body: string } {
-  const match = draft.match(/^\s*제목\s*[:：]\s*(.+?)\n+([\s\S]+)$/);
-  if (match) return { title: match[1].trim(), body: match[2].trim() };
+/**
+ * INK 초안("제목: ...\n이미지프롬프트: ...\n\n본문...") → {title, imagePrompt, body} 파싱.
+ * 형식이 어긋나면 첫 줄을 제목으로, 이미지프롬프트는 제목으로 대체 폴백.
+ */
+function parseDraft(draft: string): { title: string; imagePrompt: string; body: string } {
+  const match = draft.match(/^\s*제목\s*[:：]\s*(.+?)\n\s*이미지\s*프롬프트\s*[:：]\s*(.+?)\n+([\s\S]+)$/);
+  if (match) {
+    return { title: match[1].trim(), imagePrompt: match[2].trim(), body: match[3].trim() };
+  }
+  const titleOnly = draft.match(/^\s*제목\s*[:：]\s*(.+?)\n+([\s\S]+)$/);
+  if (titleOnly) {
+    return { title: titleOnly[1].trim(), imagePrompt: titleOnly[1].trim(), body: titleOnly[2].trim() };
+  }
   const lines = draft.trim().split("\n");
-  return { title: (lines[0] || "제목 없음").slice(0, 100), body: lines.slice(1).join("\n").trim() || draft };
+  const title = (lines[0] || "제목 없음").slice(0, 100);
+  return { title, imagePrompt: title, body: lines.slice(1).join("\n").trim() || draft };
 }
 
 type ScoutResult = {
@@ -114,7 +124,9 @@ export async function GET(req: NextRequest) {
       "블로그 초안 정리",
       `아래는 SCOUT가 오늘 조사한 트렌드 뉴스다. 이 중 네이버 블로그 글감으로 가장 좋은 주제 1개를 골라 ` +
         `1200자 내외 블로그 초안(제목+본문)을 작성해라. 반드시 첫 줄은 "제목: "으로 시작하고, ` +
-        `그 다음 줄부터 빈 줄 하나 띄우고 본문을 쓴다(자동 발행 시스템이 첫 줄을 제목으로 파싱한다).\n\n` +
+        `둘째 줄은 "이미지프롬프트: "로 시작해 이 글 대표 이미지를 생성할 영문 프롬프트(핵심 소재를 ` +
+        `구체적으로 묘사하는 10~20단어, 텍스트·글자 요청 금지)를 쓴 뒤, 빈 줄 하나 띄우고 본문을 쓴다 ` +
+        `(자동 발행 시스템이 이 두 줄을 파싱해 이미지 생성과 발행에 그대로 쓴다).\n\n` +
         `너는 이 분야 상위 1% 수익형 네이버 블로거다. 아마추어가 정보를 나열하는 방식이 아니라, ` +
         `그 주제로 실제 상위 노출·수익화에 성공한 블로거라면 어떤 제목·구조·분량·키워드 배치로 썼을지를 ` +
         `먼저 스스로 떠올려 그 수준을 기준(벤치마킹)으로 삼아 써라 — 흔한 글솜씨가 아니라 "무엇을 ` +
@@ -154,9 +166,9 @@ export async function GET(req: NextRequest) {
         if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief, "블로그팀");
 
         if (chief && chief.includes("승인")) {
-          const { title, body } = parseTitleBody(draft);
+          const { title, imagePrompt, body } = parseDraft(draft);
           try {
-            const postUrl = await publishToBlogger(title, body);
+            const postUrl = await publishToBlogger(title, body, imagePrompt);
             await saveLog("블로그팀", `블로그 발행 완료 ${today}`, `${title}\n${postUrl}`, "블로그팀");
             results.blogTeam = { ok: true, published: postUrl };
           } catch (e: unknown) {

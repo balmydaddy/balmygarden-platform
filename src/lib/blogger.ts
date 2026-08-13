@@ -72,14 +72,29 @@ export async function getBlogInfo(): Promise<{ id: string; name: string; url: st
   };
 }
 
-/** 텍스트 초안 → Blogger HTML 포스트로 실제 발행. 성공 시 게시글 URL 반환. */
-export async function publishToBlogger(title: string, bodyText: string): Promise<string> {
+/**
+ * 무료 이미지 생성(Pollinations.ai, API 키 불필요) — CEO 방침(수익 발생 전
+ * 무료 한도 내 진행, LOD 캐릭터 아트와 동일 파이프라인)에 맞춰 별도 유료
+ * 이미지 API 없이 URL만으로 대표 이미지를 만든다. 별도 호출 없이 <img> src로
+ * 바로 참조하면 요청 시점에 생성되어 뜬다.
+ */
+function buildImageUrl(prompt: string): string {
+  const cleaned = prompt.trim().slice(0, 300);
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleaned)}?width=1024&height=576&nologo=true`;
+}
+
+/** 텍스트 초안 → Blogger HTML 포스트로 실제 발행. imagePrompt가 있으면 대표 이미지를 생성해 맨 위에 넣는다. 성공 시 게시글 URL 반환. */
+export async function publishToBlogger(title: string, bodyText: string, imagePrompt?: string): Promise<string> {
   const accessToken = await getAccessToken();
   const blogId = await getBlogId(accessToken);
-  const html = bodyText
+  const bodyHtml = bodyText
     .split(/\n{2,}/)
     .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
     .join("\n");
+  const imageHtml = imagePrompt
+    ? `<img src="${buildImageUrl(imagePrompt)}" alt="${title.replace(/"/g, "&quot;")}" style="max-width:100%;border-radius:8px;margin-bottom:16px" />\n`
+    : "";
+  const html = imageHtml + bodyHtml;
 
   const res = await fetch(`${API_BASE}/blogs/${blogId}/posts/`, {
     method: "POST",
