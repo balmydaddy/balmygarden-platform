@@ -9,9 +9,13 @@ import { getLodRecentActivity, summarizeLodActivity } from "@/lib/lodGithub";
  * 일일 자동화 배치 — Vercel Cron이 매일 00:00 UTC(09:00 KST)에 호출한다.
  *
  * 1) SCOUT: 프리셋 전량(music/app/game/safety/trend) 수집 + Notion 저장.
- * 2) 블로그팀: trend 조사 결과를 INK(정리)→CHECK(1차검토)→CHIEF(최종검토)→
+ * 2) 블로그팀(트렌드): trend 조사 결과를 INK(정리)→CHECK(1차검토)→CHIEF(최종검토)→
  *    AEGIS(법무·수익화 정책 검증)로 넘겨 통과한 것만 Google Blogger에 실제
- *    발행한다. 단계별 결과 전부 Notion 기록.
+ *    발행한다. 단계별 결과 전부 Notion 기록. CHIEF는 개방적 기준으로 운영
+ *    (CEO 지시 2026-08-14) — SEO 완성도가 아니라 사실관계·컴플라이언스만 반려 사유.
+ * 2b) 블로그팀(음원홍보): BALMYDADDY 음원을 Blogger에 적극 홍보(CEO 지시 2026-08-14).
+ *    담당 신설 — MUSE(소재 제공, 미발매 EP 과장 금지)→INK(SELL-01 원칙 집필)→
+ *    CHECK→CHIEF→AEGIS 동일 게이트. dailyStaff 루프에서 MUSE 제외(중복 방지).
  * 3) PHANTOM: lord-of-dark 저장소 실제 커밋 활동을 확인해 개발자를 독려하고,
  *    인력 필요 여부를 판단한다(CEO 지시 2026-08-13, 일일 실행).
  * 4) ZERO: 3일 주기로 PHANTOM·MUSE·NOVA·SCOUT·SAGE와 "2007-8년식 시스템을
@@ -218,8 +222,15 @@ export async function GET(req: NextRequest) {
           "CHIEF",
           "블로그 최종 검토·승인",
           `아래는 초안과 과장(CHECK) 1차 검토다. 15년 차 콘텐츠 마케터 관점에서 이 글이 검색 상위 노출될 ` +
-            `가능성을 평가하고, 부족한 부분이 있으면 짚어라. 그 후 팀장으로서 게시 여부를 "승인" 또는 ` +
-            `"반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n[초안]\n${draft}\n\n[1차 검토]\n${check}`
+            `가능성을 평가하고, 부족한 부분이 있으면 짚어라.\n\n` +
+            `[승인 기준 — CEO 지시(2026-08-14): Blogger는 개방적 기준으로 운영한다] ` +
+            `네이버와 달리 Blogger는 자동화 정책 리스크가 없는 채널이므로, SEO 완성도를 이유로 반려하지 ` +
+            `않는다. 반려는 다음 중 하나에 해당할 때만: ①사실관계 오류 ②AEGIS가 걸러야 할 컴플라이언스 ` +
+            `소지(다음 단계에서 별도 검증되지만 명백한 건 여기서도 반려) ③글이 구조적으로 완성되지 않음 ` +
+            `(본문 누락·문장 깨짐 등) ④SELL-01·문체 규칙을 명백히 위반. SEO 키워드 배치가 아쉽거나 ` +
+            `사례 연결이 매끄럽지 않은 정도는 승인하고 다음 편에서 개선하면 된다 — 발행 자체가 우선이다.\n\n` +
+            `그 후 팀장으로서 게시 여부를 "승인" 또는 "반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n` +
+            `[초안]\n${draft}\n\n[1차 검토]\n${check}`
         );
         if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief, "블로그팀");
 
@@ -268,6 +279,97 @@ export async function GET(req: NextRequest) {
     }
   } else {
     results.blogTeam = { ok: false, stage: "트렌드 조사 결과 없음" };
+  }
+
+  // 2b) 음원 홍보 블로그 — CEO 지시(2026-08-14): BALMYDADDY 음원을 Blogger에 적극 홍보.
+  //     담당자 미지정 상태였던 걸 신설 — MUSE(아티스트 정체성·카탈로그 보유)가 소재를 제공하고
+  //     INK가 실제 집필(트렌드 글과 동일 역할), CHECK→CHIEF(개방적 기준)→AEGIS 게이트 통과 후 발행.
+  const museBrief = await callAgent(
+    "MUSE",
+    "음원 홍보 소재 제공",
+    `오늘 Blogger에 올릴 BALMYDADDY 음원 홍보 글의 소재를 정리해라. 이미 발매되어 실제로 들을 수 있는 ` +
+      `곡·아티스트 정체성 위주로 다뤄라 — GOSARI EP는 아직 미발매 제작 단계이므로 발매된 것처럼 쓰지 ` +
+      `말고, 다루려면 "제작 중"이라는 사실을 명확히 밝혀라. 다음을 정리해서 넘겨라: ①오늘 다룰 구체적 ` +
+      `앵글 1개(신곡 소개/제작 비하인드/장르·세계관 소개 등) ②실제로 확인 가능한 사실만(곡명, 장르, ` +
+      `스트리밍 링크가 있다면 그것) ③절대 넣으면 안 되는 과장·미확인 주장(예: 수치화된 성과 주장). ` +
+      `MEMORY 컨텍스트에 있는 사실만 근거로 삼아라.`
+  );
+  if (museBrief) await saveLog("음악팀", `음원 홍보 소재 ${today} (MUSE)`, museBrief, "음악");
+
+  if (museBrief) {
+    const musicDraft = await callAgent(
+      "INK",
+      "음원 홍보 블로그 초안 정리",
+      `아래는 MUSE가 정리한 오늘의 BALMYDADDY 음원 홍보 소재다. 이 소재로 1000자 내외 Blogger 홍보 글을 ` +
+        `써라. 반드시 첫 줄은 "제목: "으로, 둘째 줄은 "이미지프롬프트: "로 시작해라(형식은 트렌드 글과 동일).\n\n` +
+        `[SELL-01 — 세일즈 원칙, 반드시 적용]\n` +
+        `1) 상황 우선 — 곡 스펙이 아니라 청자가 처한 구체적 상황부터 말한다.\n` +
+        `2) 장면 우선 — 곡이 아니라 들었을 때 달라지는 순간의 장면을 보여준다.\n` +
+        `3) 의심 제거 우선 — "정말 내 취향일까/한 번 듣고 말 곡 아닐까" 같은 의심부터 없앤다.\n` +
+        `4) 고객의 언어 — 실제 청자 반응이 있다면 그 표현을 그대로 쓴다(없으면 지어내지 않는다).\n\n` +
+        `[문체·구조 규칙 — 트렌드 글과 동일하게 적용]\n` +
+        `마크다운 강조(**) 금지, 이모지 최소화, 확인 안 된 사실은 절대 단정하지 않는다(추측이면 ` +
+        `"~로 보인다" 식으로 명확히 표시), 소제목(##) 4~6개, 첫 문단에 핵심 먼저, 문단 2~3문장, ` +
+        `마지막 소제목은 "## 자주 묻는 질문".\n` +
+        `본문을 다 쓴 뒤 빈 줄 두 번 + "===다음소재===" + 다음 소재 후보(내부용, 발행 제외).\n\n` +
+        `[오늘의 소재 — MUSE 브리핑]\n${museBrief}`
+    );
+    if (musicDraft) {
+      await saveLog("음악팀", `블로그(음원홍보) 초안 ${today} (INK)`, musicDraft, "음악");
+
+      const musicCheck = await callAgent(
+        "CHECK",
+        "음원 홍보 블로그 1차 검토",
+        `아래는 INK가 쓴 BALMYDADDY 음원 홍보 블로그 초안이다. 점검: ①SELL-01 4원칙 적용 여부 ` +
+          `②미발매(GOSARI 등)를 발매된 것처럼 쓰지 않았는지 ③확인 안 된 성과·수치를 단정하지 않았는지 ` +
+          `④문체·구조 규칙 준수. 문제없으면 "승인", 아니면 구체적 수정 지시.\n\n${musicDraft}`
+      );
+      if (musicCheck) {
+        await saveLog("음악팀", `블로그(음원홍보) 1차 검토 ${today} (CHECK)`, musicCheck, "음악");
+
+        const musicChief = await callAgent(
+          "CHIEF",
+          "음원 홍보 블로그 최종 승인",
+          `[승인 기준 — Blogger 개방적 운영] SEO 완성도가 아니라 사실관계·SELL-01 적용·컴플라이언스만 ` +
+            `본다. 아래 초안과 1차 검토를 보고 "승인" 또는 "반려"로 결정하고 이유를 짧게 남겨라.\n\n` +
+            `[초안]\n${musicDraft}\n\n[1차 검토]\n${musicCheck}`
+        );
+        if (musicChief) await saveLog("음악팀", `블로그(음원홍보) 최종 검토 ${today} (CHIEF)`, musicChief, "음악");
+
+        if (musicChief && musicChief.includes("승인")) {
+          const musicAegis = await callAgent(
+            "AEGIS",
+            "음원 홍보 블로그 법무·수익화 정책 검증",
+            `아래는 CHIEF가 승인한 BALMYDADDY 음원 홍보 블로그 최종본이다. 검증: ①구글 애드센스 정책 ` +
+              `위반 소지 ②미발매 음원을 발매된 것처럼 표현했는지 ③검증 불가한 성과·수치 주장이 있는지 ` +
+              `④Scaled Content Abuse ⑤타 채널 중복 게시 여부. 통과면 "통과", 아니면 "보류"+사유.\n\n${musicDraft}`
+          );
+          if (musicAegis) await saveLog("음악팀", `블로그(음원홍보) 법무 검증 ${today} (AEGIS)`, musicAegis, "음악");
+
+          if (musicAegis && musicAegis.includes("통과")) {
+            const { title, imagePrompt, body } = parseDraft(musicDraft);
+            try {
+              const postUrl = await publishToBlogger(title, body, imagePrompt);
+              await saveLog("음악팀", `블로그(음원홍보) 발행 완료 ${today}`, `${title}\n${postUrl}`, "음악");
+              results.musicBlog = { ok: true, published: postUrl };
+            } catch (e: unknown) {
+              await saveLog("음악팀", `블로그(음원홍보) 발행 실패 ${today}`, (e as Error).message, "음악");
+              results.musicBlog = { ok: false, stage: "발행 실패", error: (e as Error).message };
+            }
+          } else {
+            results.musicBlog = { ok: false, stage: "AEGIS 법무 검증 보류", published: false };
+          }
+        } else {
+          results.musicBlog = { ok: !!musicChief, published: false };
+        }
+      } else {
+        results.musicBlog = { ok: false, stage: "CHECK 실패" };
+      }
+    } else {
+      results.musicBlog = { ok: false, stage: "INK 실패" };
+    }
+  } else {
+    results.musicBlog = { ok: false, stage: "MUSE 소재 없음" };
   }
 
   // 3) PHANTOM — LOD 실제 개발 진행 확인(GitHub 커밋) + 개발자 독려 + 채용 필요 여부 판단
@@ -356,7 +458,7 @@ export async function GET(req: NextRequest) {
   }
 
   // 5) 나머지 전 직원 — 병렬로 하루 업무 1건씩 (SCOUT·블로그팀·PHANTOM은 위에서 이미 실행)
-  const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF", "AEGIS", "PHANTOM"].includes(s.key));
+  const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF", "AEGIS", "PHANTOM", "MUSE"].includes(s.key));
   const dailySettled = await Promise.allSettled(
     dailyStaff.map(async (s) => {
       const text = await callAgent(
