@@ -25,3 +25,6 @@ yarn-error.log*
 
 .vercel
 .env*.local
+
+# Claude Code 에이전트 격리 작업공간(중첩 worktree) — 소스 아님, 커밋 대상 아님
+.claude/
