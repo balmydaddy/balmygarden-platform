@@ -1293,7 +1293,7 @@ export default function BALMYGARDENDashboard() {
     const res = await fetch("/api/agent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ systemPrompt: ag.sys + memCtx + driveCtxBlock, userMessage }),
+      body: JSON.stringify({ systemPrompt: ag.sys + memCtx + driveCtxBlock, userMessage, agentName: agentKey }),
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
@@ -3701,7 +3701,7 @@ export default function BALMYGARDENDashboard() {
               {[
                 { lv: 1, emoji: "💬", name: "프롬프트", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["ARIA·PHANTOM·ZERO·MUSE·AEGIS·NOVA·REX·SCOUT·CONDUCTOR", "9개 에이전트 각각 전문화된 시스템 프롬프트", "300자 이내 핵심만, BALMYGARDEN 컨텍스트 내장"], next: "—" },
                 { lv: 2, emoji: "📎", name: "컨텍스트", pct: ctxEnabled ? 90 : 50, state: ctxEnabled ? "✅ 활성" : "⚠️ 비활성", color: ctxEnabled ? "#22c55e" : "#eab308", impl: [`MEMORY ${MEMORY.length}개 항목 (기업/앱/게임/CEO/QA/크레딧/GOSARI 등)`, ctxEnabled ? "전 에이전트 API 호출 시 자동 주입 ON" : "컨텍스트 주입 현재 OFF", "홈 탭에서 ON/OFF 토글 가능"], next: "Notion 기록을 실시간 컨텍스트로 주입 (Phase 2)" },
-                { lv: 3, emoji: "🛠️", name: "도구", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["Claude API — claude-sonnet-4-6", "/api/agent 서버 프록시 (API키 노출 없음)", "파일 읽기/쓰기 · 체인 실행 · 병렬 처리"], next: "스트리밍 응답 (실시간 타이핑 효과)" },
+                { lv: 3, emoji: "🛠️", name: "도구", pct: 100, state: "✅ 완료", color: "#22c55e", impl: ["Claude API — 에이전트별 모델 라우팅(60-30-10: SCOUT·REX=Haiku / 기본=Sonnet / CONDUCTOR·AEGIS·NOVA=상위)", "/api/agent 서버 프록시 (API키 노출 없음)", "파일 읽기/쓰기 · 체인 실행 · 병렬 처리"], next: "스트리밍 응답 (실시간 타이핑 효과)" },
                 { lv: 4, emoji: "🔌", name: "MCP 연결", pct: 95, state: "✅ 완료", color: "#22c55e", impl: ["Notion 자동 로깅 — save_workflow / save_log / save_chat", "GET /api/notion — 히스토리 조회", "워크플로우 완료 시 + 대화 시 자동 fire-and-forget 저장"], next: "Google Drive · Slack 연동 (Phase 2)" },
                 { lv: 5, emoji: "⚡", name: "스킬", pct: 85, state: "✅ 적용", color: "#22c55e", impl: ["12개 워크플로우 = 12개 스킬", "각 워크플로우별 퀵 스킬 — 원클릭 기본 입력 세팅", "카테고리별 분류 (전략/개발/게임/음악/마케팅/법무 등)"], next: "/명령어 슬래시 커맨드 스타일 런처 (Phase 2)" },
                 { lv: 6, emoji: "🪄", name: "서브에이전트", pct: 80, state: "✅ 적용", color: "#22c55e", impl: ["병렬 그룹 실행 (Promise.all)", "8개 워크플로우에 parallel 그룹 정의", "예: 사업 단계 진단 = [SCOUT+NOVA 병렬] → [AEGIS] → [CONDUCTOR]", "시각적 병렬 표시 (녹색 점선 박스)"], next: "독립 에이전트 인스턴스 분리 실행 (Worker API)" },

@@ -48,6 +48,7 @@ async function callAgent(name: string, role: string, userMessage: string): Promi
           `당신은 BALMYGARDEN 에이전시의 ${name}입니다. 담당: ${role}.\n한국어로 답한다.\n\n` +
           `[BALMYGARDEN 기업 컨텍스트]\n` + MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n"),
         userMessage,
+        agentName: name,
       }),
     });
     const data = (await res.json()) as { text?: string };

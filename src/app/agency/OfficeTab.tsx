@@ -365,6 +365,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             `[BALMYGARDEN 기업 컨텍스트]\n` +
             MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n"),
           userMessage: orderText,
+          agentName: agent.staff.name,
         }),
       });
       const data = (await res.json()) as { text?: string; error?: string };
