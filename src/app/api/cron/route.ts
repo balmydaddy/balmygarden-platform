@@ -11,11 +11,11 @@ import { getLodRecentActivity, summarizeLodActivity } from "@/lib/lodGithub";
  * 1) SCOUT: 프리셋 전량(music/app/game/safety/trend) 수집 + Notion 저장.
  * 2) 블로그팀(트렌드): trend 조사 결과를 INK(정리)→CHECK(1차검토)→CHIEF(최종검토)→
  *    AEGIS(법무·수익화 정책 검증)로 넘겨 통과한 것만 Google Blogger에 실제
- *    발행한다. 단계별 결과 전부 Notion 기록. CHIEF는 개방적 기준으로 운영
- *    (CEO 지시 2026-08-14) — SEO 완성도가 아니라 사실관계·컴플라이언스만 반려 사유.
+ *    발행한다. 단계별 결과 전부 Notion 기록. CHIEF는 검색 상위 노출 가능성을
+ *    포함해 기존 기준 그대로 평가한다(CEO 지시 2026-08-14: SEO 완성도 완화 안 함).
  * 2b) 블로그팀(음원홍보): BALMYDADDY 음원을 Blogger에 적극 홍보(CEO 지시 2026-08-14).
  *    담당 신설 — MUSE(소재 제공, 미발매 EP 과장 금지)→INK(SELL-01 원칙 집필)→
- *    CHECK→CHIEF→AEGIS 동일 게이트. dailyStaff 루프에서 MUSE 제외(중복 방지).
+ *    CHECK→CHIEF(기존 기준 그대로)→AEGIS 동일 게이트. dailyStaff 루프에서 MUSE 제외(중복 방지).
  * 3) PHANTOM: lord-of-dark 저장소 실제 커밋 활동을 확인해 개발자를 독려하고,
  *    인력 필요 여부를 판단한다(CEO 지시 2026-08-13, 일일 실행).
  * 4) ZERO: 3일 주기로 PHANTOM·MUSE·NOVA·SCOUT·SAGE와 "2007-8년식 시스템을
@@ -222,15 +222,8 @@ export async function GET(req: NextRequest) {
           "CHIEF",
           "블로그 최종 검토·승인",
           `아래는 초안과 과장(CHECK) 1차 검토다. 15년 차 콘텐츠 마케터 관점에서 이 글이 검색 상위 노출될 ` +
-            `가능성을 평가하고, 부족한 부분이 있으면 짚어라.\n\n` +
-            `[승인 기준 — CEO 지시(2026-08-14): Blogger는 개방적 기준으로 운영한다] ` +
-            `네이버와 달리 Blogger는 자동화 정책 리스크가 없는 채널이므로, SEO 완성도를 이유로 반려하지 ` +
-            `않는다. 반려는 다음 중 하나에 해당할 때만: ①사실관계 오류 ②AEGIS가 걸러야 할 컴플라이언스 ` +
-            `소지(다음 단계에서 별도 검증되지만 명백한 건 여기서도 반려) ③글이 구조적으로 완성되지 않음 ` +
-            `(본문 누락·문장 깨짐 등) ④SELL-01·문체 규칙을 명백히 위반. SEO 키워드 배치가 아쉽거나 ` +
-            `사례 연결이 매끄럽지 않은 정도는 승인하고 다음 편에서 개선하면 된다 — 발행 자체가 우선이다.\n\n` +
-            `그 후 팀장으로서 게시 여부를 "승인" 또는 "반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n` +
-            `[초안]\n${draft}\n\n[1차 검토]\n${check}`
+            `가능성을 평가하고, 부족한 부분이 있으면 짚어라. 그 후 팀장으로서 게시 여부를 "승인" 또는 ` +
+            `"반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n[초안]\n${draft}\n\n[1차 검토]\n${check}`
         );
         if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief, "블로그팀");
 
@@ -330,9 +323,9 @@ export async function GET(req: NextRequest) {
         const musicChief = await callAgent(
           "CHIEF",
           "음원 홍보 블로그 최종 승인",
-          `[승인 기준 — Blogger 개방적 운영] SEO 완성도가 아니라 사실관계·SELL-01 적용·컴플라이언스만 ` +
-            `본다. 아래 초안과 1차 검토를 보고 "승인" 또는 "반려"로 결정하고 이유를 짧게 남겨라.\n\n` +
-            `[초안]\n${musicDraft}\n\n[1차 검토]\n${musicCheck}`
+          `아래는 초안과 과장(CHECK) 1차 검토다. 15년 차 콘텐츠 마케터 관점에서 이 글이 검색 상위 노출될 ` +
+            `가능성을 평가하고, 부족한 부분이 있으면 짚어라. 그 후 팀장으로서 게시 여부를 "승인" 또는 ` +
+            `"반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n[초안]\n${musicDraft}\n\n[1차 검토]\n${musicCheck}`
         );
         if (musicChief) await saveLog("음악팀", `블로그(음원홍보) 최종 검토 ${today} (CHIEF)`, musicChief, "음악");
 
