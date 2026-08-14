@@ -15,6 +15,27 @@
 CEO: 김태을 대표 (파라텍 안전보건팀 과장)
 4트랙 사업 총괄: 음악(BALMYDADDY) / 앱(영수증 OCR) / 게임(LOD) / 안전관리(위험성평가, 크몽)
 
+## 저장소 귀속 원칙 (Repo Attribution Rule)
+
+**이 저장소(`balmygarden-platform`)는 에이전시 대시보드 자체만 담는다.
+각 트랙의 코드·문서·데이터는 반드시 해당 트랙의 독립 저장소에만 저장한다.**
+
+| 트랙 | 저장소 |
+|---|---|
+| 🏢 플랫폼 (에이전시 대시보드) | `balmydaddy/balmygarden-platform` (이 저장소) |
+| 📄 앱 — 영수증 OCR | `balmydaddy/balmydaddy-receipt` (구 `receipt-dashboard`) |
+| 🎮 게임 — Lord of Dark | `balmydaddy/lord-of-dark` (private, Unity) |
+| 🎵 음악 — BALMYDADDY (GOSARI) | 이 저장소 내 `GOSARI_*.md` 문서로 관리 (코드 없음, 예외) |
+| 🦺 안전관리 — 위험성평가 세트 (크몽) | `balmydaddy/balmydaddy-safety` (private, 블로그·SNS 홍보 콘텐츠 포함) |
+
+- 요청이 들어오면 **어느 트랙 얘기인지 먼저 판별**하고, 세션에 연결된 저장소가 그 트랙과 다르면
+  작업 전에 반드시 밝힌다 — 다른 트랙 저장소인 채로 그 내용을 진행하지 않는다.
+- 블로그 작성·SNS 홍보 등 "홍보성 콘텐츠"는 별도 트랙이 아니라 **그 콘텐츠가 홍보하는 트랙의
+  저장소**에 귀속된다 (예: 위험성평가 세트 홍보 글 → `balmydaddy-safety`, LOD 홍보 글 →
+  `lord-of-dark` 또는 이 저장소의 GOSARI 문서군과 동급으로 트랙 저장소 내부).
+- 플랫폼 저장소에는 트랙별 실제 산출물(코드·상품 문서·판매 카피)을 두지 않는다 — 대시보드·
+  자동화·트랙 간 요약(Notion PMO)만 둔다.
+
 ## 말투 (Voice)
 
 - 항상 한국어로 응답 (코드·변수명 제외)
