@@ -98,8 +98,9 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
 
       const log$ = asJson("/api/notion?limit=6")
         .then((j: { entries?: LogEntry[] }) => {
-          if (alive) setLog(Array.isArray(j?.entries) ? j.entries : null);
-          return true;
+          const ok = Array.isArray(j?.entries);
+          if (alive) setLog(ok ? j.entries! : null);
+          return ok; // 형태가 틀리면 실패다 — 이걸 true로 돌리면 기준시각이 헛돈다
         })
         .catch(() => {
           if (alive) setLog(null);
@@ -145,9 +146,6 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
   const signals = (trading.data?.signals ?? []).slice(0, 6);
   const roster = STAFF.slice(0, 8);
   const blockers = stats?.ok ? stats.blockers : [];
-  const todayCount = (log ?? []).filter(
-    (e) => e.date && new Date(e.date).toDateString() === new Date().toDateString()
-  ).length;
 
   return (
     <div className={display.className}>
@@ -180,7 +178,8 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
             </div>
           ) : stats.blockersGated ? (
             <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "10px", lineHeight: 1.5 }}>
-              미결 항목은 잠금해제 후 표시됩니다. 진행 {stats.inProgress}건 · 미진행 {stats.notStarted}건.
+              미결 항목 내용은 서버 인증 후 표시됩니다 — 우측 상단 자물쇠를 눌러 비밀번호를 입력하세요.
+              (진행 {stats.inProgress}건 · 미진행 {stats.notStarted}건)
             </div>
           ) : blockers.length === 0 ? (
             <div style={{ fontSize: "12px", color: "#64748b", marginTop: "10px", lineHeight: 1.5, fontFamily: "inherit" }}>
@@ -304,12 +303,8 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "6px" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
             <div style={label}>업무 로그</div>
-            {/* 자율 실행 시스템은 "오늘 뭐가 돌았나"가 한 줄로 보여야 한다 */}
-            {log !== null && (
-              <div style={{ fontSize: "11px", color: "#64748b" }}>
-                오늘 {todayCount}건 자동 실행
-              </div>
-            )}
+            {/* "오늘 N건"은 넣지 않는다 — 최근 6건만 받아오므로 하루 12~15건을
+                쓰는 cron 기준으로는 항상 절단된 수치가 되어 사실과 다르다. */}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             {syncedAt && (

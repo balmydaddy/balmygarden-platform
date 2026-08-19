@@ -1577,8 +1577,13 @@ export default function BALMYGARDENDashboard() {
           </div>
         </button>
         <button
-          onClick={() => (unlocked ? undefined : setUnlockOpen(true))}
-          title={unlocked ? "CEO 잠금해제 상태" : "CEO 잠금해제"}
+          /* 해제 상태에서도 항상 눌리게 둔다. 잠금해제가 localStorage(화면)와
+             httpOnly 쿠키(서버 API) 두 곳에 걸쳐 있어 한쪽만 남는 경우가 생긴다 —
+             예전에 해제해둔 브라우저는 쿠키가 없고, 쿠키는 30일 뒤 만료된다.
+             이때 버튼이 안 눌리면 비밀번호를 다시 넣을 방법이 없어 서버 데이터가
+             영영 안 보인다. */
+          onClick={() => setUnlockOpen(true)}
+          title={unlocked ? "잠금해제 상태 — 서버 인증이 만료됐으면 다시 입력" : "CEO 잠금해제"}
           style={{
             padding: "5px 10px",
             borderRadius: "20px",
@@ -1586,7 +1591,7 @@ export default function BALMYGARDENDashboard() {
             background: "#ffffff",
             color: "#94a3b8",
             fontSize: "11px",
-            cursor: unlocked ? "default" : "pointer",
+            cursor: "pointer",
           }}
         >
           {unlocked ? "🔓" : "🔒"}
