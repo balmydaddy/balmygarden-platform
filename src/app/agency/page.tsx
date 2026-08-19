@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
+import HomeTab from "./HomeTab";
 import TradingTab from "./TradingTab";
 import { MEMORY, type MemoryEntry } from "./memory";
 import OsV4Tab from "./OsV4Tab";
@@ -1569,6 +1570,7 @@ export default function BALMYGARDENDashboard() {
         {/* 탭 — 모바일에선 가로 스크롤 */}
         <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap", alignItems: "center" }}>
           {[
+            { id: "home", label: "🏠 홈" },
             { id: "office", label: "🏢 업무화면" },
             { id: "projects", label: "🌿 업무" },
             { id: "chat", label: "🎙️ 지시창" },
@@ -1733,6 +1735,7 @@ export default function BALMYGARDENDashboard() {
         )}
 
         {/* ══════ OFFICE ══════ */}
+        {tab === "home" && <HomeTab isMobile={isMobile} />}
         {tab === "office" && <OfficeTab isMobile={isMobile} locked={!unlocked} />}
 
         {/* ══════ HOME ══════ */}
