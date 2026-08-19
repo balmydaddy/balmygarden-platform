@@ -1546,77 +1546,51 @@ export default function BALMYGARDENDashboard() {
         fontFamily: "'Pretendard','Apple SD Gothic Neo','Segoe UI',sans-serif",
       }}
     >
-      {/* ── HEADER */}
+      {/* ── HEADER ── CEO 지시(2026-08-19): 로고만 남기고 나머지(직원 배지·탭 목록)는
+          전부 뺀다. 로고 클릭 = 홈으로. 필요한 화면은 CEO가 요청하면 그때 카테고리를
+          하나씩 다시 늘린다 — 지금은 화면에 필요 이상으로 많이 두지 않는다. */}
       <div
         style={{
           background: "linear-gradient(135deg,#eef2ff 0%,#f5f3ff 100%)",
           borderBottom: "1px solid #1a2547",
-          padding: isMobile ? "10px 14px" : "14px 22px",
+          padding: isMobile ? "10px 14px" : "12px 22px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-          <div style={{ fontSize: isMobile ? "20px" : "26px" }}>🌿</div>
-          <div>
-            <div style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: "800", color: "#4f46e5", letterSpacing: "2px" }}>
-              BALMYGARDEN
-            </div>
-            <div style={{ fontSize: "10px", color: "#334155", marginTop: "1px" }}>
-              AI AGENCY · 9 AGENTS · v3.0
-            </div>
+        <button
+          onClick={() => unlocked && setTab("dashboard")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: unlocked ? "pointer" : "default",
+          }}
+        >
+          <div style={{ fontSize: isMobile ? "20px" : "24px" }}>🌿</div>
+          <div style={{ fontSize: isMobile ? "15px" : "17px", fontWeight: "800", color: "#4f46e5", letterSpacing: "2px", textAlign: "left" }}>
+            BALMYGARDEN
           </div>
-          {!isMobile && (
-            <div style={{ marginLeft: "auto", display: "flex", gap: "6px", flexWrap: "wrap" }}>
-              {Object.entries(AGENTS).map(([k, a]) => (
-                <span key={k} style={S.badge(a.color)}>{a.av} {k}</span>
-              ))}
-            </div>
-          )}
-        </div>
-        {/* 탭 — 모바일에선 가로 스크롤 */}
-        <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap", alignItems: "center" }}>
-          {[
-            { id: "dashboard", label: "🏠 홈" },
-            { id: "office", label: "🏢 업무화면" },
-            { id: "projects", label: "🌿 업무" },
-            { id: "chat", label: "🎙️ 지시창" },
-            { id: "trading", label: "📈 트레이딩" },
-            { id: "wiki", label: "📚 위키" },
-          ]
-            /* 잠금 상태(공개 링크)에선 "업무화면" 하나만, 해제 상태(CEO)에선 그걸 뺀 나머지 —
-               업무화면은 이제 CEO 화면에서 "홈" 안에 축소 삽입되어 독립 탭이 아니다. */
-            .filter((t) => (unlocked ? t.id !== "office" : t.id === "office"))
-            .map((t) => (
-            <button
-              key={t.id}
-              style={{
-                ...S.tabBtn(tab === t.id || (t.id === "wiki" && WIKI_TABS.some((w) => w.id === tab))),
-                flexShrink: 0,
-                fontSize: isMobile ? "12px" : "13px",
-                padding: isMobile ? "6px 14px" : "7px 20px",
-              }}
-              onClick={() => setTab(t.id === "wiki" ? "wiki" : t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-          <button
-            onClick={() => (unlocked ? undefined : setUnlockOpen(true))}
-            title={unlocked ? "CEO 잠금해제 상태" : "CEO 잠금해제"}
-            style={{
-              marginLeft: "auto",
-              flexShrink: 0,
-              padding: "5px 10px",
-              borderRadius: "20px",
-              border: "1px solid #e2e8f0",
-              background: "#ffffff",
-              color: "#94a3b8",
-              fontSize: "11px",
-              cursor: unlocked ? "default" : "pointer",
-            }}
-          >
-            {unlocked ? "🔓" : "🔒"}
-          </button>
-        </div>
+        </button>
+        <button
+          onClick={() => (unlocked ? undefined : setUnlockOpen(true))}
+          title={unlocked ? "CEO 잠금해제 상태" : "CEO 잠금해제"}
+          style={{
+            padding: "5px 10px",
+            borderRadius: "20px",
+            border: "1px solid #e2e8f0",
+            background: "#ffffff",
+            color: "#94a3b8",
+            fontSize: "11px",
+            cursor: unlocked ? "default" : "pointer",
+          }}
+        >
+          {unlocked ? "🔓" : "🔒"}
+        </button>
       </div>
 
       {/* ── CEO 잠금해제 모달 ── */}
