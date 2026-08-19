@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
 import { ZONES, STAFF, MEETINGS, seatIn, type ZoneId, type Staff } from "./office";
 import { MEMORY } from "./memory";
+import { resolveStaffKey } from "./staffLog";
 
 /* ══════════════════════════════════════════════════
    BALMYGARDEN 오피스 — 탑다운 근무 화면
@@ -29,20 +30,6 @@ const POLL_MS = 20000;
 const RETURN_DELAY_MS = 7000;
 const MAX_LOG = 40;
 const THREADS_KEY = "balmygarden_office_threads_v1";
-
-/* Notion 로그 제목("[소스] 제목")에서 실제 담당자 key를 추론한다.
-   형식이 케이스마다 다르다 — 대괄호 소스(PHANTOM 등), "(NAME)" 접미사
-   (블로그팀 INK/CHECK/CHIEF/AEGIS), "NAME — 일일 업무"(dailyStaff),
-   그 외엔 제목 안에 어떤 STAFF key든 등장하는지로 최후 폴백. */
-function resolveStaffKey(title: string): string | undefined {
-  const bracket = title.match(/^\[([^\]]+)\]/)?.[1];
-  if (bracket && STAFF.some((s) => s.key === bracket)) return bracket;
-  const paren = title.match(/\(([A-Z]+)\)\s*$/)?.[1];
-  if (paren && STAFF.some((s) => s.key === paren)) return paren;
-  const dash = title.match(/^([A-Z]+)\s*—/)?.[1];
-  if (dash && STAFF.some((s) => s.key === dash)) return dash;
-  return STAFF.find((s) => title.includes(s.key))?.key;
-}
 
 const stripSource = (title: string) => title.replace(/^\[[^\]]+\]\s*/, "");
 

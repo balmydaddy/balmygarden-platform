@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client, type BlockObjectRequest, type PageObjectResponse } from "@notionhq/client";
+import { isUnlocked } from "../unlock/route";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -111,8 +112,9 @@ async function fetchTaskStatusCounts(): Promise<TaskStats> {
     const inProgress = statuses.filter((s) => s === "In Progress" || s === "Review").length;
     const notStarted = total - done - inProgress;
 
-    /* Blocked = 명시적으로 막힘, Waiting = 선행 작업 대기. 둘 다 CEO가 풀어야 진행되는
-       상태다. P0는 우선순위상 최상위라 상태와 무관하게 포함(단 완료된 건 제외). */
+    /* Blocked(명시적으로 막힘)와 P0(최우선)만 CEO 개입 대상으로 본다. Waiting은
+       선행 작업이 끝나면 팀이 알아서 진행하는 상태라 제외 — 여기 넣으면 대기 항목이
+       전부 붉게 떠서 "진짜 막힌 것"이 묻힌다(예외 기반 감독의 취지가 사라짐). */
     const blockers: Blocker[] = body
       .filter((r) => {
         const st = cellText(r, statusCol);
@@ -142,6 +144,14 @@ export async function GET(req: NextRequest) {
   }
   if (req.nextUrl.searchParams.get("stats") === "1") {
     const counts = await fetchTaskStatusCounts();
+    /* 집계 수치는 그대로 두되, 미결 항목의 제목·담당자는 잠금해제된 요청에만
+       내보낸다 — 이 엔드포인트엔 인증이 없어 공개 링크로도 호출 가능하다.
+       `blockers` 자체를 생략하지 않고 blockersGated로 알려, 화면이 "0건(=문제
+       없음)"으로 오해하지 않게 한다. */
+    if (counts.ok && !isUnlocked(req)) {
+      const { blockers: _gated, ...safe } = counts;
+      return NextResponse.json({ ...safe, blockers: [], blockersGated: true });
+    }
     return NextResponse.json(counts);
   }
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, type CSSProperties } from "react";
 import { Bricolage_Grotesque } from "next/font/google";
 import { STAFF } from "./office";
+import { resolveStaffKey, staffColor } from "./staffLog";
 import OfficeTab from "./OfficeTab";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["500", "700", "800"] });
@@ -20,28 +21,23 @@ type TradingStatus = { portfolio?: Portfolio; signals?: Signal[]; updated?: stri
 type LogEntry = { id: string; url: string; title: string; type: string; date: string };
 type Blocker = { id: string; title: string; priority: string; status: string; owner: string };
 type TaskStats =
-  | { ok: true; total: number; done: number; inProgress: number; notStarted: number; blockers: Blocker[] }
+  | {
+      ok: true;
+      total: number;
+      done: number;
+      inProgress: number;
+      notStarted: number;
+      blockers: Blocker[];
+      /* 잠금해제되지 않은 요청에는 서버가 항목 내용을 빼고 이 값을 세운다 —
+         이 경우의 빈 배열은 "없음"이 아니라 "안 보여줌"이다. */
+      blockersGated?: boolean;
+    }
   | { ok: false; error: string };
 
 /* 상시 가동 시스템의 대시보드는 "언제 기준 화면인가"가 보여야 한다 —
    열어둔 채 방치하면 낡은 숫자를 현재로 오독하게 된다. */
 const POLL_MS = 60_000;
 
-/* Notion 로그 제목에서 담당자를 뽑는다. cron이 남기는 제목 형태가 몇 가지다:
-   "[PHANTOM] LOD 진행 확인", "[음악팀] 블로그 초안 (INK)", "ZERO — 일일 업무".
-   못 찾으면 표시를 생략한다(추측해서 잘못된 담당자를 붙이지 않는다). */
-function agentOf(title: string): string | undefined {
-  const bracket = title.match(/^\[([^\]]+)\]/)?.[1];
-  if (bracket && STAFF.some((s) => s.key === bracket)) return bracket;
-  const paren = title.match(/\(([A-Z]+)\)\s*$/)?.[1];
-  if (paren && STAFF.some((s) => s.key === paren)) return paren;
-  const dash = title.match(/^([A-Z]+)\s*—/)?.[1];
-  if (dash && STAFF.some((s) => s.key === dash)) return dash;
-  return STAFF.find((s) => title.includes(s.key))?.key;
-}
-
-const agentColor = (key: string | undefined) =>
-  key ? (STAFF.find((s) => s.key === key)?.wear ?? "#94a3b8") : "#94a3b8";
 
 const card = (): CSSProperties => ({
   background: "#ffffff",
@@ -75,35 +71,63 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
   useEffect(() => {
     let alive = true;
 
-    /* 실패와 "데이터 없음"을 화면에서 구분해야 한다 — 예전엔 둘 다 "최근 기록 없음"으로
-       보여서 연동이 끊긴 걸 알 방법이 없었다. 실패 시 상태를 null로 되돌려 구분한다. */
+    /* 실패와 "데이터 없음"은 화면에서 반드시 구분돼야 한다 — 예전엔 둘 다 "최근 기록
+       없음"으로 보여서 연동이 끊긴 걸 알 방법이 없었다.
+       이 API들은 실패해도 HTTP 500 + {error} JSON을 돌려준다 — 즉 .catch가 안 걸린다.
+       r.ok를 직접 보지 않으면 "실패"가 "데이터 없음"으로 둔갑하고, 연동이 끊긴 상태에서
+       화면은 평온해 보인다. 세 요청 모두 같은 기준으로 막는다. */
+    const asJson = async (url: string) => {
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error(String(r.status));
+      return r.json();
+    };
+
     const load = () => {
-      fetch("/api/trading", { cache: "no-store" })
+      /* 트레이딩은 502/503 본문에도 의미가 있다({online:false, reason} — 왜 못 붙었는지).
+         그래서 여기만 r.ok를 따지지 않고 본문을 살려 쓴다. */
+      const trading$ = fetch("/api/trading", { cache: "no-store" })
         .then((r) => r.json())
-        .then((j: { online: boolean; data?: TradingStatus; reason?: string }) => alive && setTrading(j))
-        .catch(() => alive && setTrading({ online: false, reason: "상태 조회 실패" }));
-
-      fetch("/api/notion?limit=6", { cache: "no-store" })
-        .then((r) => r.json())
-        .then((j: { entries?: LogEntry[] }) => alive && setLog(j.entries ?? []))
-        .catch(() => alive && setLog(null));
-
-      /* 응답이 성공 형태(ok:true)가 아니면 전부 실패로 취급한다 — 환경변수 미설정 시
-         이 API는 {error}만 반환하는데, 그걸 "블로커 0건 성공"으로 오인하면 연동이
-         끊긴 상태에서 "결정 대기 항목 없습니다"라고 안심시키는 최악의 오표시가 된다. */
-      fetch("/api/notion?stats=1", { cache: "no-store" })
-        .then((r) => r.json())
-        .then((j: Partial<TaskStats> & { error?: string }) => {
-          if (!alive) return;
-          setStats(
-            j && (j as { ok?: boolean }).ok === true
-              ? (j as TaskStats)
-              : { ok: false, error: j?.error ?? "응답 형식 오류" }
-          );
+        .then((j: { online: boolean; data?: TradingStatus; reason?: string }) => {
+          if (alive) setTrading(j);
+          return true;
         })
-        .catch(() => alive && setStats({ ok: false, error: "조회 실패" }));
+        .catch(() => {
+          if (alive) setTrading({ online: false, reason: "상태 조회 실패" });
+          return false;
+        });
 
-      if (alive) setSyncedAt(new Date());
+      const log$ = asJson("/api/notion?limit=6")
+        .then((j: { entries?: LogEntry[] }) => {
+          if (alive) setLog(Array.isArray(j?.entries) ? j.entries : null);
+          return true;
+        })
+        .catch(() => {
+          if (alive) setLog(null);
+          return false;
+        });
+
+      /* 성공 형태(ok:true)가 아니면 전부 실패로 취급 — 환경변수 미설정 시 이 API는
+         {error}만 반환하는데, 그걸 "블로커 0건 성공"으로 오인하면 연동이 끊긴 상태에서
+         "결정 대기 항목 없습니다"라고 안심시키는 최악의 오표시가 된다. */
+      const stats$ = asJson("/api/notion?stats=1")
+        .then((j: Partial<TaskStats> & { error?: string }) => {
+          if (!alive) return false;
+          const ok = j && (j as { ok?: boolean }).ok === true;
+          setStats(ok ? (j as TaskStats) : { ok: false, error: j?.error ?? "응답 형식 오류" });
+          return ok;
+        })
+        .catch(() => {
+          if (alive) setStats({ ok: false, error: "조회 실패" });
+          return false;
+        });
+
+      /* "몇 시 기준"은 실제로 뭔가 받아온 뒤에만 갱신한다. 요청 직후에 찍으면 전부
+         실패해도 시각만 최신으로 올라가 낡은 화면을 최신으로 오독하게 된다.
+         (allSettled는 .catch로 삼킨 실패까지 fulfilled로 세므로 성공 여부를 값으로
+         돌려받아 직접 확인한다.) */
+      Promise.all([trading$, log$, stats$]).then((results) => {
+        if (alive && results.some(Boolean)) setSyncedAt(new Date());
+      });
     };
 
     load();
@@ -154,14 +178,18 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
             <div style={{ fontSize: "12px", color: "#b45309", marginTop: "10px", lineHeight: 1.5 }}>
               미결 사항을 불러오지 못했습니다 ({stats.error})
             </div>
+          ) : stats.blockersGated ? (
+            <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "10px", lineHeight: 1.5 }}>
+              미결 항목은 잠금해제 후 표시됩니다. 진행 {stats.inProgress}건 · 미진행 {stats.notStarted}건.
+            </div>
           ) : blockers.length === 0 ? (
             <div style={{ fontSize: "12px", color: "#64748b", marginTop: "10px", lineHeight: 1.5, fontFamily: "inherit" }}>
               지금 대표님 결정을 기다리는 항목은 없습니다. 진행 {stats.inProgress}건 · 미진행 {stats.notStarted}건은 팀이 처리 중입니다.
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "10px" }}>
-              {blockers.slice(0, 3).map((b) => (
-                <div key={b.id || b.title} style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
+              {blockers.slice(0, 3).map((b, i) => (
+                <div key={b.id || b.title || i} style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
                   <span style={{ fontSize: "10px", fontWeight: 700, color: "#dc2626", background: "#fee2e2", padding: "2px 8px", borderRadius: "999px" }}>
                     {b.priority || b.status}
                   </span>
@@ -299,7 +327,7 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "10px" }}>
             {log.map((e) => {
-              const who = agentOf(e.title);
+              const who = resolveStaffKey(e.title);
               return (
                 <a
                   key={e.id}
@@ -316,7 +344,7 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
                           fontSize: "9px",
                           fontWeight: 700,
                           color: "#ffffff",
-                          background: agentColor(who),
+                          background: staffColor(who),
                           padding: "1px 6px",
                           borderRadius: "999px",
                         }}
