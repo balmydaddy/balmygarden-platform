@@ -40,11 +40,75 @@ function trackProp(businessTrack?: string) {
   return { select: { name: businessTrack || "전체" } };
 }
 
-/* GET /api/notion?limit=20 — 최근 Notion 기록 조회 (에이전트 컨텍스트용) */
+/* "BALMYGARDEN — 미결 사항 & Action Items" 페이지 — PM-01 규칙상 실제 업무 상태(Draft/
+   Ready/In Progress/Waiting/Blocked/Review/Approved/Done/Archived)를 갖는 유일한 표가
+   "1. CEO 요청사항" 표다(다른 카테고리 표엔 이 의미의 Status 컬럼이 없음) — 그 표만
+   집계한다. 페이지 구조가 바뀌면(표 위치·헤더명) 파싱이 실패할 수 있어, 실패 시 숫자를
+   지어내지 않고 ok:false로 알린다. */
+const BACKLOG_PAGE_ID = "393987a25d6181058168d54da40a5d77";
+
+type NotionBlock = { id: string; type: string; [k: string]: unknown };
+
+async function listChildren(blockId: string): Promise<NotionBlock[]> {
+  const out: NotionBlock[] = [];
+  let cursor: string | undefined;
+  do {
+    const res = await notion.blocks.children.list({ block_id: blockId, start_cursor: cursor, page_size: 100 });
+    out.push(...(res.results as unknown as NotionBlock[]));
+    cursor = res.has_more ? (res.next_cursor ?? undefined) : undefined;
+  } while (cursor);
+  return out;
+}
+
+function blockPlainText(block: NotionBlock): string {
+  const t = block.type as string;
+  const body = block[t] as { rich_text?: { plain_text: string }[] } | undefined;
+  return (body?.rich_text ?? []).map((r) => r.plain_text).join("");
+}
+
+async function fetchTaskStatusCounts(): Promise<{ ok: true; total: number; done: number; inProgress: number; notStarted: number } | { ok: false; error: string }> {
+  try {
+    const top = await listChildren(BACKLOG_PAGE_ID);
+    const startIdx = top.findIndex((b) => blockPlainText(b).includes("CEO 요청사항"));
+    if (startIdx === -1) return { ok: false, error: "CEO 요청사항 섹션을 찾을 수 없음" };
+    const nextHeadingIdx = top.findIndex(
+      (b, i) => i > startIdx && /^heading_/.test(b.type) && blockPlainText(b).trim().length > 0
+    );
+    const section = top.slice(startIdx + 1, nextHeadingIdx === -1 ? undefined : nextHeadingIdx);
+    const table = section.find((b) => b.type === "table");
+    if (!table) return { ok: false, error: "CEO 요청사항 표를 찾을 수 없음" };
+
+    const rows = (await listChildren(table.id)).filter((b) => b.type === "table_row") as (NotionBlock & {
+      table_row: { cells: { plain_text: string }[][] };
+    })[];
+    if (rows.length < 2) return { ok: false, error: "표 행이 비어있음" };
+
+    const header = rows[0].table_row.cells.map((c) => c.map((t) => t.plain_text).join(""));
+    const statusCol = header.findIndex((h) => h.includes("상태"));
+    if (statusCol === -1) return { ok: false, error: "상태 컬럼을 찾을 수 없음" };
+
+    const statuses = rows.slice(1).map((r) => (r.table_row.cells[statusCol] ?? []).map((t) => t.plain_text).join("").trim());
+    const total = statuses.length;
+    const done = statuses.filter((s) => s === "Done" || s === "Archived").length;
+    const inProgress = statuses.filter((s) => s === "In Progress" || s === "Review").length;
+    const notStarted = total - done - inProgress;
+    return { ok: true, total, done, inProgress, notStarted };
+  } catch (e: unknown) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/* GET /api/notion?limit=20 — 최근 Notion 기록 조회 (에이전트 컨텍스트용)
+   GET /api/notion?stats=1 — "미결 사항" 페이지 CEO 요청사항 표에서 실제 업무 상태 집계 */
 export async function GET(req: NextRequest) {
   if (!process.env.NOTION_API_KEY) {
     return NextResponse.json({ error: "env 미설정" }, { status: 500 });
   }
+  if (req.nextUrl.searchParams.get("stats") === "1") {
+    const counts = await fetchTaskStatusCounts();
+    return NextResponse.json(counts);
+  }
+
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") ?? "20"), 50);
   try {
     const dataSourceId = await resolveDataSourceId();

@@ -3,6 +3,7 @@
 import { useState, useEffect, type CSSProperties } from "react";
 import { Bricolage_Grotesque } from "next/font/google";
 import { STAFF } from "./office";
+import OfficeTab from "./OfficeTab";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["500", "700", "800"] });
 
@@ -14,6 +15,10 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["500", "700",
 type Portfolio = { total_asset?: number; total_pnl?: number };
 type TradingStatus = { portfolio?: Portfolio; updated?: string };
 type LogEntry = { id: string; url: string; title: string; type: string; date: string };
+type TaskStats =
+  | { ok: true; total: number; done: number; inProgress: number; notStarted: number }
+  | { ok: false; error: string }
+  | null;
 
 /* 4트랙 현황 — Notion "BALMYGARDEN — 미결 사항" Executive Summary와 동일하게 유지한다.
    그 페이지가 갱신되면 이 상수도 같이 업데이트할 것(자동 연동 아님, STAFF/ZONES와 동일한
@@ -47,6 +52,7 @@ const fmtWon = (n: number | undefined) => `${Math.round(n || 0).toLocaleString("
 export default function HomeTab({ isMobile }: { isMobile: boolean }) {
   const [trading, setTrading] = useState<{ online: boolean; data?: TradingStatus }>({ online: false });
   const [log, setLog] = useState<LogEntry[]>([]);
+  const [stats, setStats] = useState<TaskStats>(null);
 
   useEffect(() => {
     let alive = true;
@@ -58,6 +64,10 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
       .then((r) => r.json())
       .then((j: { entries?: LogEntry[] }) => alive && setLog(j.entries ?? []))
       .catch(() => {});
+    fetch("/api/notion?stats=1", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j: TaskStats) => alive && setStats(j))
+      .catch(() => alive && setStats({ ok: false, error: "요청 실패" }));
     return () => {
       alive = false;
     };
@@ -129,20 +139,30 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
 
         {/* 최근 업무 로그 (실데이터, Notion) */}
         <div style={{ ...card(), gridColumn: isMobile ? "auto" : "span 3", gridRow: isMobile ? "auto" : "span 2" }}>
-          <div style={label}>업무 로그</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={label}>업무 로그</div>
+            <div style={{ fontSize: "9px", color: "#c4b5fd", fontWeight: 700 }}>NOTION</div>
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "14px" }}>
             {log.length === 0 ? (
               <div style={{ fontSize: "12px", color: "#94a3b8" }}>최근 기록 없음</div>
             ) : (
               log.map((e) => (
-                <div key={e.id}>
+                <a
+                  key={e.id}
+                  href={e.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ display: "block", textDecoration: "none" }}
+                  title="Notion에서 열기"
+                >
                   <div style={{ fontSize: "10px", color: "#94a3b8", fontFamily: "monospace" }}>
                     {e.date ? new Date(e.date).toLocaleDateString("ko-KR", { month: "2-digit", day: "2-digit" }) : ""}
                   </div>
                   <div style={{ fontSize: "12.5px", marginTop: "3px", lineHeight: 1.5, color: "#334155", fontFamily: "inherit" }}>
                     {e.title}
                   </div>
-                </div>
+                </a>
               ))
             )}
           </div>
@@ -195,6 +215,27 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
           </div>
         </div>
 
+        {/* 업무 현황 수치 — Notion "미결 사항" 페이지 CEO 요청사항 표의 실제 Status 집계 */}
+        {stats?.ok === false ? (
+          <div style={{ ...card(), gridColumn: isMobile ? "auto" : "span 12", fontSize: "12px", color: "#94a3b8" }}>
+            업무 현황 집계 불가 ({stats.error}) — Notion 페이지 구조 확인 필요
+          </div>
+        ) : (
+          [
+            { name: "총 업무량", value: stats?.ok ? stats.total : undefined, color: "#1e293b" },
+            { name: "완료", value: stats?.ok ? stats.done : undefined, color: "#16a34a" },
+            { name: "진행중", value: stats?.ok ? stats.inProgress : undefined, color: "#f59e0b" },
+            { name: "미진행", value: stats?.ok ? stats.notStarted : undefined, color: "#94a3b8" },
+          ].map((s) => (
+            <div key={s.name} style={{ ...card(), gridColumn: isMobile ? "auto" : "span 3", textAlign: "center" }}>
+              <div style={label}>{s.name}</div>
+              <div style={{ fontSize: "30px", fontWeight: 800, marginTop: "8px", color: s.color }}>
+                {s.value === undefined ? "–" : s.value}
+              </div>
+            </div>
+          ))
+        )}
+
         {/* 4트랙 현황 */}
         {TRACK_STATUS.map((t) => (
           <div key={t.name} style={{ ...card(), gridColumn: isMobile ? "auto" : "span 4" }}>
@@ -207,6 +248,14 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
             <div style={{ fontSize: "13px", marginTop: "8px", color: "#334155", fontFamily: "inherit" }}>{t.note}</div>
           </div>
         ))}
+      </div>
+
+      {/* ── 업무화면(오피스뷰) 축소 삽입 — 더 이상 독립 탭이 아니라 홈 하단에 포함된다 ── */}
+      <div style={{ marginTop: "22px" }}>
+        <div style={{ ...label, marginBottom: "10px" }}>업무화면</div>
+        <div style={{ maxWidth: "820px" }}>
+          <OfficeTab isMobile={true} locked={false} />
+        </div>
       </div>
     </div>
   );

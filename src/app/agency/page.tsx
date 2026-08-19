@@ -921,6 +921,11 @@ export default function BALMYGARDENDashboard() {
   useEffect(() => {
     if (!unlocked && tab !== "office") setTab("office");
   }, [unlocked, tab]);
+  // 잠금해제 직후(기본값 "office"에 머물러 있을 때만) 홈 대시보드로 승격 —
+  // "업무화면"은 더 이상 CEO용 독립 탭이 아니라 홈 안에 축소 삽입된다.
+  useEffect(() => {
+    if (unlocked && tab === "office") setTab("dashboard");
+  }, [unlocked, tab]);
   const submitUnlock = useCallback(async () => {
     try {
       const res = await fetch("/api/unlock", {
@@ -1570,14 +1575,16 @@ export default function BALMYGARDENDashboard() {
         {/* 탭 — 모바일에선 가로 스크롤 */}
         <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: isMobile ? "4px" : "0", flexWrap: isMobile ? "nowrap" : "wrap", alignItems: "center" }}>
           {[
-            { id: "home", label: "🏠 홈" },
+            { id: "dashboard", label: "🏠 홈" },
             { id: "office", label: "🏢 업무화면" },
             { id: "projects", label: "🌿 업무" },
             { id: "chat", label: "🎙️ 지시창" },
             { id: "trading", label: "📈 트레이딩" },
             { id: "wiki", label: "📚 위키" },
           ]
-            .filter((t) => unlocked || t.id === "office")
+            /* 잠금 상태(공개 링크)에선 "업무화면" 하나만, 해제 상태(CEO)에선 그걸 뺀 나머지 —
+               업무화면은 이제 CEO 화면에서 "홈" 안에 축소 삽입되어 독립 탭이 아니다. */
+            .filter((t) => (unlocked ? t.id !== "office" : t.id === "office"))
             .map((t) => (
             <button
               key={t.id}
@@ -1735,7 +1742,7 @@ export default function BALMYGARDENDashboard() {
         )}
 
         {/* ══════ OFFICE ══════ */}
-        {tab === "home" && <HomeTab isMobile={isMobile} />}
+        {tab === "dashboard" && <HomeTab isMobile={isMobile} />}
         {tab === "office" && <OfficeTab isMobile={isMobile} locked={!unlocked} />}
 
         {/* ══════ HOME ══════ */}
