@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
-import { ZONES, STAFF, ERRANDS, MEETINGS, seatIn, type ZoneId, type Staff } from "./office";
+import { ZONES, STAFF, MEETINGS, seatIn, type ZoneId, type Staff } from "./office";
 import { MEMORY } from "./memory";
 
 /* ══════════════════════════════════════════════════
@@ -25,9 +25,40 @@ type LogLine = { id: number; t: string; who: string; color: string; text: string
 type ChatMsg = { role: "user" | "agent"; text: string; t: string };
 type Threads = Record<string, ChatMsg[]>;
 
-const TICK_MS = 4000;
+const POLL_MS = 20000;
+const RETURN_DELAY_MS = 7000;
 const MAX_LOG = 40;
 const THREADS_KEY = "balmygarden_office_threads_v1";
+
+/* Notion 로그 제목("[소스] 제목")에서 실제 담당자 key를 추론한다.
+   형식이 케이스마다 다르다 — 대괄호 소스(PHANTOM 등), "(NAME)" 접미사
+   (블로그팀 INK/CHECK/CHIEF/AEGIS), "NAME — 일일 업무"(dailyStaff),
+   그 외엔 제목 안에 어떤 STAFF key든 등장하는지로 최후 폴백. */
+function resolveStaffKey(title: string): string | undefined {
+  const bracket = title.match(/^\[([^\]]+)\]/)?.[1];
+  if (bracket && STAFF.some((s) => s.key === bracket)) return bracket;
+  const paren = title.match(/\(([A-Z]+)\)\s*$/)?.[1];
+  if (paren && STAFF.some((s) => s.key === paren)) return paren;
+  const dash = title.match(/^([A-Z]+)\s*—/)?.[1];
+  if (dash && STAFF.some((s) => s.key === dash)) return dash;
+  return STAFF.find((s) => title.includes(s.key))?.key;
+}
+
+const stripSource = (title: string) => title.replace(/^\[[^\]]+\]\s*/, "");
+
+/* 실제 로그 제목 키워드로 자연스러운 말풍선 한 줄을 고른다 — 실제 내용
+   전문을 다 보여주는 대신, 어떤 단계 업무인지만 짧게 티 낸다. */
+function bubbleFor(title: string): string {
+  if (title.includes("초안")) return "초안 작성했어요";
+  if (title.includes("법무") || title.includes("AEGIS")) return "법무 확인했어요";
+  if (title.includes("발행")) return "발행 완료했어요";
+  if (title.includes("검토") && (title.includes("최종") || title.includes("승인"))) return "검토 결과 전달";
+  if (title.includes("검토")) return "검토했습니다";
+  if (title.includes("일일 업무")) return "오늘 업무 보고드려요";
+  if (title.includes("논의") || title.includes("PRP")) return "의견 냈습니다";
+  if (title.includes("독려") || title.includes("진행")) return "진행상황 확인했어요";
+  return "업무 완료했습니다";
+}
 
 /* 담당자 홈존 → Notion Track. 사업별 보드와 값이 일치해야 한다. */
 const ZONE_TRACK: Partial<Record<ZoneId, string>> = {
@@ -225,11 +256,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
   const [meeting, setMeeting] = useState<string | null>(null);
   const [running, setRunning] = useState(true);
   const logId = useRef(0);
-  const tick = useRef(0);
-  const agentsRef = useRef<Agent[]>(agents);
-  useEffect(() => {
-    agentsRef.current = agents;
-  }, [agents]);
+  const lastSeenRef = useRef<string>("");
 
   useEffect(() => {
     setThreads(loadThreads());
@@ -257,74 +284,126 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
     });
   }, []);
 
-  /* ── 자동 업무 루프 ── */
-  useEffect(() => {
-    if (!running) return;
-    const id = setInterval(() => {
-      if (document.hidden) return;
-      tick.current += 1;
+  /* ── 실제 업무 연동 ── 랜덤 시뮬레이션 대신, 서버에서 실제로 일어난 업무
+     (cron 일일 배치의 save_log 기록 — SCOUT/블로그팀/PHANTOM/dailyStaff 등)를
+     Notion에서 폴링해 그게 있을 때만 담당자를 움직인다. 아무 일도 없으면
+     화면도 조용하다 — 그게 맞다(CEO 지시 2026-08-19). */
+  const logRealEntry = useCallback(
+    (e: { title: string }) => {
+      const key = resolveStaffKey(e.title);
+      const staff = STAFF.find((s) => s.key === key);
+      addLog(key ?? e.title.match(/^\[([^\]]+)\]/)?.[1] ?? "업무", staff?.color ?? "#94a3b8", stripSource(e.title));
+    },
+    [addLog]
+  );
 
-      if (tick.current % 6 === 0) {
-        const m = MEETINGS[Math.floor(Math.random() * MEETINGS.length)];
+  const animateRealEvent = useCallback(
+    (e: { title: string }) => {
+      logRealEntry(e);
+
+      /* 3일 주기 PRP 시스템 논의는 실제로 여러 명이 동시에 참여하는
+         병렬 이벤트다 — 그때만 회의실 애니메이션을 쓴다. */
+      if (e.title.includes("게임 시스템 논의")) {
+        const m = MEETINGS.find((mm) => mm.title.startsWith("게임 시스템 논의"));
+        if (!m) return;
         setMeeting(m.title);
-        addLog("회의실", "#f59e0b", `${m.title} 소집 — ${m.members.join(", ")}`);
         setAgents((prev) =>
           placeAll(
             prev.map((a) =>
               m.members.includes(a.staff.key)
-                ? { ...a, at: "meeting" as ZoneId, activity: "회의", task: m.title, say: m.title }
+                ? { ...a, at: "meeting" as ZoneId, activity: "회의", task: stripSource(e.title), say: "실제 논의 중" }
                 : a
             )
           )
         );
-        return;
-      }
-
-      if (tick.current % 6 === 1 && meeting) {
-        addLog("회의실", "#f59e0b", `${meeting} 종료 — 각자 복귀`);
-        setMeeting(null);
-        setAgents((prev) =>
-          placeAll(
-            prev.map((a) =>
-              a.activity === "회의"
-                ? { ...a, at: a.staff.home, activity: "대기", task: "", say: "" }
-                : a
+        setTimeout(() => {
+          setMeeting(null);
+          setAgents((prev) =>
+            placeAll(
+              prev.map((a) =>
+                a.activity === "회의"
+                  ? { ...a, at: a.staff.home, activity: "대기", task: "", say: "" }
+                  : a
+              )
             )
-          )
-        );
+          );
+        }, RETURN_DELAY_MS);
         return;
       }
 
-      /* 평시: 제자리 배정은 걸러낸다 — 움직이지 않으면 화면에 아무 일도 안 보인다. */
-      const cur = agentsRef.current;
-      const movable = ERRANDS.filter((e) => {
-        const a = cur.find((x) => x.staff.key === e.staff);
-        return a && a.activity !== "회의" && a.at !== e.to;
-      });
-      if (movable.length === 0) return;
-      const errand = movable[Math.floor(Math.random() * movable.length)];
-      const target = cur.find((a) => a.staff.key === errand.staff)!;
-
-      addLog(
-        errand.staff,
-        target.staff.color,
-        `${errand.task} → ${ZONES.find((z) => z.id === errand.to)!.name}`
-      );
-
+      const key = resolveStaffKey(e.title);
+      if (!key) return;
       setAgents((prev) =>
         placeAll(
           prev.map((a) =>
-            a.staff.key === errand.staff
-              ? { ...a, at: errand.to, activity: "이동", task: errand.task, say: errand.say }
-              : a.activity === "이동"
-                ? { ...a, at: a.staff.home, activity: "대기", task: "", say: "" }
-                : a
+            a.staff.key === key
+              ? { ...a, at: "conductor" as ZoneId, activity: "업무", task: stripSource(e.title), say: bubbleFor(e.title) }
+              : a
           )
         )
       );
-    }, TICK_MS);
-    return () => clearInterval(id);
-  }, [running, meeting, addLog, placeAll]);
+      setTimeout(() => {
+        setAgents((prev) =>
+          placeAll(
+            prev.map((a) =>
+              a.staff.key === key && a.at === "conductor"
+                ? { ...a, at: a.staff.home, activity: "대기", task: "", say: "" }
+                : a
+            )
+          )
+        );
+      }, RETURN_DELAY_MS);
+    },
+    [logRealEntry, placeAll]
+  );
+
+  useEffect(() => {
+    if (!running) return;
+    let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+
+    async function fetchLogEntries() {
+      const res = await fetch("/api/notion?limit=15", { cache: "no-store" });
+      const data = (await res.json()) as { entries?: { title: string; type: string; date: string }[] };
+      /* Type "로그" = cron의 save_log 기록만 대상 — "[대화]"(CEO 지시창)는
+         이미 send()에서 실시간으로 애니메이션 처리되므로 중복 방지 위해 제외. */
+      return (data.entries ?? []).filter((e) => e.type === "로그" && e.date);
+    }
+
+    async function seedThenPoll() {
+      try {
+        const entries = await fetchLogEntries();
+        if (cancelled) return;
+        if (entries.length > 0) {
+          [...entries].reverse().forEach(logRealEntry); // 과거 이력은 조용히 로그에만(애니메이션 없음)
+          lastSeenRef.current = entries[0].date;
+        } else {
+          lastSeenRef.current = new Date().toISOString();
+        }
+      } catch {
+        if (!cancelled) lastSeenRef.current = new Date().toISOString();
+      }
+
+      intervalId = setInterval(async () => {
+        if (cancelled || document.hidden) return;
+        try {
+          const entries = await fetchLogEntries();
+          const fresh = entries.filter((e) => e.date > lastSeenRef.current).reverse(); // 오래된 순
+          if (fresh.length === 0) return;
+          lastSeenRef.current = entries[0].date;
+          fresh.forEach((e, i) => setTimeout(() => animateRealEvent(e), i * 3500));
+        } catch {
+          /* 폴링 실패는 조용히 다음 주기에 재시도 */
+        }
+      }, POLL_MS);
+    }
+
+    seedThenPoll();
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [running, logRealEntry, animateRealEvent]);
 
   /* ── 지시 전송 ── */
   const send = async () => {
