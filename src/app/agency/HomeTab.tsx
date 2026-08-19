@@ -18,6 +18,30 @@ type Portfolio = { total_asset?: number; cash?: number; eval_total?: number; tot
 type Signal = { symbol: string; action: "BUY" | "SELL" | "HOLD"; price?: string };
 type TradingStatus = { portfolio?: Portfolio; signals?: Signal[]; updated?: string };
 type LogEntry = { id: string; url: string; title: string; type: string; date: string };
+type Blocker = { id: string; title: string; priority: string; status: string; owner: string };
+type TaskStats =
+  | { ok: true; total: number; done: number; inProgress: number; notStarted: number; blockers: Blocker[] }
+  | { ok: false; error: string };
+
+/* 상시 가동 시스템의 대시보드는 "언제 기준 화면인가"가 보여야 한다 —
+   열어둔 채 방치하면 낡은 숫자를 현재로 오독하게 된다. */
+const POLL_MS = 60_000;
+
+/* Notion 로그 제목에서 담당자를 뽑는다. cron이 남기는 제목 형태가 몇 가지다:
+   "[PHANTOM] LOD 진행 확인", "[음악팀] 블로그 초안 (INK)", "ZERO — 일일 업무".
+   못 찾으면 표시를 생략한다(추측해서 잘못된 담당자를 붙이지 않는다). */
+function agentOf(title: string): string | undefined {
+  const bracket = title.match(/^\[([^\]]+)\]/)?.[1];
+  if (bracket && STAFF.some((s) => s.key === bracket)) return bracket;
+  const paren = title.match(/\(([A-Z]+)\)\s*$/)?.[1];
+  if (paren && STAFF.some((s) => s.key === paren)) return paren;
+  const dash = title.match(/^([A-Z]+)\s*—/)?.[1];
+  if (dash && STAFF.some((s) => s.key === dash)) return dash;
+  return STAFF.find((s) => title.includes(s.key))?.key;
+}
+
+const agentColor = (key: string | undefined) =>
+  key ? (STAFF.find((s) => s.key === key)?.wear ?? "#94a3b8") : "#94a3b8";
 
 const card = (): CSSProperties => ({
   background: "#ffffff",
@@ -44,20 +68,51 @@ const ACTION_STYLE: Record<Signal["action"], { bg: string; fg: string }> = {
 
 export default function HomeTab({ isMobile }: { isMobile: boolean }) {
   const [trading, setTrading] = useState<{ online: boolean; data?: TradingStatus; reason?: string }>({ online: false });
-  const [log, setLog] = useState<LogEntry[]>([]);
+  const [log, setLog] = useState<LogEntry[] | null>(null); // null = 아직 못 불러옴(실패/로딩), [] = 진짜 없음
+  const [stats, setStats] = useState<TaskStats | null>(null);
+  const [syncedAt, setSyncedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/trading", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j: { online: boolean; data?: TradingStatus; reason?: string }) => alive && setTrading(j))
-      .catch(() => {});
-    fetch("/api/notion?limit=6", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j: { entries?: LogEntry[] }) => alive && setLog(j.entries ?? []))
-      .catch(() => {});
+
+    /* 실패와 "데이터 없음"을 화면에서 구분해야 한다 — 예전엔 둘 다 "최근 기록 없음"으로
+       보여서 연동이 끊긴 걸 알 방법이 없었다. 실패 시 상태를 null로 되돌려 구분한다. */
+    const load = () => {
+      fetch("/api/trading", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((j: { online: boolean; data?: TradingStatus; reason?: string }) => alive && setTrading(j))
+        .catch(() => alive && setTrading({ online: false, reason: "상태 조회 실패" }));
+
+      fetch("/api/notion?limit=6", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((j: { entries?: LogEntry[] }) => alive && setLog(j.entries ?? []))
+        .catch(() => alive && setLog(null));
+
+      /* 응답이 성공 형태(ok:true)가 아니면 전부 실패로 취급한다 — 환경변수 미설정 시
+         이 API는 {error}만 반환하는데, 그걸 "블로커 0건 성공"으로 오인하면 연동이
+         끊긴 상태에서 "결정 대기 항목 없습니다"라고 안심시키는 최악의 오표시가 된다. */
+      fetch("/api/notion?stats=1", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((j: Partial<TaskStats> & { error?: string }) => {
+          if (!alive) return;
+          setStats(
+            j && (j as { ok?: boolean }).ok === true
+              ? (j as TaskStats)
+              : { ok: false, error: j?.error ?? "응답 형식 오류" }
+          );
+        })
+        .catch(() => alive && setStats({ ok: false, error: "조회 실패" }));
+
+      if (alive) setSyncedAt(new Date());
+    };
+
+    load();
+    const id = setInterval(() => {
+      if (!document.hidden) load(); // 탭이 안 보일 때까지 계속 때리지 않는다
+    }, POLL_MS);
     return () => {
       alive = false;
+      clearInterval(id);
     };
   }, []);
 
@@ -65,16 +120,25 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
   const pnl = p.total_pnl ?? 0;
   const signals = (trading.data?.signals ?? []).slice(0, 6);
   const roster = STAFF.slice(0, 8);
+  const blockers = stats?.ok ? stats.blockers : [];
+  const todayCount = (log ?? []).filter(
+    (e) => e.date && new Date(e.date).toDateString() === new Date().toDateString()
+  ).length;
 
   return (
     <div className={display.className}>
       {/* ── 압축 상단 — 인사 + CEO 결정 대기 + 팀, 한 줄에 묶어 세로 공간을 아낀다 ── */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0,1.6fr) minmax(0,1fr)", gap: "12px", marginBottom: "14px" }}>
+        {/* CEO 개입 대기 항목은 Notion 미결 사항에서 실시간으로 가져온다. 하드코딩하면
+            해소된 뒤에도 계속 붉게 남고 새 P0가 생겨도 안 뜬다 — 붉은 표시를 습관적으로
+            무시하게 만드는 원인이라, 0건이면 조용한 상태로 바뀌게 했다. */}
         <div
           style={{
             ...card(),
-            background: "linear-gradient(135deg, #fef2f2 0%, #ffffff 55%)",
-            borderColor: "#fecaca",
+            background: blockers.length
+              ? "linear-gradient(135deg, #fef2f2 0%, #ffffff 55%)"
+              : "#ffffff",
+            borderColor: blockers.length ? "#fecaca" : "#e2e8f0",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -83,15 +147,33 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
           <div style={{ fontSize: isMobile ? "17px" : "19px", fontWeight: 700, color: "#1e293b" }}>
             안녕하세요, 김태을 대표님
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
-            <span style={{ fontSize: "10px", fontWeight: 700, color: "#dc2626", background: "#fee2e2", padding: "2px 8px", borderRadius: "999px" }}>
-              CEO 결정 대기
-            </span>
-            <span style={{ fontSize: "13px", fontWeight: 700, color: "#1e293b" }}>Bridge v0.1 P-13 재독</span>
-          </div>
-          <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px", lineHeight: 1.5, fontFamily: "inherit" }}>
-            GOSARI EP 전체가 이 한 건에 멈춰 있습니다 — 재독 후 결과만 알려주시면 이어서 진행합니다.
-          </div>
+
+          {stats === null ? (
+            <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "10px" }}>미결 사항 확인 중…</div>
+          ) : stats.ok === false ? (
+            <div style={{ fontSize: "12px", color: "#b45309", marginTop: "10px", lineHeight: 1.5 }}>
+              미결 사항을 불러오지 못했습니다 ({stats.error})
+            </div>
+          ) : blockers.length === 0 ? (
+            <div style={{ fontSize: "12px", color: "#64748b", marginTop: "10px", lineHeight: 1.5, fontFamily: "inherit" }}>
+              지금 대표님 결정을 기다리는 항목은 없습니다. 진행 {stats.inProgress}건 · 미진행 {stats.notStarted}건은 팀이 처리 중입니다.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "10px" }}>
+              {blockers.slice(0, 3).map((b) => (
+                <div key={b.id || b.title} style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: "10px", fontWeight: 700, color: "#dc2626", background: "#fee2e2", padding: "2px 8px", borderRadius: "999px" }}>
+                    {b.priority || b.status}
+                  </span>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: "#1e293b" }}>{b.title}</span>
+                  {b.owner && <span style={{ fontSize: "11px", color: "#94a3b8" }}>{b.owner}</span>}
+                </div>
+              ))}
+              {blockers.length > 3 && (
+                <div style={{ fontSize: "11px", color: "#94a3b8" }}>외 {blockers.length - 3}건</div>
+              )}
+            </div>
+          )}
         </div>
 
         <div style={card()}>
@@ -191,29 +273,65 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
 
       {/* ── 업무 로그 ── */}
       <div style={{ ...card(), marginBottom: "26px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-          <div style={label}>업무 로그</div>
-          <div style={{ fontSize: "9px", color: "#c4b5fd", fontWeight: 700 }}>NOTION</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "6px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+            <div style={label}>업무 로그</div>
+            {/* 자율 실행 시스템은 "오늘 뭐가 돌았나"가 한 줄로 보여야 한다 */}
+            {log !== null && (
+              <div style={{ fontSize: "11px", color: "#64748b" }}>
+                오늘 {todayCount}건 자동 실행
+              </div>
+            )}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {syncedAt && (
+              <span style={{ fontSize: "10px", color: "#94a3b8", fontFamily: "monospace" }}>
+                {syncedAt.toLocaleTimeString("ko-KR", { hour12: false })} 기준
+              </span>
+            )}
+            <span style={{ fontSize: "9px", color: "#c4b5fd", fontWeight: 700 }}>NOTION</span>
+          </div>
         </div>
-        {log.length === 0 ? (
+        {log === null ? (
+          <div style={{ fontSize: "12px", color: "#b45309" }}>불러오기 실패 — Notion 연동 확인 필요</div>
+        ) : log.length === 0 ? (
           <div style={{ fontSize: "12px", color: "#94a3b8" }}>최근 기록 없음</div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "10px" }}>
-            {log.map((e) => (
-              <a
-                key={e.id}
-                href={e.url}
-                target="_blank"
-                rel="noreferrer"
-                title="Notion에서 열기"
-                style={{ display: "block", textDecoration: "none", padding: "10px 12px", background: "#f8fafc", borderRadius: "10px" }}
-              >
-                <div style={{ fontSize: "10px", color: "#94a3b8", fontFamily: "monospace" }}>
-                  {e.date ? new Date(e.date).toLocaleDateString("ko-KR", { month: "2-digit", day: "2-digit" }) : ""}
-                </div>
-                <div style={{ fontSize: "12px", marginTop: "3px", lineHeight: 1.45, color: "#334155", fontFamily: "inherit" }}>{e.title}</div>
-              </a>
-            ))}
+            {log.map((e) => {
+              const who = agentOf(e.title);
+              return (
+                <a
+                  key={e.id}
+                  href={e.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Notion에서 열기"
+                  style={{ display: "block", textDecoration: "none", padding: "10px 12px", background: "#f8fafc", borderRadius: "10px" }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    {who && (
+                      <span
+                        style={{
+                          fontSize: "9px",
+                          fontWeight: 700,
+                          color: "#ffffff",
+                          background: agentColor(who),
+                          padding: "1px 6px",
+                          borderRadius: "999px",
+                        }}
+                      >
+                        {who}
+                      </span>
+                    )}
+                    <span style={{ fontSize: "10px", color: "#94a3b8", fontFamily: "monospace" }}>
+                      {e.date ? new Date(e.date).toLocaleDateString("ko-KR", { month: "2-digit", day: "2-digit" }) : ""}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "12px", marginTop: "5px", lineHeight: 1.45, color: "#334155", fontFamily: "inherit" }}>{e.title}</div>
+                </a>
+              );
+            })}
           </div>
         )}
       </div>

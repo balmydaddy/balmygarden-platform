@@ -66,7 +66,16 @@ function blockPlainText(block: NotionBlock): string {
   return (body?.rich_text ?? []).map((r) => r.plain_text).join("");
 }
 
-async function fetchTaskStatusCounts(): Promise<{ ok: true; total: number; done: number; inProgress: number; notStarted: number } | { ok: false; error: string }> {
+/* CEO 개입이 실제로 필요한 항목 — 예외 기반 감독(management by exception) 원칙상
+   화면의 붉은 카드는 "지금 진짜 막혀 있는 것"일 때만 떠야 한다. 0건이면 카드를
+   비워서 CEO가 붉은 표시를 습관적으로 무시하게 되는 것을 막는다. */
+type Blocker = { id: string; title: string; priority: string; status: string; owner: string };
+
+type TaskStats =
+  | { ok: true; total: number; done: number; inProgress: number; notStarted: number; blockers: Blocker[] }
+  | { ok: false; error: string };
+
+async function fetchTaskStatusCounts(): Promise<TaskStats> {
   try {
     const top = await listChildren(BACKLOG_PAGE_ID);
     const startIdx = top.findIndex((b) => blockPlainText(b).includes("CEO 요청사항"));
@@ -83,16 +92,43 @@ async function fetchTaskStatusCounts(): Promise<{ ok: true; total: number; done:
     })[];
     if (rows.length < 2) return { ok: false, error: "표 행이 비어있음" };
 
+    const cellText = (row: (typeof rows)[number], col: number) =>
+      (row.table_row.cells[col] ?? []).map((t) => t.plain_text).join("").trim();
+
     const header = rows[0].table_row.cells.map((c) => c.map((t) => t.plain_text).join(""));
     const statusCol = header.findIndex((h) => h.includes("상태"));
     if (statusCol === -1) return { ok: false, error: "상태 컬럼을 찾을 수 없음" };
+    /* 나머지 컬럼은 없어도 집계는 가능하므로 실패시키지 않고 빈 문자열로 흘린다. */
+    const idCol = header.findIndex((h) => h.trim() === "ID");
+    const titleCol = header.findIndex((h) => h.includes("요청"));
+    const prioCol = header.findIndex((h) => h.includes("우선순위"));
+    const ownerCol = header.findIndex((h) => h.includes("담당"));
 
-    const statuses = rows.slice(1).map((r) => (r.table_row.cells[statusCol] ?? []).map((t) => t.plain_text).join("").trim());
+    const body = rows.slice(1);
+    const statuses = body.map((r) => cellText(r, statusCol));
     const total = statuses.length;
     const done = statuses.filter((s) => s === "Done" || s === "Archived").length;
     const inProgress = statuses.filter((s) => s === "In Progress" || s === "Review").length;
     const notStarted = total - done - inProgress;
-    return { ok: true, total, done, inProgress, notStarted };
+
+    /* Blocked = 명시적으로 막힘, Waiting = 선행 작업 대기. 둘 다 CEO가 풀어야 진행되는
+       상태다. P0는 우선순위상 최상위라 상태와 무관하게 포함(단 완료된 건 제외). */
+    const blockers: Blocker[] = body
+      .filter((r) => {
+        const st = cellText(r, statusCol);
+        if (st === "Done" || st === "Archived") return false;
+        const prio = prioCol === -1 ? "" : cellText(r, prioCol);
+        return st === "Blocked" || prio === "P0";
+      })
+      .map((r) => ({
+        id: idCol === -1 ? "" : cellText(r, idCol),
+        title: titleCol === -1 ? "" : cellText(r, titleCol),
+        priority: prioCol === -1 ? "" : cellText(r, prioCol),
+        status: cellText(r, statusCol),
+        owner: ownerCol === -1 ? "" : cellText(r, ownerCol),
+      }));
+
+    return { ok: true, total, done, inProgress, notStarted, blockers };
   } catch (e: unknown) {
     return { ok: false, error: (e as Error).message };
   }
