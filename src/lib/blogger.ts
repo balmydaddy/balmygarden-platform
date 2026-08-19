@@ -83,16 +83,34 @@ function buildImageUrl(prompt: string): string {
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleaned)}?width=1024&height=576&nologo=true`;
 }
 
-/** "## 소제목" 줄은 <h2>로, 나머지 문단은 <p>로 변환한다(INK의 구조 규칙과 맞춘 렌더링). */
+/**
+ * "## 소제목" 줄은 <h2>로, 나머지 문단은 <p>로 변환한다(INK의 구조 규칙과 맞춘 렌더링).
+ *
+ * 기존엔 태그만 붙이고 스타일이 전혀 없어 Blogger 기본 테마의 좁은 글자·좁은 줄간격을
+ * 그대로 물려받았다 — INK가 문단을 2~3문장으로 짧게 써도, 렌더링 단계에서 그 여백이
+ * 사라져 화면에 글자가 빽빽하게 들어차 보였다(CEO 피드백: "논문 긁어온 느낌", 2026-08-19).
+ * Blogger 테마 CSS를 신뢰할 수 없어 요소마다 인라인 스타일을 직접 지정한다:
+ * ①본문 폭을 640px로 좁혀 한 줄 길이를 모바일 화면비에 맞춤 ②글자 크기·줄간격을
+ * 키워 여백 확보 ③word-break:keep-all로 한글이 단어 중간에서 줄바꿈되는 것을 방지
+ * (모바일 가독성에 특히 영향이 큼).
+ */
 function toHtml(bodyText: string): string {
-  return bodyText
+  const blocks = bodyText
     .split(/\n{2,}/)
     .map((block) => {
       const heading = block.trim().match(/^##\s+(.+)$/);
-      if (heading) return `<h2>${heading[1].trim()}</h2>`;
-      return `<p>${block.replace(/\n/g, "<br/>")}</p>`;
+      if (heading) {
+        return `<h2 style="font-size:21px;line-height:1.45;font-weight:800;margin:40px 0 14px;color:#191919;">${heading[1].trim()}</h2>`;
+      }
+      const html = block.replace(/\n/g, "<br/>");
+      return `<p style="font-size:17px;line-height:1.85;margin:0 0 22px;color:#2b2b2b;">${html}</p>`;
     })
     .join("\n");
+  return (
+    `<div style="max-width:640px;margin:0 auto;word-break:keep-all;overflow-wrap:break-word;` +
+    `font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Segoe UI',Roboto,'Noto Sans KR',sans-serif;">\n` +
+    `${blocks}\n</div>`
+  );
 }
 
 /** 텍스트 초안 → Blogger HTML 포스트로 실제 발행. imagePrompt가 있으면 대표 이미지를 생성해 맨 위에 넣는다. 성공 시 게시글 URL 반환. */
@@ -101,7 +119,7 @@ export async function publishToBlogger(title: string, bodyText: string, imagePro
   const blogId = await getBlogId(accessToken);
   const bodyHtml = toHtml(bodyText);
   const imageHtml = imagePrompt
-    ? `<img src="${buildImageUrl(imagePrompt)}" alt="${title.replace(/"/g, "&quot;")}" style="max-width:100%;border-radius:8px;margin-bottom:16px" />\n`
+    ? `<div style="max-width:640px;margin:0 auto 8px;"><img src="${buildImageUrl(imagePrompt)}" alt="${title.replace(/"/g, "&quot;")}" style="display:block;width:100%;height:auto;border-radius:10px;" /></div>\n`
     : "";
   const html = imageHtml + bodyHtml;
 
