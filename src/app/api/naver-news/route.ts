@@ -173,10 +173,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   try {
-    const { preset, query, display = 10 } = (await req.json()) as {
+    /* save=false면 수집만 하고 Notion에는 안 쓴다. cron이 프리셋 5종을
+       각각 저장하는 바람에 뉴스 브리핑만 하루 5장씩 쌓였다(10일간 59장) —
+       이제 cron이 5종을 모아 한 장으로 저장한다. 기본값은 true라 이 API를
+       단독 호출하던 기존 사용처는 그대로 동작한다. */
+    const { preset, query, display = 10, save = true } = (await req.json()) as {
       preset?: string;
       query?: string;
       display?: number;
+      save?: boolean;
     };
 
     const queries = preset ? SCOUT_PRESETS[preset] : query ? [query] : null;
@@ -201,6 +206,14 @@ export async function POST(req: NextRequest) {
             : "- 신규 기사 없음")
       )
       .join("\n\n");
+
+    if (!save) {
+      return NextResponse.json({
+        saved: false,
+        total: groups.reduce((n, g) => n + g.entries.length, 0),
+        groups,
+      });
+    }
 
     const origin = req.nextUrl.origin;
     const saved = await fetch(`${origin}/api/notion`, {

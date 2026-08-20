@@ -63,6 +63,29 @@ async function callAgent(name: string, role: string, userMessage: string): Promi
   }
 }
 
+/**
+ * 파이프라인 한 번을 Notion 페이지 한 장으로 묶는 누적기.
+ *
+ * 예전엔 초안·1차검토·최종검토·법무검증·발행을 각각 별도 페이지로 저장해서
+ * 하루 17건씩 쌓였다(10일 만에 171건, 그중 SCOUT 뉴스만 59건). 단계별 기록은
+ * 필요하지만 페이지를 나눌 이유는 없다 — 한 장 안에 섹션으로 남긴다.
+ */
+function sectionLog(source: string, title: string, businessTrack?: string) {
+  const parts: string[] = [];
+  return {
+    add(heading: string, body: string) {
+      parts.push(`## ${heading}\n\n${body}`);
+    },
+    get isEmpty() {
+      return parts.length === 0;
+    },
+    async flush() {
+      if (parts.length === 0) return;
+      await saveLog(source, title, parts.join("\n\n---\n\n"), businessTrack);
+    },
+  };
+}
+
 async function saveLog(source: string, title: string, content: string, businessTrack?: string) {
   try {
     await fetch(`${SITE_ORIGIN}/api/notion`, {
@@ -140,7 +163,7 @@ export async function GET(req: NextRequest) {
       const res = await fetch(`${SITE_ORIGIN}/api/naver-news`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...internalHeaders() },
-        body: JSON.stringify({ preset }),
+        body: JSON.stringify({ preset, save: false }),   // 저장은 아래에서 한 번만
       });
       return { preset, status: res.status, body: await res.json() } as ScoutResult;
     })
@@ -150,12 +173,30 @@ export async function GET(req: NextRequest) {
   );
   results.scout = scout;
 
+  /* 프리셋별로 페이지를 따로 만들던 걸 하루 한 장으로 합친다 — 뉴스 브리핑만
+     하루 5장씩 쌓여 로그의 3분의 1을 차지하고 있었다. 내용은 그대로 남는다. */
+  const scoutLog = sectionLog("SCOUT", `뉴스 브리핑 ${today}`, "전체");
+  for (const r of scout) {
+    const body = (r.body?.groups ?? [])
+      .map(
+        (g) =>
+          `**${g.query}**\n` +
+          (g.entries.length
+            ? g.entries.map((e) => `- ${e.title}: ${e.summary}`).join("\n")
+            : "- 신규 기사 없음")
+      )
+      .join("\n\n");
+    if (body) scoutLog.add(r.preset, body);
+  }
+  await scoutLog.flush();
+
   // 2) 블로그팀 파이프라인 — trend 조사 결과 → INK 정리 → CHECK 1차검토 → CHIEF 최종검토
   const trend = scout.find((r) => r.preset === "trend");
   const research = (trend?.body?.groups ?? [])
     .map((g) => `[${g.query}]\n` + g.entries.slice(0, 5).map((e) => `- ${e.title}: ${e.summary}`).join("\n"))
     .join("\n\n");
 
+  const blogLog = sectionLog("블로그팀", `블로그 파이프라인 ${today}`, "블로그팀");
   if (research.trim()) {
     const draft = await callAgent(
       "INK",
@@ -201,7 +242,7 @@ export async function GET(req: NextRequest) {
         `절대 섞어 쓰지 않는다.\n\n[오늘 조사 내용]\n${research}`
     );
     if (draft) {
-      await saveLog("블로그팀", `블로그 초안 ${today} (INK)`, draft, "블로그팀");
+      blogLog.add("초안 (INK)", draft);
 
       const check = await callAgent(
         "CHECK",
@@ -217,7 +258,7 @@ export async function GET(req: NextRequest) {
           `문제없으면 "승인"이라 명확히 밝혀라.\n\n${draft}`
       );
       if (check) {
-        await saveLog("블로그팀", `블로그 1차 검토 ${today} (CHECK)`, check, "블로그팀");
+        blogLog.add("1차 검토 (CHECK)", check);
 
         const chief = await callAgent(
           "CHIEF",
@@ -226,7 +267,7 @@ export async function GET(req: NextRequest) {
             `가능성을 평가하고, 부족한 부분이 있으면 짚어라. 그 후 팀장으로서 게시 여부를 "승인" 또는 ` +
             `"반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n[초안]\n${draft}\n\n[1차 검토]\n${check}`
         );
-        if (chief) await saveLog("블로그팀", `블로그 최종 검토 ${today} (CHIEF)`, chief, "블로그팀");
+        if (chief) blogLog.add("최종 검토 (CHIEF)", chief);
 
         if (chief && chief.includes("승인")) {
           // AEGIS 법무 게이트 — 광고 수익 정책(구글 애드센스·네이버 애드포스트 등) 위반으로
@@ -247,16 +288,16 @@ export async function GET(req: NextRequest) {
               `안 된다). 문제없으면 "통과"라고 명확히 밝히고, 문제가 있으면 "보류"와 구체적 사유를 ` +
               `밝혀라.\n\n${draft}`
           );
-          if (aegis) await saveLog("블로그팀", `블로그 법무 검증 ${today} (AEGIS)`, aegis, "블로그팀");
+          if (aegis) blogLog.add("법무 검증 (AEGIS)", aegis);
 
           if (aegis && aegis.includes("통과")) {
             const { title, imagePrompt, body } = parseDraft(draft);
             try {
               const postUrl = await publishToBlogger(title, body, imagePrompt);
-              await saveLog("블로그팀", `블로그 발행 완료 ${today}`, `${title}\n${postUrl}`, "블로그팀");
+              blogLog.add("발행 완료", `${title}\n${postUrl}`);
               results.blogTeam = { ok: true, published: postUrl };
             } catch (e: unknown) {
-              await saveLog("블로그팀", `블로그 발행 실패 ${today}`, (e as Error).message, "블로그팀");
+              blogLog.add("발행 실패", (e as Error).message);
               results.blogTeam = { ok: false, stage: "발행 실패", error: (e as Error).message };
             }
           } else {
@@ -274,6 +315,7 @@ export async function GET(req: NextRequest) {
   } else {
     results.blogTeam = { ok: false, stage: "트렌드 조사 결과 없음" };
   }
+  await blogLog.flush();
 
   // 2b) 음원 홍보 블로그 — CEO 지시(2026-08-14): BALMYDADDY 음원을 Blogger에 적극 홍보.
   //     담당자 미지정 상태였던 걸 신설 — MUSE(아티스트 정체성·카탈로그 보유)가 소재를 제공하고
@@ -288,7 +330,8 @@ export async function GET(req: NextRequest) {
       `스트리밍 링크가 있다면 그것) ③절대 넣으면 안 되는 과장·미확인 주장(예: 수치화된 성과 주장). ` +
       `MEMORY 컨텍스트에 있는 사실만 근거로 삼아라.`
   );
-  if (museBrief) await saveLog("음악팀", `음원 홍보 소재 ${today} (MUSE)`, museBrief, "음악");
+  const musicLog = sectionLog("음악팀", `음원 홍보 블로그 파이프라인 ${today}`, "음악");
+  if (museBrief) musicLog.add("홍보 소재 (MUSE)", museBrief);
 
   if (museBrief) {
     const musicDraft = await callAgent(
@@ -309,7 +352,7 @@ export async function GET(req: NextRequest) {
         `[오늘의 소재 — MUSE 브리핑]\n${museBrief}`
     );
     if (musicDraft) {
-      await saveLog("음악팀", `블로그(음원홍보) 초안 ${today} (INK)`, musicDraft, "음악");
+      musicLog.add("초안 (INK)", musicDraft);
 
       const musicCheck = await callAgent(
         "CHECK",
@@ -319,7 +362,7 @@ export async function GET(req: NextRequest) {
           `④문체·구조 규칙 준수. 문제없으면 "승인", 아니면 구체적 수정 지시.\n\n${musicDraft}`
       );
       if (musicCheck) {
-        await saveLog("음악팀", `블로그(음원홍보) 1차 검토 ${today} (CHECK)`, musicCheck, "음악");
+        musicLog.add("1차 검토 (CHECK)", musicCheck);
 
         const musicChief = await callAgent(
           "CHIEF",
@@ -328,7 +371,7 @@ export async function GET(req: NextRequest) {
             `가능성을 평가하고, 부족한 부분이 있으면 짚어라. 그 후 팀장으로서 게시 여부를 "승인" 또는 ` +
             `"반려"로 명확히 결정하고 이유를 짧게 남겨라.\n\n[초안]\n${musicDraft}\n\n[1차 검토]\n${musicCheck}`
         );
-        if (musicChief) await saveLog("음악팀", `블로그(음원홍보) 최종 검토 ${today} (CHIEF)`, musicChief, "음악");
+        if (musicChief) musicLog.add("최종 검토 (CHIEF)", musicChief);
 
         if (musicChief && musicChief.includes("승인")) {
           const musicAegis = await callAgent(
@@ -338,16 +381,16 @@ export async function GET(req: NextRequest) {
               `위반 소지 ②미발매 음원을 발매된 것처럼 표현했는지 ③검증 불가한 성과·수치 주장이 있는지 ` +
               `④Scaled Content Abuse ⑤타 채널 중복 게시 여부. 통과면 "통과", 아니면 "보류"+사유.\n\n${musicDraft}`
           );
-          if (musicAegis) await saveLog("음악팀", `블로그(음원홍보) 법무 검증 ${today} (AEGIS)`, musicAegis, "음악");
+          if (musicAegis) musicLog.add("법무 검증 (AEGIS)", musicAegis);
 
           if (musicAegis && musicAegis.includes("통과")) {
             const { title, imagePrompt, body } = parseDraft(musicDraft);
             try {
               const postUrl = await publishToBlogger(title, body, imagePrompt);
-              await saveLog("음악팀", `블로그(음원홍보) 발행 완료 ${today}`, `${title}\n${postUrl}`, "음악");
+              musicLog.add("발행 완료", `${title}\n${postUrl}`);
               results.musicBlog = { ok: true, published: postUrl };
             } catch (e: unknown) {
-              await saveLog("음악팀", `블로그(음원홍보) 발행 실패 ${today}`, (e as Error).message, "음악");
+              musicLog.add("발행 실패", (e as Error).message);
               results.musicBlog = { ok: false, stage: "발행 실패", error: (e as Error).message };
             }
           } else {
@@ -365,6 +408,7 @@ export async function GET(req: NextRequest) {
   } else {
     results.musicBlog = { ok: false, stage: "MUSE 소재 없음" };
   }
+  await musicLog.flush();
 
   // 3) PHANTOM — LOD 실제 개발 진행 확인(GitHub 커밋) + 개발자 독려 + 채용 필요 여부 판단
   //    CEO 지시(2026-08-13): 일일단위 확인·독려, 인력 필요 시 PHANTOM 채용 사전승인.
@@ -394,6 +438,7 @@ export async function GET(req: NextRequest) {
   //    CEO 지시(2026-08-13): PHANTOM·MUSE·NOVA·SCOUT·SAGE 병렬 관점 → ZERO 기술 종합 →
   //    CONDUCTOR 최종 판단·실행. 항상 Notion 기록 + CEO 알림.
   const dayIndex = Math.floor(Date.now() / 86400000);
+  const prpLog = sectionLog("게임 시스템 논의 (PRP)", `3일 주기 시스템 논의 ${today}`, "게임");
   if (dayIndex % 3 === 0) {
     const topic =
       "LOD의 현재 전투·성장 시스템(레벨/장비강화/속성상성 등)은 2007-8년대 모바일게임 설계를 " +
@@ -422,7 +467,7 @@ export async function GET(req: NextRequest) {
       .join("\n\n");
 
     if (panelDigest) {
-      await saveLog("게임 시스템 논의 (PRP)", `3일 주기 시스템 논의 — 병렬 의견 ${today}`, panelDigest, "게임");
+      prpLog.add("병렬 의견 (PRP)", panelDigest);
 
       const zeroSynthesis = await callAgent(
         "ZERO",
@@ -430,7 +475,7 @@ export async function GET(req: NextRequest) {
         `아래는 팀원들이 낸 시스템 개편 아이디어다. 개발 관점에서 기술적으로 실현 가능한 것만 ` +
           `골라 종합하고, 구현 난이도(상/중/하)를 매겨라. 400자 이내.\n\n${panelDigest}`
       );
-      if (zeroSynthesis) await saveLog("게임 시스템 논의 (PRP)", `3일 주기 시스템 논의 — ZERO 기술 종합 ${today}`, zeroSynthesis, "게임");
+      if (zeroSynthesis) prpLog.add("ZERO 기술 종합", zeroSynthesis);
 
       const conductorDecision = await callAgent(
         "CONDUCTOR",
@@ -440,7 +485,7 @@ export async function GET(req: NextRequest) {
           `300자 이내.\n\n[팀 의견]\n${panelDigest}\n\n[ZERO 기술 종합]\n${zeroSynthesis ?? "(실패)"}`
       );
       if (conductorDecision) {
-        await saveLog("게임 시스템 논의 (PRP)", `3일 주기 시스템 논의 — CONDUCTOR 결정 ${today}`, conductorDecision, "게임");
+        prpLog.add("CONDUCTOR 결정", conductorDecision);
         await sendCeoNotice(`[LOD 시스템 논의] CONDUCTOR 결정 — ${conductorDecision.slice(0, 400)}`);
       }
       results.zeroSystemDiscussion = { ok: true, panelCount: panelResults.filter((r) => r.text).length };
@@ -450,6 +495,7 @@ export async function GET(req: NextRequest) {
   } else {
     results.zeroSystemDiscussion = { ok: true, skipped: true, reason: "3일 주기 아님" };
   }
+  await prpLog.flush();
 
   // 5) 나머지 전 직원 — 병렬로 하루 업무 1건씩 (SCOUT·블로그팀·PHANTOM은 위에서 이미 실행)
   const dailyStaff = STAFF.filter((s) => !["SCOUT", "INK", "CHECK", "CHIEF", "AEGIS", "PHANTOM", "MUSE"].includes(s.key));
@@ -460,11 +506,21 @@ export async function GET(req: NextRequest) {
         s.role,
         "오늘 하루 담당 업무 중 우선순위가 가장 높은 것 하나를 정해서, 지금 바로 실행 가능한 구체적인 결과물이나 다음 행동을 300자 이내로 제시해."
       );
-      if (text) await saveLog("자동화", `${s.name} — 일일 업무 (${today})`, text, ZONE_TRACK[s.home] ?? "전체");
-      return { key: s.key, ok: !!text };
+      return { key: s.key, name: s.name, ok: !!text, text };
     })
   );
-  results.daily = dailySettled.map((r) => (r.status === "fulfilled" ? r.value : { error: r.reason?.message }));
+  results.daily = dailySettled.map((r) =>
+    r.status === "fulfilled" ? { key: r.value.key, ok: r.value.ok } : { error: r.reason?.message }
+  );
+
+  /* 직원별로 페이지를 따로 만들면 하루에만 8장이 쌓인다 — 한 장에 담당자별
+     섹션으로 묶는다. 내용은 그대로 남고 목록만 짧아진다. */
+  const dailyLog = sectionLog("자동화", `전 직원 일일 업무 ${today}`, "전체");
+  for (const r of dailySettled) {
+    if (r.status !== "fulfilled" || !r.value.text) continue;
+    dailyLog.add(r.value.name, r.value.text);
+  }
+  await dailyLog.flush();
 
   console.log("[cron] run result", JSON.stringify({ ran: new Date().toISOString(), results }));
 
