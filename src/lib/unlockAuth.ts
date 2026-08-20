@@ -14,7 +14,10 @@ export const UNLOCK_MAX_AGE = 60 * 60 * 24 * 30;
 const VERSION = "v1";
 
 function sign(secret: string, exp: number): string {
-  return createHmac("sha256", secret).update(`${VERSION}:${exp}`).digest("hex");
+  /* 서명 키도 trim한 값으로 통일한다 — POST가 trim 비교로 통과시킨 뒤 여기서
+     원문으로 서명하면, 환경변수 끝에 공백이 있는 순간 발급과 검증이 서로 다른
+     키를 쓰게 된다. */
+  return createHmac("sha256", secret.trim()).update(`${VERSION}:${exp}`).digest("hex");
 }
 
 /** 만료 시각과 서명을 붙인 쿠키 값을 만든다. `nowMs`는 테스트용 주입점. */

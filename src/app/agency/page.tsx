@@ -912,7 +912,10 @@ export default function BALMYGARDENDashboard() {
   const [unlocked, setUnlocked] = useState(false);
   const [unlockOpen, setUnlockOpen] = useState(false);
   const [unlockPw, setUnlockPw] = useState("");
-  const [unlockErr, setUnlockErr] = useState(false);
+  /* 실패 사유를 그대로 보여준다 — 예전엔 환경변수 미설정(500)도, 네트워크
+     실패도 전부 "비밀번호가 틀렸습니다"로 떠서 같은 비밀번호를 계속 다시
+     넣게 만들었다. */
+  const [unlockErr, setUnlockErr] = useState<string | null>(null);
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem("balmygarden_unlocked") === "1") {
       setUnlocked(true);
@@ -938,12 +941,18 @@ export default function BALMYGARDENDashboard() {
         setUnlocked(true);
         setUnlockOpen(false);
         setUnlockPw("");
-        setUnlockErr(false);
+        setUnlockErr(null);
+      } else if (res.status === 401) {
+        setUnlockErr("비밀번호가 틀렸습니다.");
       } else {
-        setUnlockErr(true);
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        setUnlockErr(
+          body?.error ??
+            `서버 오류(${res.status}) — 비밀번호 문제가 아닙니다. 배포 환경변수를 확인해주세요.`
+        );
       }
     } catch {
-      setUnlockErr(true);
+      setUnlockErr("서버에 연결하지 못했습니다. 네트워크를 확인해주세요.");
     }
   }, [unlockPw]);
 
@@ -1638,12 +1647,12 @@ export default function BALMYGARDENDashboard() {
               type="password"
               autoFocus
               value={unlockPw}
-              onChange={(e) => { setUnlockPw(e.target.value); setUnlockErr(false); }}
+              onChange={(e) => { setUnlockPw(e.target.value); setUnlockErr(null); }}
               onKeyDown={(e) => e.key === "Enter" && submitUnlock()}
               placeholder="비밀번호"
               style={{ width: "100%", padding: "8px 10px", border: `1px solid ${unlockErr ? "#EF4444" : "#e2e8f0"}`, borderRadius: "6px", fontSize: "13px", marginBottom: "8px", boxSizing: "border-box" }}
             />
-            {unlockErr && <div style={{ fontSize: "11px", color: "#dc2626", marginBottom: "8px" }}>비밀번호가 틀렸습니다.</div>}
+            {unlockErr && <div style={{ fontSize: "11px", color: "#dc2626", marginBottom: "8px", lineHeight: 1.6 }}>{unlockErr}</div>}
             <button
               onClick={submitUnlock}
               style={{ width: "100%", padding: "8px", background: "#6366F1", color: "#fff", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}
