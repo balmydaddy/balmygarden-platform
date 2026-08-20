@@ -197,7 +197,12 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
       /* 잠금 거절이면 로컬 직결 폴백도 하지 않는다 — 서버에서 막은 계좌 수치를
          브라우저가 우회해서 띄우면 게이트가 있으나 마나다. */
       if (json.locked === true) {
-        if (alive.current) setOnline(false);
+        if (alive.current) {
+          setOnline(false);
+          /* 직전에 받아둔 수치를 비운다 — 세션 중 쿠키가 만료되면 "수치를
+             내보내지 않는다"는 안내 아래에 그 수치가 그대로 남는다. */
+          setData(null);
+        }
         return;
       }
     } catch {

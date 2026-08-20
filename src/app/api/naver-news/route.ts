@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { internalHeaders, isInternalCall } from "@/lib/internalAuth";
+import { isUnlocked } from "@/lib/unlockAuth";
 
 /**
  * SCOUT(A-08) 뉴스 수집 라우트.
@@ -164,6 +166,12 @@ export async function GET(req: NextRequest) {
 /* POST /api/naver-news — 수집 후 Notion 브리핑 저장
    body: { preset?: string, query?: string, display?: number } */
 export async function POST(req: NextRequest) {
+  /* 이 POST는 수집 결과를 Notion에 자동 저장한다 — `/api/notion`을 직접
+     막아도 여기가 열려 있으면 우회 쓰기 경로가 된다. 같은 기준으로 막는다.
+     (GET은 저장 없이 조회만 하므로 그대로 둔다.) */
+  if (!isInternalCall(req) && !isUnlocked(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   try {
     const { preset, query, display = 10 } = (await req.json()) as {
       preset?: string;
@@ -197,7 +205,7 @@ export async function POST(req: NextRequest) {
     const origin = req.nextUrl.origin;
     const saved = await fetch(`${origin}/api/notion`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...internalHeaders() },
       body: JSON.stringify({
         action: "save_log",
         payload: {

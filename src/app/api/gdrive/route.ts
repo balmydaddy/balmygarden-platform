@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { Readable } from "stream";
+import { isUnlocked } from "@/lib/unlockAuth";
+import { isInternalCall } from "@/lib/internalAuth";
+
+/* CEO Drive의 파일 목록과 본문을 그대로 반환하는 라우트다. 무인증이면
+   공개 링크를 받은 사람이 주소만 알아도 문서를 읽을 수 있다 — 화면과 같은
+   기준으로 막는다. 호출자는 잠금해제된 대시보드(page.tsx)뿐이다. */
+function denyIfLocked(req: NextRequest) {
+  if (isInternalCall(req) || isUnlocked(req)) return null;
+  return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+}
 
 function getAuth() {
   const json = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -17,6 +27,8 @@ function getAuth() {
 
 /* GET /api/gdrive?limit=10&folderId=xxx — 최근 파일 목록 */
 export async function GET(req: NextRequest) {
+  const denied = denyIfLocked(req);
+  if (denied) return denied;
   if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
     return NextResponse.json({ error: "GOOGLE_SERVICE_ACCOUNT_JSON 미설정", setup: true }, { status: 500 });
   }
@@ -42,6 +54,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = denyIfLocked(req);
+  if (denied) return denied;
   if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
     return NextResponse.json({ error: "GOOGLE_SERVICE_ACCOUNT_JSON 미설정", setup: true }, { status: 500 });
   }

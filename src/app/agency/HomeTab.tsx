@@ -128,7 +128,12 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
           return ok; // 형태가 틀리면 실패다 — 이걸 true로 돌리면 기준시각이 헛돈다
         })
         .catch(() => {
-          if (alive) setLog(null);
+          if (alive) {
+            setLog(null);
+            /* 배지를 같이 지운다 — 축약 응답 뒤에 실패가 오면 "불러오기 실패"
+               아래에 "일부만 표시" 배지만 남아 상태가 어긋난다. */
+            setLogRedacted(false);
+          }
           return false;
         });
 

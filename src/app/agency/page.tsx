@@ -996,12 +996,19 @@ export default function BALMYGARDENDashboard() {
   /* url은 미인증 응답에서 빠진다(서버가 Notion 링크를 제거) — 옵셔널로 둔다. */
   const [notionHistory, setNotionHistory] = useState<{ id: string; url?: string; title: string; type: string; status: string; date: string }[]>([]);
   const [histLoading, setHistLoading] = useState(false);
+  /* 서버가 인증 없는 요청엔 "로그"만 남기고 나머지 Type을 지운다 — 아래
+     안내가 "워크플로우·대화·로그가 기록됩니다"라 그대로 두면 기록이
+     없어진 것처럼 읽힌다. */
+  const [histRedacted, setHistRedacted] = useState(false);
   const fetchHistory = useCallback(async () => {
     setHistLoading(true);
     try {
       const res = await fetch("/api/notion?limit=20");
       const data = await res.json();
-      if (data.entries) setNotionHistory(data.entries);
+      if (data.entries) {
+        setNotionHistory(data.entries);
+        setHistRedacted(data.redacted === true);
+      }
     } catch {
       // silent
     } finally {
@@ -3656,6 +3663,11 @@ export default function BALMYGARDENDashboard() {
                 {histLoading ? "로딩 중…" : "🔄 새로고침"}
               </button>
               <span style={{ fontSize: "11px", color: "#334155" }}>워크플로우·대화·로그가 자동으로 기록됩니다</span>
+              {histRedacted && (
+                <span style={{ fontSize: "11px", color: "#b45309" }}>
+                  — 지금은 로그만 표시됩니다 (서버 인증 필요)
+                </span>
+              )}
             </div>
             {notionHistory.length === 0 && !histLoading && (
               <div style={{ textAlign: "center", color: "#94a3b8", padding: "40px", fontSize: "13px" }}>

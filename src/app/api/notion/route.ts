@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client, type BlockObjectRequest, type PageObjectResponse } from "@notionhq/client";
 import { isUnlocked } from "@/lib/unlockAuth";
+import { isInternalCall } from "@/lib/internalAuth";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -195,6 +196,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  /* 지금까지 무인증이라 주소만 알면 누구나 CEO 워크스페이스에 페이지를 만들 수
+     있었다. 정당한 호출자는 둘뿐이다 — 화면(잠금해제된 CEO 브라우저)과
+     서버 내부 자동화(cron·SCOUT). 그 둘만 통과시킨다. */
+  if (!isInternalCall(req) && !isUnlocked(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   if (!process.env.NOTION_API_KEY) {
     return NextResponse.json(
       { error: "NOTION_API_KEY 환경변수가 설정되지 않았습니다." },

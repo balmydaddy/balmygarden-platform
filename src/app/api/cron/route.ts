@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { STAFF, type ZoneId } from "@/app/agency/office";
 import { MEMORY } from "@/app/agency/memory";
 import { SCOUT_PRESETS } from "@/app/api/naver-news/route";
+import { internalHeaders } from "@/lib/internalAuth";
 import { publishToBlogger } from "@/lib/blogger";
 import { getLodRecentActivity, summarizeLodActivity } from "@/lib/lodGithub";
 
@@ -46,7 +47,7 @@ async function callAgent(name: string, role: string, userMessage: string): Promi
   try {
     const res = await fetch(`${SITE_ORIGIN}/api/agent`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...internalHeaders() },
       body: JSON.stringify({
         systemPrompt:
           `당신은 BALMYGARDEN 에이전시의 ${name}입니다. 담당: ${role}.\n한국어로 답한다.\n\n` +
@@ -66,7 +67,7 @@ async function saveLog(source: string, title: string, content: string, businessT
   try {
     await fetch(`${SITE_ORIGIN}/api/notion`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...internalHeaders() },
       body: JSON.stringify({ action: "save_log", payload: { source, title, content, businessTrack } }),
     });
   } catch {
@@ -79,7 +80,7 @@ async function sendCeoNotice(text: string) {
   try {
     await fetch(`${SITE_ORIGIN}/api/slack`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...internalHeaders() },
       body: JSON.stringify({ action: "send", payload: { text: `[BALMYGARDEN] ${text}` } }),
     });
   } catch {
@@ -138,7 +139,7 @@ export async function GET(req: NextRequest) {
     Object.keys(SCOUT_PRESETS).map(async (preset) => {
       const res = await fetch(`${SITE_ORIGIN}/api/naver-news`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...internalHeaders() },
         body: JSON.stringify({ preset }),
       });
       return { preset, status: res.status, body: await res.json() } as ScoutResult;
