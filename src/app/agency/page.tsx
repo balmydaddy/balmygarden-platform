@@ -947,6 +947,19 @@ export default function BALMYGARDENDashboard() {
     }
   }, [unlockPw]);
 
+  /* 잠그기 — 화면(localStorage)과 서버 쿠키를 함께 되돌린다. 쿠키만 남거나
+     화면만 남으면 "헤더는 해제인데 데이터는 안 보이는" 어긋난 상태가 된다. */
+  const lockNow = useCallback(async () => {
+    try {
+      await fetch("/api/unlock", { method: "DELETE" });
+    } catch {
+      /* 네트워크가 끊겨도 화면 잠금은 진행한다 — 쿠키는 만료되면 어차피 무효 */
+    }
+    localStorage.removeItem("balmygarden_unlocked");
+    setUnlocked(false);
+    setTab("office");
+  }, []);
+
   const [wfId, setWfId] = useState<string | null>(null);
   const [wfInput, setWfInput] = useState("");
   const [chainRes, setChainRes] = useState<ChainResult[]>([]);
@@ -1577,13 +1590,13 @@ export default function BALMYGARDENDashboard() {
           </div>
         </button>
         <button
-          /* 해제 상태에서도 항상 눌리게 둔다. 잠금해제가 localStorage(화면)와
-             httpOnly 쿠키(서버 API) 두 곳에 걸쳐 있어 한쪽만 남는 경우가 생긴다 —
-             예전에 해제해둔 브라우저는 쿠키가 없고, 쿠키는 30일 뒤 만료된다.
-             이때 버튼이 안 눌리면 비밀번호를 다시 넣을 방법이 없어 서버 데이터가
-             영영 안 보인다. */
-          onClick={() => setUnlockOpen(true)}
-          title={unlocked ? "잠금해제 상태 — 서버 인증이 만료됐으면 다시 입력" : "CEO 잠금해제"}
+          /* 해제 상태에서 누르면 잠근다. 잠금해제가 localStorage(화면)와
+             httpOnly 쿠키(서버 API) 두 곳에 걸쳐 있어 한쪽만 남는 경우가 생기는데
+             (예전에 해제해둔 브라우저엔 쿠키가 없고, 쿠키는 30일 뒤 만료된다),
+             잠갔다 다시 해제하면 양쪽이 같이 맞춰진다. 공용 PC에서 화면을
+             넘겨줄 때 필요한 경로이기도 하다. */
+          onClick={() => (unlocked ? lockNow() : setUnlockOpen(true))}
+          title={unlocked ? "잠그기 (서버 데이터가 안 보이면 잠갔다 다시 해제)" : "CEO 잠금해제"}
           style={{
             padding: "5px 10px",
             borderRadius: "20px",

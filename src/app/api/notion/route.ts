@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client, type BlockObjectRequest, type PageObjectResponse } from "@notionhq/client";
-import { isUnlocked } from "../unlock/route";
+import { isUnlocked } from "@/lib/unlockAuth";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -176,6 +176,17 @@ export async function GET(req: NextRequest) {
         date: props.Date?.date?.start ?? "",
       };
     });
+    /* 이 목록은 공개 업무화면(OfficeTab)이 쓰기 때문에 통째로 막을 수 없다.
+       대신 미인증 요청에는 cron이 남긴 업무 로그("로그")만 남기고, CEO 지시창
+       기록("[대화]" 등 다른 Type)과 Notion 페이지 링크·ID는 제거한다 —
+       지금까지는 전량을 내려보내고 브라우저에서만 걸러서, 방문자가 응답을
+       직접 열면 CEO 지시 제목이 그대로 보였다. */
+    if (!isUnlocked(req)) {
+      const publicEntries = entries
+        .filter((e) => e.type === "로그")
+        .map(({ title, type, status, track, date }) => ({ title, type, status, track, date }));
+      return NextResponse.json({ entries: publicEntries, redacted: true });
+    }
     return NextResponse.json({ entries });
   } catch (e: unknown) {
     const err = e as Error;
