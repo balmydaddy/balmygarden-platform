@@ -1575,6 +1575,10 @@ export default function BALMYGARDENDashboard() {
           background: "linear-gradient(135deg,#eef2ff 0%,#f5f3ff 100%)",
           borderBottom: "1px solid #1a2547",
           padding: isMobile ? "10px 14px" : "12px 22px",
+          /* 배경 띠는 전체 폭으로 두되 안쪽 내용은 본문과 같은 상한을 쓴다 —
+             로고만 화면 맨 끝에 붙어 본문과 어긋나는 걸 막는다. */
+          maxWidth: "1440px",
+          margin: "0 auto",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -1676,7 +1680,16 @@ export default function BALMYGARDENDashboard() {
         </div>
       )}
 
-      <div style={{ padding: isMobile ? "12px 10px" : "20px 22px" }}>
+      {/* 본문 폭 상한 — 넓은 모니터에서 카드는 화면 끝까지 늘어나는데 오피스뷰만
+          고정 폭이라 위아래 오른쪽 끝이 어긋나 보였다(CEO 지적). 상한을 한 곳에
+          두고 가운데 정렬해 모든 구획이 같은 좌우 끝을 쓰게 한다. */}
+      <div
+        style={{
+          padding: isMobile ? "12px 10px" : "20px 22px",
+          maxWidth: "1440px",
+          margin: "0 auto",
+        }}
+      >
         {/* ══════ WIKI 서브 네비 ══════ */}
         {(tab === "wiki" || WIKI_TABS.some((w) => w.id === tab)) && (
           <div style={{ marginBottom: "16px" }}>

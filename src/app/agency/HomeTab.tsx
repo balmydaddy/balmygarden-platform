@@ -408,11 +408,11 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
           <div style={label}>업무화면</div>
           <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
         </div>
-        {/* 오피스뷰는 16:10 고정비라 전체 폭을 주면 화면을 혼자 다 먹는다 — 폭을 제한해
-            위쪽 카드들과 비율을 맞춘다(CEO 지시: "비율도 조정"). */}
-        <div style={{ maxWidth: isMobile ? "100%" : "980px" }}>
-          <OfficeTab isMobile={isMobile} locked={false} />
-        </div>
+        {/* 폭 제한을 두지 않는다 — 위 카드들은 본문 폭을 다 쓰는데 여기만 980px로
+            묶어두니 넓은 모니터에서 오른쪽 끝이 어긋나 보였다. 대신 데스크톱
+            화면비를 16:10 → 2:1로 낮춰(OfficeTab) 전체 폭을 줘도 세로로 너무
+            길어지지 않게 했다. */}
+        <OfficeTab isMobile={isMobile} locked={false} />
       </div>
     </div>
   );

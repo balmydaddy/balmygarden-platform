@@ -525,7 +525,10 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         style={{
           position: "relative",
           width: "100%",
-          aspectRatio: isMobile ? "3 / 4" : "16 / 10",
+          /* 데스크톱은 2:1 — 본문 폭(최대 1440px)을 다 써도 세로 700px 안쪽으로
+             들어와 위쪽 카드들과 한 화면에 같이 잡힌다. 방 배치는 전부 %라
+             화면비가 바뀌어도 그대로 따라온다. */
+          aspectRatio: isMobile ? "3 / 4" : "2 / 1",
           background: WALL,
           border: `3px solid ${WALL}`,
           borderRadius: "8px",
