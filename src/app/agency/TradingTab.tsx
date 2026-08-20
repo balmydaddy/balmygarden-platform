@@ -168,6 +168,8 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
   const [online, setOnline] = useState(false);
   const [reason, setReason] = useState("연결 확인 중…");
   const [updated, setUpdated] = useState("--:--:--");
+  /* 서버가 잠금으로 거절한 상태 — 서버 다운과 원인이 전혀 다르므로 구분한다. */
+  const [locked, setLocked] = useState(false);
   const alive = useRef(true);
 
   const load = useCallback(async () => {
@@ -178,17 +180,31 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
         online: boolean;
         data?: TradingStatus;
         reason?: string;
+        locked?: boolean;
       };
       if (json.online && json.data) {
         if (!alive.current) return;
         setData(json.data);
         setOnline(true);
+        setLocked(false);
         setUpdated(json.data.updated || new Date().toLocaleTimeString("ko-KR"));
         return;
       }
-      if (alive.current) setReason(json.reason || "트레이딩 서버 응답 없음");
+      if (alive.current) {
+        setReason(json.reason || "트레이딩 서버 응답 없음");
+        setLocked(json.locked === true);
+      }
+      /* 잠금 거절이면 로컬 직결 폴백도 하지 않는다 — 서버에서 막은 계좌 수치를
+         브라우저가 우회해서 띄우면 게이트가 있으나 마나다. */
+      if (json.locked === true) {
+        if (alive.current) setOnline(false);
+        return;
+      }
     } catch {
-      if (alive.current) setReason("프록시 호출 실패");
+      if (alive.current) {
+        setReason("프록시 호출 실패");
+        setLocked(false);
+      }
     }
 
     /* 2차: 로컬 개발 중에는 브라우저에서 직접 붙는 게 더 빠르고 확실하다. */
@@ -291,8 +307,26 @@ export default function TradingTab({ isMobile }: { isMobile: boolean }) {
         </span>
       </div>
 
+      {/* 잠금 거절은 서버 다운이 아니다 — 아래 "연결 조건"을 띄우면 멀쩡한
+          서버를 두고 터널·환경변수를 뒤지게 만든다. */}
+      {!online && locked && (
+        <div
+          style={{
+            ...card("#78350f"),
+            marginBottom: "14px",
+            fontSize: "12px",
+            color: "#b45309",
+            lineHeight: 1.7,
+          }}
+        >
+          <div style={{ fontWeight: 700, marginBottom: "6px" }}>잠금 상태</div>
+          <div>서버가 계좌 수치를 내보내지 않도록 막고 있습니다 — 트레이딩 서버 문제가 아닙니다.</div>
+          <div>우측 상단 자물쇠로 한 번 잠근 뒤 비밀번호를 다시 입력하면 조회됩니다.</div>
+        </div>
+      )}
+
       {/* 오프라인 원인과 조치를 같이 적는다 — 상태만 보여주면 CEO가 원인을 못 찾는다. */}
-      {!online && (
+      {!online && !locked && (
         <div
           style={{
             ...card("#7f1d1d"),

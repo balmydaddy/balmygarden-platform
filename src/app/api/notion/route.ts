@@ -184,7 +184,7 @@ export async function GET(req: NextRequest) {
     if (!isUnlocked(req)) {
       const publicEntries = entries
         .filter((e) => e.type === "로그")
-        .map(({ title, type, status, track, date }) => ({ title, type, status, track, date }));
+        .map(({ id, title, type, status, track, date }) => ({ id, title, type, status, track, date }));
       return NextResponse.json({ entries: publicEntries, redacted: true });
     }
     return NextResponse.json({ entries });

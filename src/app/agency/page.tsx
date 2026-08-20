@@ -993,7 +993,8 @@ export default function BALMYGARDENDashboard() {
   const [teamRunning, setTeamRunning] = useState(false);
 
   // Notion history
-  const [notionHistory, setNotionHistory] = useState<{ id: string; url: string; title: string; type: string; status: string; date: string }[]>([]);
+  /* url은 미인증 응답에서 빠진다(서버가 Notion 링크를 제거) — 옵셔널로 둔다. */
+  const [notionHistory, setNotionHistory] = useState<{ id: string; url?: string; title: string; type: string; status: string; date: string }[]>([]);
   const [histLoading, setHistLoading] = useState(false);
   const fetchHistory = useCallback(async () => {
     setHistLoading(true);
@@ -3671,9 +3672,15 @@ export default function BALMYGARDENDashboard() {
                   </span>
                   <span style={{ fontSize: "13px", flex: 1, color: "#1e293b" }}>{e.title}</span>
                   <span style={{ fontSize: "10px", color: "#334155", whiteSpace: "nowrap" }}>{e.date ? new Date(e.date).toLocaleString("ko-KR") : ""}</span>
-                  <a href={e.url} target="_blank" rel="noreferrer" style={{ fontSize: "11px", color: "#4f46e5", whiteSpace: "nowrap", textDecoration: "none" }}>
-                    열기 →
-                  </a>
+                  {/* url이 없으면(미인증 응답) href 없는 링크를 그리지 않는다 —
+                      눌리지도 않으면서 링크처럼 보이는 게 제일 나쁘다. */}
+                  {e.url ? (
+                    <a href={e.url} target="_blank" rel="noreferrer" style={{ fontSize: "11px", color: "#4f46e5", whiteSpace: "nowrap", textDecoration: "none" }}>
+                      열기 →
+                    </a>
+                  ) : (
+                    <span style={{ fontSize: "11px", color: "#94a3b8", whiteSpace: "nowrap" }}>인증 필요</span>
+                  )}
                 </div>
               );
             })}

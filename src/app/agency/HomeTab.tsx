@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type CSSProperties } from "react";
+import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
 import { Bricolage_Grotesque } from "next/font/google";
 import { STAFF } from "./office";
 import { resolveStaffKey, staffColor } from "./staffLog";
@@ -18,8 +18,27 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["500", "700",
 type Portfolio = { total_asset?: number; cash?: number; eval_total?: number; total_pnl?: number };
 type Signal = { symbol: string; action: "BUY" | "SELL" | "HOLD"; price?: string };
 type TradingStatus = { portfolio?: Portfolio; signals?: Signal[]; updated?: string };
-type LogEntry = { id: string; url: string; title: string; type: string; date: string };
+/* url은 미인증 응답에서 빠진다(서버가 Notion 링크를 제거) — 옵셔널로 둔다. */
+type LogEntry = { id: string; url?: string; title: string; type: string; date: string };
 type Blocker = { id: string; title: string; priority: string; status: string; owner: string };
+
+/** url이 있으면 새 탭 링크, 없으면(미인증 응답) 링크가 아닌 블록으로 그린다. */
+function Wrapper({
+  url,
+  style,
+  children,
+}: {
+  url?: string;
+  style: CSSProperties;
+  children: ReactNode;
+}) {
+  if (!url) return <div style={style}>{children}</div>;
+  return (
+    <a href={url} target="_blank" rel="noreferrer" title="Notion에서 열기" style={style}>
+      {children}
+    </a>
+  );
+}
 type TaskStats =
   | {
       ok: true;
@@ -63,7 +82,10 @@ const ACTION_STYLE: Record<Signal["action"], { bg: string; fg: string }> = {
 };
 
 export default function HomeTab({ isMobile }: { isMobile: boolean }) {
-  const [trading, setTrading] = useState<{ online: boolean; data?: TradingStatus; reason?: string }>({ online: false });
+  const [trading, setTrading] = useState<{ online: boolean; data?: TradingStatus; reason?: string; locked?: boolean }>({ online: false });
+  /* 서버가 인증 없는 요청에 목록을 줄여서 준 상태 — 화면이 "이게 전부"라고
+     오해하지 않게 표시한다. */
+  const [logRedacted, setLogRedacted] = useState(false);
   const [log, setLog] = useState<LogEntry[] | null>(null); // null = 아직 못 불러옴(실패/로딩), [] = 진짜 없음
   const [stats, setStats] = useState<TaskStats | null>(null);
   const [syncedAt, setSyncedAt] = useState<Date | null>(null);
@@ -87,7 +109,7 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
          그래서 여기만 r.ok를 따지지 않고 본문을 살려 쓴다. */
       const trading$ = fetch("/api/trading", { cache: "no-store" })
         .then((r) => r.json())
-        .then((j: { online: boolean; data?: TradingStatus; reason?: string }) => {
+        .then((j: { online: boolean; data?: TradingStatus; reason?: string; locked?: boolean }) => {
           if (alive) setTrading(j);
           return true;
         })
@@ -97,9 +119,12 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
         });
 
       const log$ = asJson("/api/notion?limit=6")
-        .then((j: { entries?: LogEntry[] }) => {
+        .then((j: { entries?: LogEntry[]; redacted?: boolean }) => {
           const ok = Array.isArray(j?.entries);
-          if (alive) setLog(ok ? j.entries! : null);
+          if (alive) {
+            setLog(ok ? j.entries! : null);
+            setLogRedacted(ok ? j.redacted === true : false);
+          }
           return ok; // 형태가 틀리면 실패다 — 이걸 true로 돌리면 기준시각이 헛돈다
         })
         .catch(() => {
@@ -178,7 +203,7 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
             </div>
           ) : stats.blockersGated ? (
             <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "10px", lineHeight: 1.5 }}>
-              미결 항목 내용은 서버 인증 후 표시됩니다 — 우측 상단 자물쇠를 눌러 비밀번호를 입력하세요.
+              미결 항목 내용은 서버 인증 후 표시됩니다 — 우측 상단 자물쇠로 한 번 잠근 뒤 비밀번호를 다시 입력하면 됩니다.
               (진행 {stats.inProgress}건 · 미진행 {stats.notStarted}건)
             </div>
           ) : blockers.length === 0 ? (
@@ -250,7 +275,11 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
           <div style={label}>트레이딩</div>
           <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: trading.online ? "#16a34a" : "#94a3b8" }}>
             <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: trading.online ? "#22C55E" : "#cbd5e1", boxShadow: trading.online ? "0 0 6px #22C55E" : "none" }} />
-            {trading.online ? "LIVE · 자동매매 가동 중" : `오프라인 — ${trading.reason ?? "연결 대기"}`}
+            {trading.online
+              ? "LIVE · 자동매매 가동 중"
+              : trading.locked
+                ? "잠금 — 서버 인증 후 조회"
+                : `오프라인 — ${trading.reason ?? "연결 대기"}`}
           </div>
         </div>
 
@@ -293,6 +322,11 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
               </div>
             )}
           </>
+        ) : trading.locked ? (
+          <div style={{ fontSize: "13px", color: "#b45309", lineHeight: 1.6 }}>
+            잠금 상태라 계좌 수치를 불러오지 않습니다. 우측 상단 자물쇠로 한 번 잠근 뒤
+            비밀번호를 다시 입력하면 표시됩니다 — 트레이딩 서버 쪽 문제가 아닙니다.
+          </div>
         ) : (
           <div style={{ fontSize: "13px", color: "#94a3b8" }}>트레이딩 서버 연결 대기 중</div>
         )}
@@ -303,6 +337,11 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "6px" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
             <div style={label}>업무 로그</div>
+            {logRedacted && (
+              /* 서버가 인증 없는 요청엔 cron 로그만 남기고 지시 기록·링크를
+                 지운다. 화면이 이걸 "전부"로 보이게 두면 안 된다. */
+              <span style={{ fontSize: "10px", color: "#b45309" }}>일부만 표시 (인증 필요)</span>
+            )}
             {/* "오늘 N건"은 넣지 않는다 — 최근 6건만 받아오므로 하루 12~15건을
                 쓰는 cron 기준으로는 항상 절단된 수치가 되어 사실과 다르다. */}
           </div>
@@ -324,12 +363,11 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
             {log.map((e) => {
               const who = resolveStaffKey(e.title);
               return (
-                <a
+                /* 미인증 응답엔 url이 없다 — href 없는 <a>를 렌더하면 눌리지도
+                   않으면서 링크처럼 보인다. 그땐 아예 링크가 아닌 걸로 그린다. */
+                <Wrapper
                   key={e.id}
-                  href={e.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="Notion에서 열기"
+                  url={e.url}
                   style={{ display: "block", textDecoration: "none", padding: "10px 12px", background: "#f8fafc", borderRadius: "10px" }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -352,7 +390,7 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
                     </span>
                   </div>
                   <div style={{ fontSize: "12px", marginTop: "5px", lineHeight: 1.45, color: "#334155", fontFamily: "inherit" }}>{e.title}</div>
-                </a>
+                </Wrapper>
               );
             })}
           </div>

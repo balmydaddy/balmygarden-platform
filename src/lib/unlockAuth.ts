@@ -33,19 +33,30 @@ export function verifyToken(
   const parts = token.split(".");
   if (parts.length !== 3 || parts[0] !== VERSION) return false;
 
+  /* Number()는 " 123"·"0x1f"·"1e20"까지 받아들여서 같은 exp에 여러 토큰
+     문자열이 대응한다. 서명이 있어 악용은 못 하지만 형식은 하나로 고정한다. */
+  if (!/^\d+$/.test(parts[1])) return false;
   const exp = Number(parts[1]);
-  if (!Number.isInteger(exp) || exp * 1000 <= nowMs) return false;
+  if (!Number.isSafeInteger(exp) || exp * 1000 <= nowMs) return false;
 
-  /* timingSafeEqual은 길이가 다르면 예외를 던지므로 먼저 거른다. 길이 차이는
-     어차피 서명 형식 오류라 이 시점에 노출돼도 정보가 되지 않는다. */
+  /* timingSafeEqual은 버퍼 "바이트" 길이가 다르면 예외를 던진다. 문자 길이만
+     비교하면 비ASCII 64자 서명이 검사를 통과해 예외로 500이 난다(쿠키는
+     퍼센트 인코딩으로 들어올 수 있어 실제로 도달 가능하다) — 16진수 형식을
+     먼저 확정해 버퍼 길이가 어긋날 여지 자체를 없앤다. */
   const expected = sign(secret, exp);
-  if (parts[2].length !== expected.length) return false;
-  return timingSafeEqual(Buffer.from(parts[2]), Buffer.from(expected));
+  if (!/^[0-9a-f]+$/.test(parts[2]) || parts[2].length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(parts[2], "hex"), Buffer.from(expected, "hex"));
 }
 
 /** 요청이 CEO 잠금해제 상태인지. 비밀번호 환경변수가 없으면 항상 false. */
 export function isUnlocked(req: NextRequest): boolean {
   const secret = process.env.DASHBOARD_UNLOCK_PASSWORD;
   if (!secret) return false;
-  return verifyToken(req.cookies.get(UNLOCK_COOKIE)?.value, secret);
+  /* 인증 판정이 예외를 던지면 그건 401이 아니라 500이 된다 — 잘못된 쿠키
+     하나로 API가 통째로 죽는 셈이라, 어떤 이유든 실패는 "잠김"으로 수렴시킨다. */
+  try {
+    return verifyToken(req.cookies.get(UNLOCK_COOKIE)?.value, secret);
+  } catch {
+    return false;
+  }
 }
