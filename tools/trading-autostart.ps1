@@ -19,6 +19,22 @@ function Find-Python {
     return $null
 }
 
+function Test-ServerUp {
+    # HTTP 200 대신 "포트가 열렸는가"로 본다. 응답 본문이나 상태코드는
+    # 서버 구현에 따라 달라지지만, 포트가 열렸으면 서버는 뜬 것이다.
+    # (시스템 프록시 설정 때문에 Invoke-WebRequest 가 localhost 를 프록시로
+    #  보내버리는 경우도 있어 HTTP 판정은 신뢰도가 떨어진다.)
+    param([int]$Port = 5000)
+    try {
+        $c   = New-Object System.Net.Sockets.TcpClient
+        $iar = $c.BeginConnect('127.0.0.1', $Port, $null, $null)
+        $up  = $iar.AsyncWaitHandle.WaitOne(700)
+        if ($up) { try { $c.EndConnect($iar) } catch { $up = $false } }
+        $c.Close()
+        return $up
+    } catch { return $false }
+}
+
 function Start-Server {
     $py = Find-Python
     if (-not $py) { throw '파이썬을 찾지 못했습니다.' }
@@ -33,6 +49,9 @@ function Start-Server {
 
 # ── run: 작업 스케줄러가 부르는 실행 모드 ────────────────────────────
 if ($Action -eq 'run') {
+    # 이미 떠 있으면 두 번 띄우지 않는다. 두 번째 프로세스는 포트 충돌로
+    # 죽지만, 그 과정에서 로그 파일을 덮어써 원래 서버의 기록이 날아간다.
+    if (Test-ServerUp) { exit 0 }
     Start-Server
     exit 0
 }
@@ -114,26 +133,43 @@ Write-Host ("[4/5] 자동 실행 등록        작업 이름: {0} (로그인 시
 
 # 5) 지금 한 번 띄워서 실제로 되는지 확인
 Write-Host '[5/5] 지금 한 번 실행해서 확인합니다...'
-try { Start-Server } catch { Write-Host ("      [주의] 실행 시도 실패: {0}" -f $_.Exception.Message) }
 
-$ok = $false
-foreach ($i in 1..12) {
-    Start-Sleep -Milliseconds 500
-    if ($ok) { continue }
-    try {
-        $r = Invoke-WebRequest -Uri 'http://localhost:5000/api/status' -UseBasicParsing -TimeoutSec 2
-        if ($r.StatusCode -eq 200) { $ok = $true }
-    } catch { }
+if (Test-ServerUp) {
+    Write-Host '      이미 실행 중입니다 - 중복 실행하지 않습니다.'
+    $ok = $true
+} else {
+    try { Start-Server } catch { Write-Host ("      [주의] 실행 시도 실패: {0}" -f $_.Exception.Message) }
+
+    # 거래 라이브러리(pandas 등)를 불러오는 서버는 첫 기동이 10초를 넘길 수
+    # 있다. 6초만 기다리다 "응답 없음"으로 단정하면 멀쩡히 뜬 서버를 실패로
+    # 오인한다. 40초까지 기다리되, 뜨는 즉시 빠져나간다.
+    $ok = $false
+    Write-Host -NoNewline '      기다리는 중'
+    foreach ($i in 1..40) {
+        if (Test-ServerUp) { $ok = $true; break }
+        Start-Sleep -Seconds 1
+        if ($i % 5 -eq 0) { Write-Host -NoNewline '.' }
+    }
+    Write-Host ''
 }
+
 if ($ok) {
     Write-Host '      [확인] localhost:5000 응답 정상'
 } else {
-    Write-Host '      [주의] 6초 안에 응답이 없습니다. 아래 로그를 확인하세요:'
+    Write-Host '      [주의] 40초 안에 포트가 열리지 않았습니다. 아래 기록을 확인하세요:'
     Write-Host ("             {0}" -f $OutLog)
     Write-Host ("             {0}" -f $ErrLog)
     if (Test-Path $ErrLog) {
+        # 라벨 주의: 파이썬 서버는 정상 시작 메시지도 stderr 로 보낸다.
+        # ("Running on http://127.0.0.1:5000" 같은 줄) 그래서 "오류 로그"가
+        # 아니라 "서버 출력"이라고 적는다 - 정상 로그를 오류로 오인하게 만들면
+        # 멀쩡한 상태를 고장으로 착각한다.
         $tail = Get-Content $ErrLog -Tail 15 -ErrorAction SilentlyContinue
-        if ($tail) { Write-Host ''; Write-Host '      --- 오류 로그 마지막 15줄 ---'; $tail | ForEach-Object { Write-Host ("      {0}" -f $_) } }
+        if ($tail) {
+            Write-Host ''
+            Write-Host '      --- 서버 출력 마지막 15줄 (정상 시작 메시지도 여기 찍힙니다) ---'
+            $tail | ForEach-Object { Write-Host ("      {0}" -f $_) }
+        }
     }
 }
 
