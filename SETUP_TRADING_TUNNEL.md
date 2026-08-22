@@ -59,13 +59,33 @@ Vercel → `balmygarden-platform` 프로젝트 → Settings → Environment Vari
 이미 값이 있다면 **Edit**으로 교체(재등록이 아니라 최초 1회만 하면 그다음부터는 안 건드려도 됨).
 저장 후 재배포 1회 필요(환경변수는 재배포해야 반영됨).
 
-## 5. 앞으로는
+## 5. 자동 실행 등록 (2026-08-22 추가 — 이제 이게 기본이다)
 
-- `python server.py` + `ngrok http 5000 --domain=...`만 실행하면 끝. 주소가 고정이라
-  Vercel 쪽은 다시 안 만져도 된다.
-- PC를 껐다 켜도, 터널을 재시작해도 **같은 주소**가 유지된다.
-- 매번 두 명령어(server.py, ngrok)를 따로 켜기 번거로우면, 트레이딩시작.bat에
-  ngrok 실행 줄을 추가해 한 번에 띄우는 것도 가능 — 필요하면 요청해달라.
+`tools/trading-autostart-install.bat`을 `server.py`가 있는 폴더에 두고 한 번 실행하면
+**서버와 터널을 같이** 띄우고, 다음 로그인부터 자동으로 뜬다.
+
+- 설치 중에 ngrok 고정 도메인을 한 번 물어본다. 2단계에서 예약한 주소를 그대로
+  넣으면 옆에 `trading-tunnel-domain.txt`로 저장되고 다음부터는 안 묻는다.
+- 끝에 실제로 연결된 공개 주소를 찍어준다. **그 값이 Vercel의
+  `TRADING_SERVER_URL`과 같아야 한다** — 다르면 화면은 계속 오프라인으로 보인다.
+- 해제: `tools/trading-autostart-uninstall.bat`
+
+수동으로 하려면 예전 방식대로 `python server.py` + `ngrok http 5000 --domain=...`
+두 개를 각각 켜면 된다. 주소가 고정이라 Vercel 쪽은 다시 안 만져도 된다.
+
+---
+
+## 화면이 "응답 404"로 뜰 때
+
+**서버 문제가 아니다.** 404를 돌려준 쪽은 server.py가 아니라 ngrok 엣지다.
+예약한 도메인은 살아있는데 그 뒤에 붙을 에이전트(`ngrok http 5000 --domain=...`)가
+안 떠 있으면 ngrok이 대신 404(ERR_NGROK_3200)를 돌려준다.
+
+server.py가 멀쩡히 돌고 있어도 이렇게 보인다 — 실제로 2026-08-22에 그랬다.
+자동 실행 등록이 서버만 띄우고 터널은 안 띄웠던 게 원인이었다.
+
+조치: `trading-autostart-install.bat` 재실행. 그러면 터널까지 같이 올리고
+다음 로그인부터 둘 다 자동으로 뜬다.
 
 ---
 
