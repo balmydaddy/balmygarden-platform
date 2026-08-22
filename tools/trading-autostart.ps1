@@ -87,16 +87,29 @@ Write-Host '[3/5] 기존 등록 정리        완료'
 #    "부팅 시"가 아니라 "로그인 시"인 이유: 트레이딩 서버는 계정에 저장된
 #    API 키·인증 정보가 필요한데, 로그인 전에는 그 정보에 접근이 안 돼
 #    조용히 죽는다. 로그인 직후가 실제로 동작하는 시점이다.
-$action  = New-ScheduledTaskAction -Execute 'powershell.exe' `
-             -Argument ("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"{0}`" -Action run" -f $Self)
-$trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-$set     = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries `
-             -DontStopIfGoingOnBatteries -StartWhenAvailable `
-             -ExecutionTimeLimit ([TimeSpan]::Zero) `
-             -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+# 변수 이름에 주의: 파라미터가 $Action 이고 PowerShell 변수는 대소문자를
+# 구분하지 않는다. 여기서 $action 을 쓰면 파라미터에 붙은 [ValidateSet]·[string]
+# 제약이 그대로 적용돼 "MSFT_TaskExecAction 값은 올바른 값이 아니므로" 오류가 난다.
+# 그래서 $taskAction / $taskTrigger / $taskSettings 로 따로 둔다.
+$taskAction   = New-ScheduledTaskAction -Execute 'powershell.exe' `
+                  -Argument ("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"{0}`" -Action run" -f $Self)
+$taskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries `
+                  -DontStopIfGoingOnBatteries -StartWhenAvailable `
+                  -ExecutionTimeLimit ([TimeSpan]::Zero) `
+                  -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
 
-Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger `
-    -Settings $set -Description 'BalmyGarden 트레이딩 서버 자동 실행' | Out-Null
+# 계정 이름이 한글이면 -User 지정이 거부되는 경우가 있어, 실패하면 사용자 지정
+# 없이 다시 시도한다(1인 PC에서는 동작이 같다).
+try {
+    $taskTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+    Register-ScheduledTask -TaskName $TaskName -Action $taskAction -Trigger $taskTrigger `
+        -Settings $taskSettings -Description 'BalmyGarden 트레이딩 서버 자동 실행' | Out-Null
+} catch {
+    Write-Host ("      [알림] 사용자 지정 등록 실패 — 사용자 지정 없이 재시도합니다. ({0})" -f $_.Exception.Message)
+    $taskTrigger = New-ScheduledTaskTrigger -AtLogOn
+    Register-ScheduledTask -TaskName $TaskName -Action $taskAction -Trigger $taskTrigger `
+        -Settings $taskSettings -Description 'BalmyGarden 트레이딩 서버 자동 실행' | Out-Null
+}
 Write-Host ("[4/5] 자동 실행 등록        작업 이름: {0} (로그인 시)" -f $TaskName)
 
 # 5) 지금 한 번 띄워서 실제로 되는지 확인
