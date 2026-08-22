@@ -410,6 +410,100 @@ export async function GET(req: NextRequest) {
   }
   await musicLog.flush();
 
+  /* ── 2c) 네이버 블로그 초안 3건 (CEO 지시 2026-08-22) ────────────────
+     네이버는 2020년 5월에 글쓰기 API를 닫았고 종료 사유가 "자동 대량 포스팅
+     차단"이라 공식 발행 경로가 없다. 브라우저 자동화는 되지만 저품질 판정이
+     글이 아니라 블로그 단위로 걸려서, 얻는 것(손이 편해짐)보다 잃는 것(계정
+     전체 검색 노출)이 훨씬 크다 — `docs/NAVER_BLOG_AUTOMATION.md` 참조.
+     그래서 발행 대신 **붙여넣기 가능한 초안**을 매일 3건 만들어 Notion에 남긴다.
+
+     Blogger 글을 복사하지 않는다(MULTI-01). 같은 문서가 여러 채널에 동시에
+     있으면 구글·네이버 양쪽에서 스팸 신호로 잡혀 원본까지 깎인다. */
+  const naverLog = sectionLog("네이버블로그", `네이버 블로그 초안 ${today} (붙여넣기용)`, "전체");
+  const naverTopics = [
+    {
+      key: "safety",
+      label: "안전관리",
+      track: "안전관리",
+      brief:
+        "CEO 김태을은 안전보건 실무 4년(산업안전기사, ISO 45001/14001, 파라텍 안전보건팀) 경력자다. " +
+        "이 실무 경험 범위 안에서만 쓴다 — 경력을 부풀리거나 확인 불가한 이력을 만들지 마라.",
+    },
+    { key: "music", label: "음악", track: "음악", brief: museBrief ?? "" },
+    { key: "trend", label: "트렌드", track: "전체", brief: research },
+  ];
+
+  const naverSettled = await Promise.allSettled(
+    naverTopics.map(async (t) => {
+      const source =
+        t.key === "trend"
+          ? research
+          : (scout.find((r) => r.preset === t.key)?.body?.groups ?? [])
+              .map((g) => `[${g.query}]\n` + g.entries.slice(0, 5).map((e) => `- ${e.title}: ${e.summary}`).join("\n"))
+              .join("\n\n");
+
+      const draft = await callAgent(
+        "INK",
+        `네이버 블로그 집필 (${t.label})`,
+        `네이버 블로그에 올릴 ${t.label} 글 1편을 써라. 1500~2500자.\n\n` +
+          `[본문 구성 기준 — BLOG-01, 어기면 반려된다]\n` +
+          `1) 글 유형을 먼저 정하고 첫 줄에 밝혀라: A(과정형) / B(정보형) / C(후기·비교형) / D(소개·홍보형).\n` +
+          `   유형에 따라 배치가 달라진다 — 과정형은 단계마다 이미지, 정보형은 사진보다 표가 우선이다.\n` +
+          `2) 이미지·표·인용·체크리스트 없이 이어지는 텍스트가 400자를 넘으면 안 된다.\n` +
+          `3) 첫 화면(글 맨 앞)에 결론 한 줄과 대표 이미지 자리를 둔다. "안녕하세요 오늘은~"으로 시작하지 마라.\n` +
+          `4) 이미지 자리는 정확히 이 형식으로 본문 안에 넣어라(CEO가 여기에 사진을 넣는다):\n` +
+          `   [[이미지]] 캡션: (한 줄) | 대체텍스트: (한 줄) | 생성프롬프트: (영문 한 줄)\n` +
+          `5) 이미지는 그 문단이 말하는 걸 보여주는 것만. 분량 채우려고 무관한 이미지를 넣지 마라 — ` +
+          `   차라리 표로 대체하고, 실제 촬영이 필요하면 "CEO 촬영 필요"라고 캡션에 적어라.\n` +
+          `6) 조건·기준·수치는 반드시 표로. 문장으로 나열하지 마라.\n` +
+          `7) 본문 1000자당 시각 요소(이미지/표/체크리스트) 2개 이상.\n` +
+          `8) 끝에 "자주 묻는 질문" 3개와 핵심 3줄 요약을 넣어라.\n\n` +
+          `[출력 형식 — 이 순서 그대로, 다른 말 붙이지 마라]\n` +
+          `유형: (A~D 중 하나)\n제목: (검색 키워드가 앞에 오는 제목)\n본문:\n(본문)\n태그: #태그1 #태그2 ...\n\n` +
+          `[지켜야 할 것]\n` +
+          `- 마크다운 강조(**)를 쓰지 마라. 네이버 에디터에서 그대로 별표로 보인다.\n` +
+          `- 확인 안 된 정보를 사실처럼 단정하지 마라. 추측은 "~로 추정된다"로 구분해라.\n` +
+          `- 경험하지 않은 것을 경험한 것처럼 쓰지 마라.\n\n` +
+          `[소재]\n${t.brief}\n\n${source || "(수집 결과 없음 — 소재 범위 안에서 직접 주제를 정해라)"}`
+      );
+      if (!draft) return { key: t.key, ok: false, stage: "INK 실패" };
+
+      /* 구성 기준 + 법무를 한 번에 본다. 통과한 것만 저장한다 — 반려된 초안을
+         남겨두면 CEO가 그걸 그대로 붙여넣을 수 있다. */
+      const gate = await callAgent(
+        "AEGIS",
+        "네이버 블로그 구성·법무 게이트",
+        `아래 네이버 블로그 초안을 두 축으로 검증해라.\n\n` +
+          `[구성(BLOG-01)] ①이미지·표 없이 400자 넘게 이어지는 구간이 있는가 ` +
+          `②첫 화면에 결론 한 줄과 대표 이미지 자리가 있는가 ③유형(A~D)이 밝혀져 있고 그 배치를 따르는가 ` +
+          `④모든 [[이미지]]에 캡션·대체텍스트·생성프롬프트가 있는가 ⑤1000자당 시각 요소 2개 이상인가 ` +
+          `⑥장식용·무관한 이미지가 섞여 있지 않은가 ⑦표로 정리할 내용을 문장으로 늘어놓지 않았는가\n\n` +
+          `[법무] ①표시광고법 위반 소지(근거 없는 최상급·비교) ②확인 불가한 경력·성과 주장 ` +
+          `③저작권 침해(원문 복제) ④의료·금융 등 민감 주제 단정 ⑤구글 Scaled Content Abuse ` +
+          `⑥다른 채널에 이미 올린 것과 동일·유사한 문서인지\n\n` +
+          `문제없으면 첫 줄에 "통과"라고만 쓰고, 문제가 있으면 "보류"와 사유를 구체적으로 적어라.\n\n${draft}`
+      );
+
+      if (!gate || !gate.startsWith("통과")) {
+        return { key: t.key, ok: false, stage: "게이트 보류", reason: gate?.slice(0, 200) };
+      }
+      return { key: t.key, label: t.label, ok: true, draft };
+    })
+  );
+
+  for (const r of naverSettled) {
+    if (r.status !== "fulfilled" || !r.value.ok || !("draft" in r.value)) continue;
+    naverLog.add(
+      `${r.value.label} — 아래 전체를 복사해 네이버 에디터에 붙여넣으세요`,
+      `${r.value.draft}\n\n※ [[이미지]] 표시가 나오는 자리에 사진을 넣으면 됩니다. ` +
+        `캡션·대체텍스트는 네이버 이미지 설명란에, 생성프롬프트는 AI 이미지를 만들 때 쓰세요.`
+    );
+  }
+  await naverLog.flush();
+  results.naverBlog = naverSettled.map((r) =>
+    r.status === "fulfilled" ? { key: r.value.key, ok: r.value.ok, stage: "stage" in r.value ? r.value.stage : undefined } : { error: r.reason?.message }
+  );
+
   // 3) PHANTOM — LOD 실제 개발 진행 확인(GitHub 커밋) + 개발자 독려 + 채용 필요 여부 판단
   //    CEO 지시(2026-08-13): 일일단위 확인·독려, 인력 필요 시 PHANTOM 채용 사전승인.
   const lodActivity = await getLodRecentActivity(3);
