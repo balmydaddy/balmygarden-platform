@@ -410,31 +410,18 @@ export async function GET(req: NextRequest) {
   }
   await musicLog.flush();
 
-  // 3) PHANTOM — LOD 실제 개발 진행 확인(GitHub 커밋) + 개발자 독려 + 채용 필요 여부 판단
-  //    CEO 지시(2026-08-13): 일일단위 확인·독려, 인력 필요 시 PHANTOM 채용 사전승인.
+  /* 실행 순서 주의 (2026-08-23 앞당김): 네이버 초안은 CEO가 매일 직접 발행하는
+     산출물이라 이 파이프라인에서 우선순위가 가장 높다. 원래 PHANTOM 뒤(3b)에
+     있었는데, 2026-08-23 실행에서 Anthropic 크레딧 소진 + Gemini 무료 티어
+     분당 10건 초과로 PHANTOM 이후 모든 호출이 502가 났고 초안 3건이 통째로
+     날아갔다(그 앞 섹션들은 정상 저장됨). 호출 예산이 부족할 때 무엇을 먼저
+     살릴지가 순서로 정해지므로 앞으로 당긴다. */
+  /* LOD 커밋 요약은 GitHub 호출이라 LLM을 쓰지 않는다. 아래 네이버 초안의
+     "개발 기록" 주제가 이걸 소재로 쓰므로 PHANTOM(LLM) 섹션보다 먼저 구한다. */
   const lodActivity = await getLodRecentActivity(3);
   const lodSummary = summarizeLodActivity(lodActivity);
-  const phantomText = await callAgent(
-    "PHANTOM",
-    "LOD 게임 PM",
-    `아래는 lord-of-dark 저장소의 최근 3일 실제 커밋 활동이다. 이 데이터를 근거로만 판단해라 ` +
-      `(확인 안 된 진행상황을 추측해서 단정하지 말 것).\n\n${lodSummary}\n\n` +
-      `1) 이 활동을 근거로 개발자에게 보낼 짧은 독려 메시지를 써라(구체적 커밋 내용을 언급해 ` +
-      `실제로 보고 있다는 느낌을 줄 것 — 커밋이 없다면 독려 대신 진행상황을 직접 물어보는 톤으로).\n` +
-      `2) 현재 인력으로 이 속도가 유지 가능한지 판단하고, 추가 인력이 필요하다고 판단되면 ` +
-      `"채용필요: (어떤 역할이 왜 필요한지)"로 명확히 시작하는 문장을 남겨라. 필요 없으면 ` +
-      `"채용불필요"라고 밝혀라 — 너는 이 판단에 대해 CONDUCTOR와 협의 후 채용을 사전승인받았다 ` +
-      `(CEO에게는 채용 후 사후보고).\n\n300자 이내로 답해라.`
-  );
-  if (phantomText) {
-    await saveLog("PHANTOM", `LOD 진행 확인·독려 ${today}`, `${lodSummary}\n\n${phantomText}`, "게임");
-    if (phantomText.includes("채용필요")) {
-      await sendCeoNotice(`[PHANTOM] LOD 채용 필요 판단 — ${phantomText.slice(0, 300)}`);
-    }
-  }
-  results.phantomLodCheck = { ok: !!phantomText, lodActivityOk: lodActivity.ok };
 
-  /* ── 3b) 네이버 블로그 초안 3건 (CEO 지시 2026-08-22) ────────────────
+  /* ── 2c) 네이버 블로그 초안 3건 (CEO 지시 2026-08-22) ────────────────
      네이버는 2020년 5월 글쓰기 API를 닫았고 종료 사유가 "자동 대량 포스팅
      차단"이라 공식 발행 경로가 없다. 그래서 발행 대신 **붙여넣기 가능한
      초안**을 매일 3건 만들어 Notion에 남기고, CEO가 직접 올린다.
@@ -591,6 +578,29 @@ export async function GET(req: NextRequest) {
       : { error: r.reason?.message }
   );
 
+
+
+  // 3) PHANTOM — LOD 실제 개발 진행 확인(GitHub 커밋) + 개발자 독려 + 채용 필요 여부 판단
+  //    CEO 지시(2026-08-13): 일일단위 확인·독려, 인력 필요 시 PHANTOM 채용 사전승인.
+  const phantomText = await callAgent(
+    "PHANTOM",
+    "LOD 게임 PM",
+    `아래는 lord-of-dark 저장소의 최근 3일 실제 커밋 활동이다. 이 데이터를 근거로만 판단해라 ` +
+      `(확인 안 된 진행상황을 추측해서 단정하지 말 것).\n\n${lodSummary}\n\n` +
+      `1) 이 활동을 근거로 개발자에게 보낼 짧은 독려 메시지를 써라(구체적 커밋 내용을 언급해 ` +
+      `실제로 보고 있다는 느낌을 줄 것 — 커밋이 없다면 독려 대신 진행상황을 직접 물어보는 톤으로).\n` +
+      `2) 현재 인력으로 이 속도가 유지 가능한지 판단하고, 추가 인력이 필요하다고 판단되면 ` +
+      `"채용필요: (어떤 역할이 왜 필요한지)"로 명확히 시작하는 문장을 남겨라. 필요 없으면 ` +
+      `"채용불필요"라고 밝혀라 — 너는 이 판단에 대해 CONDUCTOR와 협의 후 채용을 사전승인받았다 ` +
+      `(CEO에게는 채용 후 사후보고).\n\n300자 이내로 답해라.`
+  );
+  if (phantomText) {
+    await saveLog("PHANTOM", `LOD 진행 확인·독려 ${today}`, `${lodSummary}\n\n${phantomText}`, "게임");
+    if (phantomText.includes("채용필요")) {
+      await sendCeoNotice(`[PHANTOM] LOD 채용 필요 판단 — ${phantomText.slice(0, 300)}`);
+    }
+  }
+  results.phantomLodCheck = { ok: !!phantomText, lodActivityOk: lodActivity.ok };
 
   // 4) ZERO — 3일 주기 "2007-8년식 시스템 → 2026년 이후에도 먹힐 시스템" PRP 논의
   //    CEO 지시(2026-08-13): PHANTOM·MUSE·NOVA·SCOUT·SAGE 병렬 관점 → ZERO 기술 종합 →
