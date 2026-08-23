@@ -43,7 +43,33 @@ const ZONE_TRACK: Partial<Record<ZoneId, string>> = {
   game: "게임",
 };
 
+/* COST-01 (CEO 지시 2026-08-23): 예산 집행 없음 — 무료 범위에서만 돈다.
+
+   이 cron의 LLM 섹션은 기본적으로 꺼둔다. 이유는 두 가지다.
+   1) 유료 API는 잔액이 없으면 호출마다 400만 받고, 잔액이 생기면 그때부터
+      과금된다. 둘 다 지금 원하는 동작이 아니다.
+   2) 무료 대체(Gemini)는 분당 10건 한도라 이 파이프라인이 한 번에 쏘는
+      20~30건을 못 받는다. 2026-08-23 실행에서 앞 3건만 통과하고 나머지가
+      전부 429로 죽었다 — 절반이 죽었는데 함수는 200으로 끝났다.
+
+   그래서 생성물(네이버 초안·블로그 글 등)은 이 cron이 아니라 CEO의 Claude Pro
+   구독으로 도는 CONDUCTOR 세션이 만든다. 추가 비용이 0이고 한도도 안 걸린다.
+
+   cron에는 돈이 안 드는 일만 남긴다 — SCOUT 뉴스 수집(네이버 검색 API 무료),
+   LOD 커밋 조회(GitHub 무료), Notion 저장(무료).
+
+   켜려면 Vercel 환경변수 `CRON_LLM_ENABLED=true`. 켜기 전에 무료 등급 분당
+   한도 안으로 호출 건수를 먼저 줄여야 한다. */
+const CRON_LLM_ENABLED = process.env.CRON_LLM_ENABLED === "true";
+let _llmSkipped = 0;
+
 async function callAgent(name: string, role: string, userMessage: string): Promise<string | null> {
+  if (!CRON_LLM_ENABLED) {
+    /* null을 돌려주면 각 섹션이 이미 "결과 없음"으로 건너뛴다. 다만 조용히
+       넘어가면 안 돌았는지 실패했는지 구분이 안 되므로 건수를 센다. */
+    _llmSkipped += 1;
+    return null;
+  }
   try {
     const res = await fetch(`${SITE_ORIGIN}/api/agent`, {
       method: "POST",
@@ -689,6 +715,12 @@ export async function GET(req: NextRequest) {
     dailyLog.add(r.value.name, r.value.text);
   }
   await dailyLog.flush();
+
+  /* 생성 단계를 몇 건 건너뛰었는지 결과에 남긴다. 이게 없으면 LLM 섹션이
+     통째로 꺼져 있어도 응답만 보고는 정상 실행과 구분되지 않는다. */
+  results.llm = CRON_LLM_ENABLED
+    ? { enabled: true }
+    : { enabled: false, skipped: _llmSkipped, note: "COST-01 — 생성물은 CONDUCTOR 세션이 담당" };
 
   console.log("[cron] run result", JSON.stringify({ ran: new Date().toISOString(), results }));
 

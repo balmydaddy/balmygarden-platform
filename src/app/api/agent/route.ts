@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+/* COST-01 (CEO 지시 2026-08-23): 예산 집행 없음. 무료 범위 안에서만 돈다.
+   유료 API(Anthropic)는 기본적으로 아예 호출하지 않는다 — 잔액이 없으면
+   호출마다 400을 받느라 시간만 버리고, 잔액이 생기면 그때부터 과금된다.
+   둘 다 지금 원하는 동작이 아니다.
+
+   켜려면 Vercel 환경변수 `PAID_LLM_ENABLED=true`를 명시적으로 넣어야 한다.
+   그전까지 이 라우트는 Gemini 무료 등급만 쓴다.
+
+   무료 등급 한도(2026-08 실측): gemini-2.5-flash-lite 분당 10건. 이 한도를
+   넘기면 429가 나므로, 호출하는 쪽(`/api/cron`)이 건수를 그 안에 맞춰야 한다. */
+const PAID_LLM_ENABLED = process.env.PAID_LLM_ENABLED === "true";
+
 /* 모델 라우팅 (CLAUDE.md 비용 60-30-10 원칙 실제 적용).
-   Haiku 60% : 분류·요약·형식 검증·단순 판단 (SCOUT, REX)
-   Sonnet 30% : 실무 생성 (그 외 전 직원 — 기본값)
-   상위 10% : 판단·설계·통합 (CONDUCTOR, AEGIS, NOVA) */
+   PAID_LLM_ENABLED가 켜졌을 때만 의미가 있다. */
 const SONNET_MODEL = "claude-sonnet-4-6";
 const HAIKU_MODEL = "claude-haiku-4-6";
 const TOP_MODEL = "claude-opus-4-6";
@@ -49,9 +59,11 @@ async function callClaude(systemPrompt: string, userMessage: string, agentName?:
   }
 }
 
-/* Claude 크레딧 소진 등으로 위 호출이 실패할 때만 쓰는 무료 대체 경로.
+/* 무료 경로. COST-01 이후로는 이쪽이 기본이고 Claude가 예외다.
    GEMINI_API_KEY는 이미 api/ocr에서 쓰고 있는 값을 그대로 재사용하고,
-   모델명도 api/ocr에서 실사용 검증된 것과 동일하게 맞춘다. */
+   모델명도 api/ocr에서 실사용 검증된 것과 동일하게 맞춘다.
+   이 모델은 무료 등급에서 제공되며, 한도를 넘으면 과금되는 게 아니라
+   429로 거절된다 — 자동 유료 전환이 없다. */
 async function callGemini(systemPrompt: string, userMessage: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY 미설정 — Gemini 대체도 불가");
@@ -69,6 +81,28 @@ export async function POST(req: NextRequest) {
     const { systemPrompt, userMessage, agentName } = await req.json();
     if (!systemPrompt || !userMessage) {
       return NextResponse.json({ error: "systemPrompt and userMessage required" }, { status: 400 });
+    }
+
+    /* 무료 경로 우선. 유료 경로는 명시적으로 켰을 때만 시도한다. */
+    if (!PAID_LLM_ENABLED) {
+      try {
+        const text = await callGemini(systemPrompt, userMessage);
+        return NextResponse.json({ text, provider: "gemini-free" });
+      } catch (geminiErr: unknown) {
+        const msg = (geminiErr as Error).message;
+        /* 429는 고장이 아니라 무료 한도다 — 문구를 나눠야 원인을 안 헤맨다. */
+        const quota = msg.includes("429") || msg.toLowerCase().includes("quota");
+        console.error("[agent] Gemini 무료 경로 실패", { quota, message: msg });
+        return NextResponse.json(
+          {
+            error: quota
+              ? `무료 등급 한도 초과(분당 10건). 호출 건수를 줄이거나 간격을 벌려야 한다 — ${msg}`
+              : `Gemini 호출 실패 — ${msg}`,
+            quotaExceeded: quota,
+          },
+          { status: 502 }
+        );
+      }
     }
 
     try {
