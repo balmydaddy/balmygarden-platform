@@ -33,3 +33,6 @@ yarn-error.log*
 # 단, 도구 권한 설정은 세션마다 다시 묻지 않도록 저장소에 남긴다
 # (클라우드 세션은 컨테이너가 매번 새로 떠서 사용자 홈에 두면 사라짐)
 !.claude/settings.json
+
+# graphify 코드 지도 산출물 — 2.1MB 생성물이고 update로 언제든 다시 만든다
+graphify-out/
