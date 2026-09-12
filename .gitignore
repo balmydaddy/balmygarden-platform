@@ -37,6 +37,10 @@ yarn-error.log*
 # 한다. 스크립트가 빠지면 설정만 남아 매 도구 호출마다 훅이 실패한다.
 !.claude/hooks/
 !.claude/hooks/*.py
+# 에이전트 정의도 남긴다 — 매 사이클 리뷰·구현 프롬프트에서 되풀이되던 부분을
+# 여기로 뺐다. 빠지면 그 반복분이 다시 프롬프트로 돌아간다.
+!.claude/agents/
+!.claude/agents/*.md
 
 # graphify 코드 지도 산출물 — 2.1MB 생성물이고 update로 언제든 다시 만든다
 graphify-out/
