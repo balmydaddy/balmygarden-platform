@@ -26,8 +26,25 @@ const POLLINATIONS_BASE = "https://image.pollinations.ai/prompt";
 /** TOON-01은 캐러셀 전 컷을 1:1로 고정한다 — 캐러셀은 첫 장 비율로 나머지를 자른다. */
 const DEFAULT_SIZE = 1024;
 const MAX_SIZE = 2048;
-const MAX_PROMPT = 300;
+const MAX_PROMPT = 600;
 const FETCH_TIMEOUT_MS = 60_000;
+
+/**
+ * 스타일은 호출자가 매번 적어 보내지 않고 여기 고정한다.
+ *
+ * 프롬프트에 맡기면 편마다 조금씩 달라지고, 그러면 TOON-01이 유일하게 요구하는
+ * 것(편 안에서 네 컷의 화풍이 같을 것)이 깨진다. 호출자는 장면만 쓴다.
+ *
+ * "no text"를 세 번 다르게 반복하는 건 중복이 아니다 — 무료 생성 모델이 한글은
+ * 물론 영문 글자도 깨뜨려 넣는 경향이 있어, 한 번만 적으면 잘 안 먹는다.
+ */
+const STYLE_PRESETS: Record<string, string> = {
+  toon:
+    "flat vector safety pictogram illustration, simple geometric shapes, solid fills, " +
+    "thick clean outlines, limited palette: deep navy, safety yellow, light warm gray, white background, " +
+    "faceless simplified human figures, frontal flat view, industrial safety poster style, " +
+    "no text, no letters, no words, no signage lettering, no watermark",
+};
 
 type Detected = "jpeg" | "png" | "webp" | "gif" | "unknown";
 
@@ -59,10 +76,21 @@ function clampSize(raw: string | null): number {
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
-  const prompt = (sp.get("prompt") ?? "").trim().slice(0, MAX_PROMPT);
-  if (!prompt) {
+  const scene = (sp.get("prompt") ?? "").trim().slice(0, MAX_PROMPT);
+  if (!scene) {
     return NextResponse.json({ error: "prompt 파라미터가 필요하다" }, { status: 400 });
   }
+
+  // style은 선택이지만, 모르는 이름이 오면 조용히 무시하지 않고 알린다 —
+  // 오타 하나로 편 전체의 화풍이 달라지는 걸 나중에 눈으로 찾게 되기 때문이다.
+  const styleKey = sp.get("style");
+  if (styleKey && !STYLE_PRESETS[styleKey]) {
+    return NextResponse.json(
+      { error: `알 수 없는 style: ${styleKey}`, available: Object.keys(STYLE_PRESETS) },
+      { status: 400 }
+    );
+  }
+  const prompt = styleKey ? `${scene}. ${STYLE_PRESETS[styleKey]}` : scene;
 
   const width = clampSize(sp.get("w"));
   const height = clampSize(sp.get("h"));
