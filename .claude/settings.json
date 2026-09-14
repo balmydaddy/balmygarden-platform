@@ -18,6 +18,12 @@
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_md_tables.py\"",
             "timeout": 20,
             "statusMessage": "마크다운 표 검사"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_secrets.py\"",
+            "timeout": 20,
+            "statusMessage": "시크릿 노출 검사"
           }
         ]
       }
