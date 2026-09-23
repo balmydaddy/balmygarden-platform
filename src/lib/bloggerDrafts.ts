@@ -69,8 +69,15 @@ export async function pageToText(pageId: string): Promise<string> {
     if (list.length) parts.push(list.join("\n"));
     list = [];
   };
+  let n = 0;
   for (const b of blocks) {
-    if (b.type === "bulleted_list_item" || b.type === "numbered_list_item" || b.type === "to_do") {
+    if (b.type === "numbered_list_item") {
+      n += 1;
+      list.push(`- ${n}. ${blockText(b)}`);
+      continue;
+    }
+    n = 0;
+    if (b.type === "bulleted_list_item" || b.type === "to_do") {
       list.push(`- ${blockText(b)}`);
       continue;
     }
@@ -92,7 +99,9 @@ export async function pageToText(pageId: string): Promise<string> {
   return parts.join("\n\n");
 }
 
-async function markRow(pageId: string, status: "등록" | "실패", fields: { link?: string; error?: string }) {
+type RowStatus = "처리중" | "등록" | "실패";
+
+async function markRow(pageId: string, status: RowStatus, fields: { link?: string; error?: string } = {}) {
   await notion.pages.update({
     page_id: pageId,
     properties: {
@@ -103,9 +112,26 @@ async function markRow(pageId: string, status: "등록" | "실패", fields: { li
   });
 }
 
-export type DraftSyncResult = { title: string; ok: boolean; link?: string; error?: string };
+export type DraftSyncResult = {
+  title: string;
+  ok: boolean;
+  link?: string;
+  error?: string;
+  /** 초안은 만들어졌는데 행을 "등록"으로 못 바꿨다. 행은 "처리중"으로 남아 다시 집히지 않는다. */
+  rowUpdateFailed?: boolean;
+};
 
-/** 대기열의 "대기" 행을 Blogger 초안으로 옮긴다. 행마다 성공·실패를 대기열에 적는다. */
+/**
+ * 대기열의 "대기" 행을 Blogger 초안으로 옮긴다.
+ *
+ * 초안을 만들기 전에 행을 "처리중"으로 먼저 잡는다. 순서를 뒤집으면(초안 → 갱신) 갱신이
+ * 실패했을 때 행이 "대기"로 남아 다음 실행이 같은 원고로 초안을 또 만든다. 선점에 실패하면
+ * 초안을 만들지 않는다. "처리중"에 멈춘 행은 자동으로 다시 집지 않는다 — 사람이 본다.
+ *
+ * 남는 구멍 둘: cron과 수동 실행이 같은 순간 겹치면 둘 다 "대기"를 읽고 선점한다(Notion에
+ * 조건부 갱신이 없다). Blogger가 초안을 만든 뒤 응답만 끊기면 "실패"로 적힌다. 둘 다 드물고,
+ * 결과는 초안 1건 중복이라 CEO가 Blogger에서 지우면 끝난다.
+ */
 export async function syncBloggerDrafts(): Promise<DraftSyncResult[]> {
   if (!process.env.NOTION_API_KEY) throw new Error("NOTION_API_KEY 미설정");
   const res = await notion.dataSources.query({
@@ -118,19 +144,33 @@ export async function syncBloggerDrafts(): Promise<DraftSyncResult[]> {
     const page = p as PageObjectResponse;
     const titleProp = page.properties["제목"] as { title?: { plain_text: string }[] } | undefined;
     const title = (titleProp?.title ?? []).map((t) => t.plain_text).join("").trim();
+
+    try {
+      await markRow(page.id, "처리중");
+    } catch (e: unknown) {
+      results.push({ title, ok: false, error: `선점 실패, 초안 생성 안 함: ${(e as Error).message}` });
+      continue;
+    }
+
+    let link: string;
     try {
       if (!title) throw new Error("제목이 비어 있다");
       const body = await pageToText(page.id);
       if (!body.trim()) throw new Error("본문이 비어 있다");
-      const link = await createBloggerDraft(title, body);
+      link = await createBloggerDraft(title, body);
+    } catch (e: unknown) {
+      /* 대부분 초안이 만들어지기 전 실패다(본문 비어 있음, 토큰 갱신 실패 등). CEO가 고쳐서 "대기"로 돌리면 된다. */
+      const error = (e as Error).message;
+      await markRow(page.id, "실패", { error }).catch(() => undefined);
+      results.push({ title, ok: false, error });
+      continue;
+    }
+
+    try {
       await markRow(page.id, "등록", { link });
       results.push({ title, ok: true, link });
     } catch (e: unknown) {
-      const error = (e as Error).message;
-      /* 행 갱신까지 실패하면 다음 실행이 같은 행을 다시 집는다 — 초안이 이미 만들어진
-         뒤라면 중복이 생길 수 있어 결과에 그대로 남긴다. */
-      await markRow(page.id, "실패", { error }).catch(() => undefined);
-      results.push({ title, ok: false, error });
+      results.push({ title, ok: true, link, rowUpdateFailed: true, error: (e as Error).message });
     }
   }
   return results;

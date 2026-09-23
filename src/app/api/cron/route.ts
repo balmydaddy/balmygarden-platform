@@ -184,6 +184,15 @@ export async function GET(req: NextRequest) {
   const results: Record<string, unknown> = {};
   const today = new Date().toISOString().slice(0, 10);
 
+  /* Blogger 초안 대기열(SNS-01). LLM을 안 쓰므로 CRON_LLM_ENABLED와 무관하게 돈다.
+     맨 앞에 둔다 — 뒤 단계가 60초를 먹으면 초안 생성 도중에 잘린다.
+     발행이 아니라 초안 생성이라 ADSENSE-01의 자동 발행 금지와 충돌하지 않는다. */
+  try {
+    results.bloggerDrafts = await syncBloggerDrafts();
+  } catch (e: unknown) {
+    results.bloggerDrafts = { error: (e as Error).message };
+  }
+
   // 1) SCOUT — 프리셋 전량 수집 + Notion 저장 (music/app/game/safety/trend)
   const scoutSettled = await Promise.allSettled(
     Object.keys(SCOUT_PRESETS).map(async (preset) => {
@@ -716,14 +725,6 @@ export async function GET(req: NextRequest) {
     dailyLog.add(r.value.name, r.value.text);
   }
   await dailyLog.flush();
-
-  /* Blogger 초안 대기열(SNS-01). LLM을 안 쓰므로 CRON_LLM_ENABLED와 무관하게 돈다.
-     발행이 아니라 초안 생성이라 ADSENSE-01의 자동 발행 금지와 충돌하지 않는다. */
-  try {
-    results.bloggerDrafts = await syncBloggerDrafts();
-  } catch (e: unknown) {
-    results.bloggerDrafts = { error: (e as Error).message };
-  }
 
   /* 생성 단계를 몇 건 건너뛰었는지 결과에 남긴다. 이게 없으면 LLM 섹션이
      통째로 꺼져 있어도 응답만 보고는 정상 실행과 구분되지 않는다. */
