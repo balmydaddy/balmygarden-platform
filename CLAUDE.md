@@ -246,7 +246,12 @@ MULTI-01 적용: 블로그 안전 글을 그대로 옮기지 않는다. 같은 �
 
 - 초안 → CEO가 Buffer 앱에서 확인·발행. `share_now`·`queue`로 직접 올리지 않는다.
 - MULTI-01 그대로: 채널마다 새로 쓴다. 인스타·Threads는 CEO 계정이라 계정 단위 제재가 걸린다.
-- 네이버는 공식 경로가 없어 기존대로 복붙 초안. Blogger는 세션에 자격증명이 없어 미연결.
+- **Blogger**: 세션이 Notion "Blogger 초안 대기열"(Agency HQ 하위)에 행을 넣으면 매일 cron
+  (`src/lib/bloggerDrafts.ts`)이 Blogger **초안**으로 올리고 편집 링크를 행에 적는다. 급하면 CEO가
+  잠금 해제 브라우저에서 `/api/blogger-draft`를 연다. 자격증명은 Vercel에만 있다.
+- 네이버는 공식 경로가 없어 기존대로 복붙 초안.
+- **balmydaddy는 멀티 크리에이터 계정이다** (CEO 지시 2026-09-23). 음악만이 아니라 게임 개발
+  일지·안전 실무·앱 개발을 같은 계정에서 낸다. 한 사람이 네 가지를 만드는 과정 자체가 소재다.
 - TikTok은 Higgsfield 경유뿐이라 금지 행동(Higgsfield 보류)에 걸린다.
 
 ## AI 도구 채택 기준 (TOOL-01, CEO 지시 2026-09-01)
