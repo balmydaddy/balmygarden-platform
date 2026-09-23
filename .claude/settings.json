@@ -5,7 +5,9 @@
       "WebSearch",
       "WebFetch",
       "mcp__Notion",
-      "mcp__d34fa2e2-673d-4ec2-a752-534f3601894a"
+      "mcp__d34fa2e2-673d-4ec2-a752-534f3601894a",
+      "mcp__Notion__notion-update-page",
+      "mcp__Notion__notion-create-pages"
     ]
   },
   "hooks": {
