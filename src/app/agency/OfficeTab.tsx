@@ -54,7 +54,24 @@ const ZONE_TRACK: Partial<Record<ZoneId, string>> = {
   game: "게임",
 };
 
-const WALL = "#1a1410";
+const WALL = "#d6d3d1";
+
+/* 콘텐츠 파이프라인 — cron 블로그팀 흐름(SCOUT→INK→CHECK·CHIEF→AEGIS)과 SNS-01의
+   "발행은 CEO" 단계를 그대로 옮긴 것. 화면이 "누가 있나"만 보여 주면 지금 무엇이
+   어디까지 왔는지를 알 수 없다 — 벤치마킹(udang.office, 2026-09-23)에서 가장 크게
+   차이 난 부분이다. 가장 최근 실제 로그의 담당자로 현재 단계를 정한다. */
+const PIPELINE: { step: string; keys: string[] }[] = [
+  { step: "조사", keys: ["SCOUT", "NOVA"] },
+  { step: "초안", keys: ["INK", "LYRA", "SAGE", "MUSE"] },
+  { step: "검토", keys: ["CHECK", "CHIEF"] },
+  { step: "법무·QA", keys: ["AEGIS"] },
+  { step: "CEO 발행", keys: [] }, // 발행은 사람 몫(SNS-01) — 화면이 대신 켜지 않는다
+];
+
+function stepOf(key: string | undefined): number {
+  if (!key) return -1;
+  return PIPELINE.findIndex((p) => p.keys.includes(key));
+}
 
 const card = (border = "#e2e8f0"): CSSProperties => ({
   background: "#ffffff",
@@ -218,8 +235,9 @@ function Person({
         style={{
           marginTop: "2px",
           fontSize: `${7 * scale}px`,
-          color: selected ? "#fff" : "#e7e5e4",
-          background: "#000000aa",
+          color: selected ? "#fff" : "#1c1917",
+          background: selected ? "#1c1917" : "#ffffffee",
+          border: "1px solid #d6d3d1",
           padding: "1px 5px",
           borderRadius: "8px",
           whiteSpace: "nowrap",
@@ -479,6 +497,10 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
   };
 
   const sel = agents.find((a) => a.staff.key === selected) ?? null;
+  /* 지금 움직이는 담당자로만 단계를 정한다. 과거 로그로 정하면 아무 일도 없을 때도
+     "진행 중"이 떠서 화면이 거짓말을 한다. 여럿이면 파이프라인상 가장 뒤 단계를 보인다. */
+  const current = Math.max(-1, ...agents.filter((a) => a.activity === "업무").map((a) => stepOf(a.staff.key)));
+  const busy = agents.filter((a) => a.activity !== "대기").length;
   const selThread = selected ? threads[selected] ?? [] : [];
 
   return (
@@ -520,6 +542,67 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         </button>
       </div>
 
+      {/* ── 파이프라인 — 지금 무엇이 어디까지 왔나 ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: isMobile ? "4px" : "8px",
+          padding: isMobile ? "10px" : "12px 16px",
+          marginBottom: "10px",
+          background: "#ffffff",
+          border: "1px solid #e7e5e4",
+          borderRadius: "12px",
+          overflowX: "auto",
+        }}
+      >
+        <span
+          style={{
+            flexShrink: 0,
+            fontSize: "11px",
+            fontWeight: 700,
+            padding: "3px 9px",
+            borderRadius: "6px",
+            background: current >= 0 ? "#fef3c7" : "#f5f5f4",
+            color: current >= 0 ? "#92400e" : "#78716c",
+            border: `1px solid ${current >= 0 ? "#fcd34d" : "#e7e5e4"}`,
+          }}
+        >
+          {current >= 0 ? "진행 중" : "대기"}
+        </span>
+        {PIPELINE.map((p, i) => {
+          const done = current > i;
+          const now = current === i;
+          return (
+            <div key={p.step} style={{ display: "flex", alignItems: "center", gap: isMobile ? "4px" : "8px", flexShrink: 0 }}>
+              <span
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "50%",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  background: now ? "#1c1917" : done ? "#d6d3d1" : "#ffffff",
+                  color: now ? "#ffffff" : "#57534e",
+                  border: `1px solid ${now ? "#1c1917" : "#d6d3d1"}`,
+                }}
+              >
+                {done ? "✓" : i + 1}
+              </span>
+              <span style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: now ? 800 : 500, color: now ? "#1c1917" : "#78716c" }}>
+                {p.step}
+              </span>
+              {i < PIPELINE.length - 1 && (
+                <span style={{ width: isMobile ? "10px" : "28px", height: "1px", background: "#d6d3d1" }} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       {/* ── 오피스 ── */}
       <div
         style={{
@@ -531,10 +614,9 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
           aspectRatio: isMobile ? "3 / 4" : "2 / 1",
           background: WALL,
           border: `3px solid ${WALL}`,
-          borderRadius: "8px",
+          borderRadius: "12px",
           overflow: "hidden",
           marginBottom: "12px",
-          boxShadow: "inset 0 0 40px #00000099",
         }}
       >
         {/* 방 */}
@@ -563,26 +645,36 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
                   position: "absolute",
                   inset: 0,
                   backgroundImage:
-                    "linear-gradient(#ffffff0a 1px, transparent 1px), linear-gradient(90deg, #ffffff0a 1px, transparent 1px)",
+                    "linear-gradient(#0000000a 1px, transparent 1px), linear-gradient(90deg, #0000000a 1px, transparent 1px)",
                   backgroundSize: "14px 14px",
                 }}
               />
-              {/* 방 이름 */}
+              {/* 방 이름 — 번호·한글 이름·인원. 영문 모노스페이스 라벨은 작고 어두워서
+                  방이 무슨 팀인지 한눈에 안 읽혔다. */}
               <div
                 style={{
                   position: "absolute",
-                  top: "3px",
+                  top: "6px",
                   left: "6px",
-                  fontSize: isMobile ? "7px" : "9px",
-                  color: z.color,
+                  right: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: isMobile ? "2px 6px" : "4px 8px",
+                  background: "#ffffffd9",
+                  border: "1px solid #e7e5e4",
+                  borderRadius: "6px",
+                  fontSize: isMobile ? "9px" : "12px",
                   fontWeight: 700,
-                  letterSpacing: "1.5px",
-                  fontFamily: "monospace",
-                  textShadow: "0 1px 2px #000",
+                  color: "#292524",
                 }}
               >
-                {z.label}
-                {here > 0 && <span style={{ color: "#ffffff66", marginLeft: "5px" }}>·{here}</span>}
+                <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: z.color, flexShrink: 0 }} />
+                <span>{z.name}</span>
+                <span style={{ marginLeft: "auto", color: "#a8a29e", fontFamily: "monospace", fontWeight: 600 }}>
+                  {String(ZONES.indexOf(z) + 1).padStart(2, "0")}
+                  {here > 0 && ` · ${here}명`}
+                </span>
               </div>
             </div>
           );
@@ -653,6 +745,46 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             onClick={() => { if (!locked) setSelected(a.staff.key === selected ? null : a.staff.key); }}
           />
         ))}
+      </div>
+
+      {/* ── 직원 상태 줄 — 누가 일하고 누가 쉬는지를 방을 뒤지지 않고 본다 ── */}
+      <div
+        style={{
+          display: "flex",
+          gap: "6px",
+          overflowX: "auto",
+          paddingBottom: "4px",
+          marginBottom: "12px",
+        }}
+      >
+        <span style={{ flexShrink: 0, alignSelf: "center", fontSize: "11px", color: "#78716c", marginRight: "4px" }}>
+          작업 중 {busy} · 대기 {agents.length - busy}
+        </span>
+        {agents.map((a) => {
+          const working = a.activity !== "대기";
+          return (
+            <div
+              key={a.staff.key}
+              title={a.staff.role}
+              style={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "5px 9px",
+                borderRadius: "8px",
+                background: working ? "#fefce8" : "#ffffff",
+                border: `1px solid ${working ? "#fcd34d" : "#e7e5e4"}`,
+              }}
+            >
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: a.staff.wear }} />
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#292524" }}>{a.staff.name}</span>
+              <span style={{ fontSize: "10px", color: working ? "#92400e" : "#a8a29e" }}>
+                {working ? `${a.activity} 중` : "대기 중"}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* ── 지시창(원위치, 접힘) + 로그 ── 잠금 상태(공개 링크)에서는 실제 지시·업무
