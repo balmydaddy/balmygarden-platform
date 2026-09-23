@@ -60,15 +60,18 @@ const WALL = "#d6d3d1";
    화면이 "누가 있나"만 보여 주고 "지금 무엇이 어디까지 왔나"는 안 보여 줬다.
 
    단계는 cron이 실제로 남기는 로그 제목에서만 읽는다. CEO 지시창 대화는 근거로 쓰지 않는다
-   (콘텐츠 흐름과 무관한 지시에도 단계가 켜진다). 블로그 로그는 하루치가 한 건으로 합쳐져
-   저장돼 검토·법무 단계를 제목에서 구분할 수 없다 — 그래서 읽을 수 없는 단계는 켜지 않고,
-   앞 단계에 완료 표시를 꾸며 붙이지도 않는다. 발행은 사람 몫(SNS-01)이라 화면이 켜지 않는다. */
+   (콘텐츠 흐름과 무관한 지시에도 단계가 켜진다).
+
+   cron 로그는 전부 "끝난 뒤" 한 번 저장되는 완료 기록이다. 그래서 "진행 중"이 아니라
+   "방금 무엇이 끝나 어디에 와 있나"를 보인다. 블로그·음원 파이프라인 로그는 초안·검토·법무·
+   발행 시도가 다 끝난 뒤 한 건으로 합쳐 저장돼 제목만으로는 어디까지 갔는지 알 수 없다 —
+   매핑하지 않는다. 네이버 초안은 생성이 끝나 CEO 복붙을 기다리는 상태라 "CEO 발행"이다. */
 const PIPELINE = ["조사", "초안", "검토·법무", "CEO 발행"] as const;
 
-function stageOfLog(title: string): number {
-  if (title.startsWith("[SCOUT]")) return 0;
-  if (/블로그 (파이프라인|초안)/.test(title)) return 1;
-  return -1;
+function stageOfLog(title: string): { index: number; badge: string } | null {
+  if (title.startsWith("[SCOUT]")) return { index: 0, badge: "조사 완료" };
+  if (title.startsWith("[네이버블로그]")) return { index: 3, badge: "발행 대기" };
+  return null;
 }
 
 const card = (border = "#e2e8f0"): CSSProperties => ({
@@ -259,8 +262,26 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
   const [meeting, setMeeting] = useState<string | null>(null);
   const [running, setRunning] = useState(true);
   /* 마지막 실제 로그가 가리킨 단계. 애니메이션처럼 잠깐 켜졌다가 돌아간다. */
-  const [stage, setStage] = useState(-1);
+  const [stage, setStage] = useState<{ index: number; badge: string } | null>(null);
   const logId = useRef(0);
+  /* 예약한 타이머를 전부 들고 있다가 탭을 떠날 때 치운다 — 떠난 뒤 setState가 불리지 않게. */
+  const timers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  const stageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const later = useCallback((fn: () => void, ms: number) => {
+    const id = setTimeout(() => {
+      timers.current.delete(id);
+      fn();
+    }, ms);
+    timers.current.add(id);
+    return id;
+  }, []);
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      pending.forEach(clearTimeout);
+      pending.clear();
+    };
+  }, []);
   const lastSeenRef = useRef<string>("");
 
   useEffect(() => {
@@ -306,9 +327,14 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
     (e: { title: string }) => {
       logRealEntry(e);
       const st = stageOfLog(e.title);
-      if (st >= 0) {
+      if (st) {
         setStage(st);
-        setTimeout(() => setStage((cur) => (cur === st ? -1 : cur)), RETURN_DELAY_MS);
+        /* 연달아 오면 앞 이벤트의 타이머가 뒤 이벤트를 일찍 끄지 않게 새로 건다. */
+        if (stageTimer.current) {
+          clearTimeout(stageTimer.current);
+          timers.current.delete(stageTimer.current);
+        }
+        stageTimer.current = later(() => setStage(null), RETURN_DELAY_MS);
       }
 
       /* 3일 주기 PRP 시스템 논의는 실제로 여러 명이 동시에 참여하는
@@ -326,7 +352,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             )
           )
         );
-        setTimeout(() => {
+        later(() => {
           setMeeting(null);
           setAgents((prev) =>
             placeAll(
@@ -352,7 +378,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
           )
         )
       );
-      setTimeout(() => {
+      later(() => {
         setAgents((prev) =>
           placeAll(
             prev.map((a) =>
@@ -364,7 +390,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         );
       }, RETURN_DELAY_MS);
     },
-    [logRealEntry, placeAll]
+    [logRealEntry, placeAll, later]
   );
 
   useEffect(() => {
@@ -401,7 +427,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
           const fresh = entries.filter((e) => e.date > lastSeenRef.current).reverse(); // 오래된 순
           if (fresh.length === 0) return;
           lastSeenRef.current = entries[0].date;
-          fresh.forEach((e, i) => setTimeout(() => animateRealEvent(e), i * 3500));
+          fresh.forEach((e, i) => later(() => animateRealEvent(e), i * 3500));
         } catch {
           /* 폴링 실패는 조용히 다음 주기에 재시도 */
         }
@@ -413,7 +439,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [running, logRealEntry, animateRealEvent]);
+  }, [running, logRealEntry, animateRealEvent, later]);
 
   /* ── 지시 전송 ── */
   const send = async () => {
@@ -499,13 +525,15 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
       setSending(false);
       setOrder("");
       /* 응답이 오든 실패하든 "업무" 상태를 풀어 준다 — 안 풀면 새로고침 전까지
-         상태 줄에 작업 중으로 남는다. 말풍선은 남겨 결과를 보여 준다. */
+         상태 줄에 작업 중으로 남는다. 말풍선은 잠시 남겨 결과를 보여 준다. */
       setAgents((prev) => prev.map((a) => (a.staff.key === agentKey ? { ...a, activity: "대기" } : a)));
+      /* 말풍선도 잠시 뒤 거둔다 — 남겨 두면 상태 줄의 "대기 중"과 한 화면에서 어긋난다. */
+      later(() => setAgents((prev) => prev.map((a) => (a.staff.key === agentKey ? { ...a, say: "" } : a))), RETURN_DELAY_MS);
     }
   };
 
   const sel = agents.find((a) => a.staff.key === selected) ?? null;
-  const current = stage;
+  const current = stage?.index ?? -1;
   const busy = agents.filter((a) => a.activity !== "대기").length;
   /* 일하는 사람을 앞으로 — 좁은 화면에서 상태 줄이 잘려도 움직이는 사람은 보인다. */
   const byStatus = [...agents].sort((x, y) => Number(y.activity !== "대기") - Number(x.activity !== "대기"));
@@ -577,7 +605,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             border: `1px solid ${current >= 0 ? "#fcd34d" : "#e7e5e4"}`,
           }}
         >
-          {current >= 0 ? "진행 중" : "대기"}
+          {stage ? `방금 ${stage.badge}` : "대기"}
         </span>
         <ol
           aria-label="콘텐츠 파이프라인"
