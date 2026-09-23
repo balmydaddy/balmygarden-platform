@@ -56,21 +56,19 @@ const ZONE_TRACK: Partial<Record<ZoneId, string>> = {
 
 const WALL = "#d6d3d1";
 
-/* 콘텐츠 파이프라인 — cron 블로그팀 흐름(SCOUT→INK→CHECK·CHIEF→AEGIS)과 SNS-01의
-   "발행은 CEO" 단계를 그대로 옮긴 것. 화면이 "누가 있나"만 보여 주면 지금 무엇이
-   어디까지 왔는지를 알 수 없다 — 벤치마킹(udang.office, 2026-09-23)에서 가장 크게
-   차이 난 부분이다. 가장 최근 실제 로그의 담당자로 현재 단계를 정한다. */
-const PIPELINE: { step: string; keys: string[] }[] = [
-  { step: "조사", keys: ["SCOUT", "NOVA"] },
-  { step: "초안", keys: ["INK", "LYRA", "SAGE", "MUSE"] },
-  { step: "검토", keys: ["CHECK", "CHIEF"] },
-  { step: "법무·QA", keys: ["AEGIS"] },
-  { step: "CEO 발행", keys: [] }, // 발행은 사람 몫(SNS-01) — 화면이 대신 켜지 않는다
-];
+/* 콘텐츠 파이프라인 — 벤치마킹(udang.office, 2026-09-23)에서 가장 크게 차이 난 부분:
+   화면이 "누가 있나"만 보여 주고 "지금 무엇이 어디까지 왔나"는 안 보여 줬다.
 
-function stepOf(key: string | undefined): number {
-  if (!key) return -1;
-  return PIPELINE.findIndex((p) => p.keys.includes(key));
+   단계는 cron이 실제로 남기는 로그 제목에서만 읽는다. CEO 지시창 대화는 근거로 쓰지 않는다
+   (콘텐츠 흐름과 무관한 지시에도 단계가 켜진다). 블로그 로그는 하루치가 한 건으로 합쳐져
+   저장돼 검토·법무 단계를 제목에서 구분할 수 없다 — 그래서 읽을 수 없는 단계는 켜지 않고,
+   앞 단계에 완료 표시를 꾸며 붙이지도 않는다. 발행은 사람 몫(SNS-01)이라 화면이 켜지 않는다. */
+const PIPELINE = ["조사", "초안", "검토·법무", "CEO 발행"] as const;
+
+function stageOfLog(title: string): number {
+  if (title.startsWith("[SCOUT]")) return 0;
+  if (/블로그 (파이프라인|초안)/.test(title)) return 1;
+  return -1;
 }
 
 const card = (border = "#e2e8f0"): CSSProperties => ({
@@ -225,7 +223,7 @@ function Person({
               a.activity === "회의"
                 ? "0 0 8px #f59e0b"
                 : a.activity === "업무"
-                  ? `0 0 6px ${a.staff.color}`
+                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${a.staff.wear}`
                   : "none",
           }}
         />
@@ -260,6 +258,8 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
   const [sending, setSending] = useState(false);
   const [meeting, setMeeting] = useState<string | null>(null);
   const [running, setRunning] = useState(true);
+  /* 마지막 실제 로그가 가리킨 단계. 애니메이션처럼 잠깐 켜졌다가 돌아간다. */
+  const [stage, setStage] = useState(-1);
   const logId = useRef(0);
   const lastSeenRef = useRef<string>("");
 
@@ -305,6 +305,11 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
   const animateRealEvent = useCallback(
     (e: { title: string }) => {
       logRealEntry(e);
+      const st = stageOfLog(e.title);
+      if (st >= 0) {
+        setStage(st);
+        setTimeout(() => setStage((cur) => (cur === st ? -1 : cur)), RETURN_DELAY_MS);
+      }
 
       /* 3일 주기 PRP 시스템 논의는 실제로 여러 명이 동시에 참여하는
          병렬 이벤트다 — 그때만 회의실 애니메이션을 쓴다. */
@@ -493,14 +498,17 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
     } finally {
       setSending(false);
       setOrder("");
+      /* 응답이 오든 실패하든 "업무" 상태를 풀어 준다 — 안 풀면 새로고침 전까지
+         상태 줄에 작업 중으로 남는다. 말풍선은 남겨 결과를 보여 준다. */
+      setAgents((prev) => prev.map((a) => (a.staff.key === agentKey ? { ...a, activity: "대기" } : a)));
     }
   };
 
   const sel = agents.find((a) => a.staff.key === selected) ?? null;
-  /* 지금 움직이는 담당자로만 단계를 정한다. 과거 로그로 정하면 아무 일도 없을 때도
-     "진행 중"이 떠서 화면이 거짓말을 한다. 여럿이면 파이프라인상 가장 뒤 단계를 보인다. */
-  const current = Math.max(-1, ...agents.filter((a) => a.activity === "업무").map((a) => stepOf(a.staff.key)));
+  const current = stage;
   const busy = agents.filter((a) => a.activity !== "대기").length;
+  /* 일하는 사람을 앞으로 — 좁은 화면에서 상태 줄이 잘려도 움직이는 사람은 보인다. */
+  const byStatus = [...agents].sort((x, y) => Number(y.activity !== "대기") - Number(x.activity !== "대기"));
   const selThread = selected ? threads[selected] ?? [] : [];
 
   return (
@@ -521,7 +529,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             🏢 BALMYGARDEN HEADQUARTERS
           </div>
           <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>
-            {meeting ? `회의 중 — ${meeting}` : `근무 중 · ${STAFF.length}명`}
+            {meeting ? `회의 중 — ${meeting}` : `직원 ${STAFF.length}명`}
           </div>
         </div>
         <button
@@ -542,12 +550,12 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         </button>
       </div>
 
-      {/* ── 파이프라인 — 지금 무엇이 어디까지 왔나 ── */}
+      {/* ── 콘텐츠 파이프라인 — 지금 무엇이 어디까지 왔나 ── */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: isMobile ? "4px" : "8px",
+          gap: isMobile ? "6px" : "10px",
           padding: isMobile ? "10px" : "12px 16px",
           marginBottom: "10px",
           background: "#ffffff",
@@ -556,6 +564,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
           overflowX: "auto",
         }}
       >
+        <span style={{ flexShrink: 0, fontSize: "11px", fontWeight: 700, color: "#57534e" }}>콘텐츠</span>
         <span
           style={{
             flexShrink: 0,
@@ -564,43 +573,52 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             padding: "3px 9px",
             borderRadius: "6px",
             background: current >= 0 ? "#fef3c7" : "#f5f5f4",
-            color: current >= 0 ? "#92400e" : "#78716c",
+            color: current >= 0 ? "#92400e" : "#57534e",
             border: `1px solid ${current >= 0 ? "#fcd34d" : "#e7e5e4"}`,
           }}
         >
           {current >= 0 ? "진행 중" : "대기"}
         </span>
-        {PIPELINE.map((p, i) => {
-          const done = current > i;
-          const now = current === i;
-          return (
-            <div key={p.step} style={{ display: "flex", alignItems: "center", gap: isMobile ? "4px" : "8px", flexShrink: 0 }}>
-              <span
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  background: now ? "#1c1917" : done ? "#d6d3d1" : "#ffffff",
-                  color: now ? "#ffffff" : "#57534e",
-                  border: `1px solid ${now ? "#1c1917" : "#d6d3d1"}`,
-                }}
+        <ol
+          aria-label="콘텐츠 파이프라인"
+          style={{ display: "flex", alignItems: "center", gap: isMobile ? "4px" : "8px", listStyle: "none", margin: 0, padding: 0 }}
+        >
+          {PIPELINE.map((step, i) => {
+            const now = current === i;
+            return (
+              <li
+                key={step}
+                aria-current={now ? "step" : undefined}
+                style={{ display: "flex", alignItems: "center", gap: isMobile ? "4px" : "8px", flexShrink: 0 }}
               >
-                {done ? "✓" : i + 1}
-              </span>
-              <span style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: now ? 800 : 500, color: now ? "#1c1917" : "#78716c" }}>
-                {p.step}
-              </span>
-              {i < PIPELINE.length - 1 && (
-                <span style={{ width: isMobile ? "10px" : "28px", height: "1px", background: "#d6d3d1" }} />
-              )}
-            </div>
-          );
-        })}
+                <span
+                  aria-hidden
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    background: now ? "#1c1917" : "#ffffff",
+                    color: now ? "#ffffff" : "#57534e",
+                    border: `1px solid ${now ? "#1c1917" : "#d6d3d1"}`,
+                  }}
+                >
+                  {i + 1}
+                </span>
+                <span style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: now ? 800 : 500, color: now ? "#1c1917" : "#57534e", whiteSpace: "nowrap" }}>
+                  {step}
+                </span>
+                {i < PIPELINE.length - 1 && (
+                  <span aria-hidden style={{ width: isMobile ? "10px" : "28px", height: "1px", background: "#d6d3d1" }} />
+                )}
+              </li>
+            );
+          })}
+        </ol>
       </div>
 
       {/* ── 오피스 ── */}
@@ -671,7 +689,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
               >
                 <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: z.color, flexShrink: 0 }} />
                 <span>{z.name}</span>
-                <span style={{ marginLeft: "auto", color: "#a8a29e", fontFamily: "monospace", fontWeight: 600 }}>
+                <span style={{ marginLeft: "auto", color: "#57534e", fontFamily: "monospace", fontWeight: 600 }}>
                   {String(ZONES.indexOf(z) + 1).padStart(2, "0")}
                   {here > 0 && ` · ${here}명`}
                 </span>
@@ -758,9 +776,9 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         }}
       >
         <span style={{ flexShrink: 0, alignSelf: "center", fontSize: "11px", color: "#78716c", marginRight: "4px" }}>
-          작업 중 {busy} · 대기 {agents.length - busy}
+          활동 중 {busy} · 대기 {agents.length - busy}
         </span>
-        {agents.map((a) => {
+        {byStatus.map((a) => {
           const working = a.activity !== "대기";
           return (
             <div
@@ -779,7 +797,8 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             >
               <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: a.staff.wear }} />
               <span style={{ fontSize: "11px", fontWeight: 700, color: "#292524" }}>{a.staff.name}</span>
-              <span style={{ fontSize: "10px", color: working ? "#92400e" : "#a8a29e" }}>
+              <span style={{ fontSize: "10px", color: "#57534e" }}>{a.staff.role}</span>
+              <span style={{ fontSize: "10px", color: working ? "#92400e" : "#57534e" }}>
                 {working ? `${a.activity} 중` : "대기 중"}
               </span>
             </div>
