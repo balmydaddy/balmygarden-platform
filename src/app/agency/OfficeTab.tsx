@@ -54,7 +54,25 @@ const ZONE_TRACK: Partial<Record<ZoneId, string>> = {
   game: "게임",
 };
 
-const WALL = "#1a1410";
+const WALL = "#d6d3d1";
+
+/* 콘텐츠 파이프라인 — 벤치마킹(udang.office, 2026-09-23)에서 가장 크게 차이 난 부분:
+   화면이 "누가 있나"만 보여 주고 "지금 무엇이 어디까지 왔나"는 안 보여 줬다.
+
+   단계는 cron이 실제로 남기는 로그 제목에서만 읽는다. CEO 지시창 대화는 근거로 쓰지 않는다
+   (콘텐츠 흐름과 무관한 지시에도 단계가 켜진다).
+
+   cron 로그는 전부 "끝난 뒤" 한 번 저장되는 완료 기록이다. 그래서 "진행 중"이 아니라
+   "방금 무엇이 끝나 어디에 와 있나"를 보인다. 블로그·음원 파이프라인 로그는 초안·검토·법무·
+   발행 시도가 다 끝난 뒤 한 건으로 합쳐 저장돼 제목만으로는 어디까지 갔는지 알 수 없다 —
+   매핑하지 않는다. 네이버 초안은 생성이 끝나 CEO 복붙을 기다리는 상태라 "CEO 발행"이다. */
+const PIPELINE = ["조사", "초안", "검토·법무", "CEO 발행"] as const;
+
+function stageOfLog(title: string): { index: number; badge: string } | null {
+  if (title.startsWith("[SCOUT]")) return { index: 0, badge: "조사 완료" };
+  if (title.startsWith("[네이버블로그]")) return { index: 3, badge: "발행 대기" };
+  return null;
+}
 
 const card = (border = "#e2e8f0"): CSSProperties => ({
   background: "#ffffff",
@@ -208,7 +226,7 @@ function Person({
               a.activity === "회의"
                 ? "0 0 8px #f59e0b"
                 : a.activity === "업무"
-                  ? `0 0 6px ${a.staff.color}`
+                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${a.staff.wear}`
                   : "none",
           }}
         />
@@ -218,8 +236,9 @@ function Person({
         style={{
           marginTop: "2px",
           fontSize: `${7 * scale}px`,
-          color: selected ? "#fff" : "#e7e5e4",
-          background: "#000000aa",
+          color: selected ? "#fff" : "#1c1917",
+          background: selected ? "#1c1917" : "#ffffffee",
+          border: "1px solid #d6d3d1",
           padding: "1px 5px",
           borderRadius: "8px",
           whiteSpace: "nowrap",
@@ -242,7 +261,27 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
   const [sending, setSending] = useState(false);
   const [meeting, setMeeting] = useState<string | null>(null);
   const [running, setRunning] = useState(true);
+  /* 마지막 실제 로그가 가리킨 단계. 애니메이션처럼 잠깐 켜졌다가 돌아간다. */
+  const [stage, setStage] = useState<{ index: number; badge: string } | null>(null);
   const logId = useRef(0);
+  /* 예약한 타이머를 전부 들고 있다가 탭을 떠날 때 치운다 — 떠난 뒤 setState가 불리지 않게. */
+  const timers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  const stageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const later = useCallback((fn: () => void, ms: number) => {
+    const id = setTimeout(() => {
+      timers.current.delete(id);
+      fn();
+    }, ms);
+    timers.current.add(id);
+    return id;
+  }, []);
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      pending.forEach(clearTimeout);
+      pending.clear();
+    };
+  }, []);
   const lastSeenRef = useRef<string>("");
 
   useEffect(() => {
@@ -287,6 +326,16 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
   const animateRealEvent = useCallback(
     (e: { title: string }) => {
       logRealEntry(e);
+      const st = stageOfLog(e.title);
+      if (st) {
+        setStage(st);
+        /* 연달아 오면 앞 이벤트의 타이머가 뒤 이벤트를 일찍 끄지 않게 새로 건다. */
+        if (stageTimer.current) {
+          clearTimeout(stageTimer.current);
+          timers.current.delete(stageTimer.current);
+        }
+        stageTimer.current = later(() => setStage(null), RETURN_DELAY_MS);
+      }
 
       /* 3일 주기 PRP 시스템 논의는 실제로 여러 명이 동시에 참여하는
          병렬 이벤트다 — 그때만 회의실 애니메이션을 쓴다. */
@@ -303,7 +352,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             )
           )
         );
-        setTimeout(() => {
+        later(() => {
           setMeeting(null);
           setAgents((prev) =>
             placeAll(
@@ -329,7 +378,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
           )
         )
       );
-      setTimeout(() => {
+      later(() => {
         setAgents((prev) =>
           placeAll(
             prev.map((a) =>
@@ -341,7 +390,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         );
       }, RETURN_DELAY_MS);
     },
-    [logRealEntry, placeAll]
+    [logRealEntry, placeAll, later]
   );
 
   useEffect(() => {
@@ -378,7 +427,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
           const fresh = entries.filter((e) => e.date > lastSeenRef.current).reverse(); // 오래된 순
           if (fresh.length === 0) return;
           lastSeenRef.current = entries[0].date;
-          fresh.forEach((e, i) => setTimeout(() => animateRealEvent(e), i * 3500));
+          fresh.forEach((e, i) => later(() => animateRealEvent(e), i * 3500));
         } catch {
           /* 폴링 실패는 조용히 다음 주기에 재시도 */
         }
@@ -390,7 +439,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [running, logRealEntry, animateRealEvent]);
+  }, [running, logRealEntry, animateRealEvent, later]);
 
   /* ── 지시 전송 ── */
   const send = async () => {
@@ -475,10 +524,19 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
     } finally {
       setSending(false);
       setOrder("");
+      /* 응답이 오든 실패하든 "업무" 상태를 풀어 준다 — 안 풀면 새로고침 전까지
+         상태 줄에 작업 중으로 남는다. 말풍선은 잠시 남겨 결과를 보여 준다. */
+      setAgents((prev) => prev.map((a) => (a.staff.key === agentKey ? { ...a, activity: "대기" } : a)));
+      /* 말풍선도 잠시 뒤 거둔다 — 남겨 두면 상태 줄의 "대기 중"과 한 화면에서 어긋난다. */
+      later(() => setAgents((prev) => prev.map((a) => (a.staff.key === agentKey ? { ...a, say: "" } : a))), RETURN_DELAY_MS);
     }
   };
 
   const sel = agents.find((a) => a.staff.key === selected) ?? null;
+  const current = stage?.index ?? -1;
+  const busy = agents.filter((a) => a.activity !== "대기").length;
+  /* 일하는 사람을 앞으로 — 좁은 화면에서 상태 줄이 잘려도 움직이는 사람은 보인다. */
+  const byStatus = [...agents].sort((x, y) => Number(y.activity !== "대기") - Number(x.activity !== "대기"));
   const selThread = selected ? threads[selected] ?? [] : [];
 
   return (
@@ -499,7 +557,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             🏢 BALMYGARDEN HEADQUARTERS
           </div>
           <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>
-            {meeting ? `회의 중 — ${meeting}` : `근무 중 · ${STAFF.length}명`}
+            {meeting ? `회의 중 — ${meeting}` : `직원 ${STAFF.length}명`}
           </div>
         </div>
         <button
@@ -520,6 +578,77 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         </button>
       </div>
 
+      {/* ── 콘텐츠 파이프라인 — 지금 무엇이 어디까지 왔나 ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: isMobile ? "6px" : "10px",
+          padding: isMobile ? "10px" : "12px 16px",
+          marginBottom: "10px",
+          background: "#ffffff",
+          border: "1px solid #e7e5e4",
+          borderRadius: "12px",
+          overflowX: "auto",
+        }}
+      >
+        <span style={{ flexShrink: 0, fontSize: "11px", fontWeight: 700, color: "#57534e" }}>콘텐츠</span>
+        <span
+          style={{
+            flexShrink: 0,
+            fontSize: "11px",
+            fontWeight: 700,
+            padding: "3px 9px",
+            borderRadius: "6px",
+            background: current >= 0 ? "#fef3c7" : "#f5f5f4",
+            color: current >= 0 ? "#92400e" : "#57534e",
+            border: `1px solid ${current >= 0 ? "#fcd34d" : "#e7e5e4"}`,
+          }}
+        >
+          {stage ? `방금 ${stage.badge}` : "대기"}
+        </span>
+        <ol
+          aria-label="콘텐츠 파이프라인"
+          style={{ display: "flex", alignItems: "center", gap: isMobile ? "4px" : "8px", listStyle: "none", margin: 0, padding: 0 }}
+        >
+          {PIPELINE.map((step, i) => {
+            const now = current === i;
+            return (
+              <li
+                key={step}
+                aria-current={now ? "step" : undefined}
+                style={{ display: "flex", alignItems: "center", gap: isMobile ? "4px" : "8px", flexShrink: 0 }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    background: now ? "#1c1917" : "#ffffff",
+                    color: now ? "#ffffff" : "#57534e",
+                    border: `1px solid ${now ? "#1c1917" : "#d6d3d1"}`,
+                  }}
+                >
+                  {i + 1}
+                </span>
+                <span style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: now ? 800 : 500, color: now ? "#1c1917" : "#57534e", whiteSpace: "nowrap" }}>
+                  {step}
+                </span>
+                {i < PIPELINE.length - 1 && (
+                  <span aria-hidden style={{ width: isMobile ? "10px" : "28px", height: "1px", background: "#d6d3d1" }} />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+
       {/* ── 오피스 ── */}
       <div
         style={{
@@ -531,10 +660,9 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
           aspectRatio: isMobile ? "3 / 4" : "2 / 1",
           background: WALL,
           border: `3px solid ${WALL}`,
-          borderRadius: "8px",
+          borderRadius: "12px",
           overflow: "hidden",
           marginBottom: "12px",
-          boxShadow: "inset 0 0 40px #00000099",
         }}
       >
         {/* 방 */}
@@ -563,26 +691,36 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
                   position: "absolute",
                   inset: 0,
                   backgroundImage:
-                    "linear-gradient(#ffffff0a 1px, transparent 1px), linear-gradient(90deg, #ffffff0a 1px, transparent 1px)",
+                    "linear-gradient(#0000000a 1px, transparent 1px), linear-gradient(90deg, #0000000a 1px, transparent 1px)",
                   backgroundSize: "14px 14px",
                 }}
               />
-              {/* 방 이름 */}
+              {/* 방 이름 — 번호·한글 이름·인원. 영문 모노스페이스 라벨은 작고 어두워서
+                  방이 무슨 팀인지 한눈에 안 읽혔다. */}
               <div
                 style={{
                   position: "absolute",
-                  top: "3px",
+                  top: "6px",
                   left: "6px",
-                  fontSize: isMobile ? "7px" : "9px",
-                  color: z.color,
+                  right: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: isMobile ? "2px 6px" : "4px 8px",
+                  background: "#ffffffd9",
+                  border: "1px solid #e7e5e4",
+                  borderRadius: "6px",
+                  fontSize: isMobile ? "9px" : "12px",
                   fontWeight: 700,
-                  letterSpacing: "1.5px",
-                  fontFamily: "monospace",
-                  textShadow: "0 1px 2px #000",
+                  color: "#292524",
                 }}
               >
-                {z.label}
-                {here > 0 && <span style={{ color: "#ffffff66", marginLeft: "5px" }}>·{here}</span>}
+                <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: z.color, flexShrink: 0 }} />
+                <span>{z.name}</span>
+                <span style={{ marginLeft: "auto", color: "#57534e", fontFamily: "monospace", fontWeight: 600 }}>
+                  {String(ZONES.indexOf(z) + 1).padStart(2, "0")}
+                  {here > 0 && ` · ${here}명`}
+                </span>
               </div>
             </div>
           );
@@ -653,6 +791,47 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             onClick={() => { if (!locked) setSelected(a.staff.key === selected ? null : a.staff.key); }}
           />
         ))}
+      </div>
+
+      {/* ── 직원 상태 줄 — 누가 일하고 누가 쉬는지를 방을 뒤지지 않고 본다 ── */}
+      <div
+        style={{
+          display: "flex",
+          gap: "6px",
+          overflowX: "auto",
+          paddingBottom: "4px",
+          marginBottom: "12px",
+        }}
+      >
+        <span style={{ flexShrink: 0, alignSelf: "center", fontSize: "11px", color: "#78716c", marginRight: "4px" }}>
+          활동 중 {busy} · 대기 {agents.length - busy}
+        </span>
+        {byStatus.map((a) => {
+          const working = a.activity !== "대기";
+          return (
+            <div
+              key={a.staff.key}
+              title={a.staff.role}
+              style={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "5px 9px",
+                borderRadius: "8px",
+                background: working ? "#fefce8" : "#ffffff",
+                border: `1px solid ${working ? "#fcd34d" : "#e7e5e4"}`,
+              }}
+            >
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: a.staff.wear }} />
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#292524" }}>{a.staff.name}</span>
+              <span style={{ fontSize: "10px", color: "#57534e" }}>{a.staff.role}</span>
+              <span style={{ fontSize: "10px", color: working ? "#92400e" : "#57534e" }}>
+                {working ? `${a.activity} 중` : "대기 중"}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* ── 지시창(원위치, 접힘) + 로그 ── 잠금 상태(공개 링크)에서는 실제 지시·업무
