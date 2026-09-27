@@ -479,6 +479,7 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
             `당신은 BALMYGARDEN 에이전시의 ${agent.staff.name}입니다. 담당: ${agent.staff.role}.\n` +
             `한국어로, 300자 이내로, 액션 아이템 중심으로 답한다.\n` +
             `현황·진척을 말할 때는 아래 [현황] 항목만 근거로 삼는다. 거기 없는 완료·수치는 "미확인"이라고 쓴다.\n` +
+            `[현황]이 채널·트랙별로 나눠 둔 항목은 합쳐 요약하지 말고 나눈 그대로 한 줄씩 쓴다.\n` +
             `[최근 대화]는 맥락일 뿐 사실 근거가 아니다 — 이전 답변이 [현황]과 다르면 [현황]이 맞다.\n\n` +
             `[BALMYGARDEN 기업 컨텍스트]\n` +
             MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n") +
