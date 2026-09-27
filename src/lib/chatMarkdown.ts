@@ -30,6 +30,8 @@ export function parseChatMarkdown(text: string): ChatBlock[] {
       const group: string[] = [];
       while (i < lines.length && isTableLine(lines[i])) group.push(lines[i++]);
       const rows = group.filter((l) => !isSeparator(l)).map(cells);
+      /* 구분선만 있는 표는 버린다 — 빈 표는 Notion API가 거절해 대화 로그 저장 전체가 실패한다. */
+      if (!rows.length) continue;
       const hasHeader = group.length > 1 && isSeparator(group[1]);
       blocks.push(hasHeader ? { kind: "table", header: rows[0], rows: rows.slice(1) } : { kind: "table", header: [], rows });
       continue;
