@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Client, type BlockObjectRequest, type PageObjectResponse } from "@notionhq/client";
 import { isUnlocked } from "@/lib/unlockAuth";
 import { isInternalCall } from "@/lib/internalAuth";
+import { parseChatMarkdown } from "@/lib/chatMarkdown";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -258,7 +259,7 @@ export async function POST(req: NextRequest) {
 
       const children: BlockObjectRequest[] = messages.flatMap((m) => [
         heading(m.role === "user" ? "👤 CEO" : `🤖 ${agentKey}`),
-        ...paragraphs(m.text),
+        ...(m.role === "user" ? paragraphs(m.text) : markdownBlocks(m.text)),
         divider(),
       ]);
 
@@ -382,6 +383,47 @@ function paragraphs(text: string): BlockObjectRequest[] {
       rich_text: [{ type: "text" as const, text: { content: chunk } }],
     },
   }));
+}
+
+/* 지시창 답변의 표·목록을 Notion 표·목록 블록으로 옮긴다 — 문단 하나에 "| --- |"가 그대로
+   찍히면 로그를 열어도 읽히지 않는다(2026-09-27 CEO 피드백). */
+function richText(text: string) {
+  return [{ type: "text" as const, text: { content: text.replace(/\*\*(.+?)\*\*/g, "$1").slice(0, 2000) } }];
+}
+
+function markdownBlocks(text: string): BlockObjectRequest[] {
+  return parseChatMarkdown(text).flatMap((b): BlockObjectRequest[] => {
+    if (b.kind === "table") {
+      const rows = b.header.length ? [b.header, ...b.rows] : b.rows;
+      const width = Math.max(1, ...rows.map((r) => r.length));
+      return [
+        {
+          object: "block",
+          type: "table",
+          table: {
+            table_width: width,
+            has_column_header: b.header.length > 0,
+            has_row_header: false,
+            children: rows.map((r) => ({
+              type: "table_row" as const,
+              table_row: { cells: Array.from({ length: width }, (_, k) => richText(r[k] ?? "")) },
+            })),
+          },
+        },
+      ];
+    }
+    if (b.kind === "list") {
+      return b.items.map((it) => ({
+        object: "block" as const,
+        type: "bulleted_list_item" as const,
+        bulleted_list_item: { rich_text: richText(it) },
+      }));
+    }
+    if (b.kind === "heading") {
+      return [{ object: "block", type: "paragraph", paragraph: { rich_text: [{ type: "text", text: { content: b.text.slice(0, 2000) }, annotations: { bold: true } }] } }];
+    }
+    return paragraphs(b.text.replace(/\*\*(.+?)\*\*/g, "$1"));
+  });
 }
 
 function divider(): BlockObjectRequest {
