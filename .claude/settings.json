@@ -13,7 +13,7 @@
       "Edit(CLAUDE.md)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push -u origin main)"
+      "Bash(git push -u origin main)",
       "mcp__Claude_Code_Remote__create_trigger"
     ]
   },
