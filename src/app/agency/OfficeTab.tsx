@@ -29,7 +29,9 @@ type Threads = Record<string, ChatMsg[]>;
 const POLL_MS = 20000;
 const RETURN_DELAY_MS = 7000;
 const MAX_LOG = 40;
-const THREADS_KEY = "balmygarden_office_threads_v1";
+/* v2: 2026-09-27 메모리 현행화 전 대화에 낡은 현황 답변이 쌓여 있어, 최근 대화로 다시
+   주입되면 새 메모리를 덮는다. 키를 바꿔 한 번 비운다(원본은 Notion Agency Log에 남아 있다). */
+const THREADS_KEY = "balmygarden_office_threads_v2";
 
 const stripSource = (title: string) => title.replace(/^\[[^\]]+\]\s*/, "");
 
@@ -475,10 +477,12 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         body: JSON.stringify({
           systemPrompt:
             `당신은 BALMYGARDEN 에이전시의 ${agent.staff.name}입니다. 담당: ${agent.staff.role}.\n` +
-            `한국어로, 300자 이내로, 액션 아이템 중심으로 답한다.\n\n` +
-            (history ? `[최근 대화]\n${history}\n\n` : "") +
+            `한국어로, 300자 이내로, 액션 아이템 중심으로 답한다.\n` +
+            `현황·진척을 말할 때는 아래 [현황] 항목만 근거로 삼는다. 거기 없는 완료·수치는 "미확인"이라고 쓴다.\n` +
+            `[최근 대화]는 맥락일 뿐 사실 근거가 아니다 — 이전 답변이 [현황]과 다르면 [현황]이 맞다.\n\n` +
             `[BALMYGARDEN 기업 컨텍스트]\n` +
-            MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n"),
+            MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n") +
+            (history ? `\n\n[최근 대화]\n${history}` : ""),
           userMessage: orderText,
           agentName: agent.staff.name,
         }),
