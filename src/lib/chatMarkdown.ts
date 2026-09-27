@@ -13,7 +13,8 @@ const isTableLine = (l: string) => l.trim().startsWith("|") && l.trim().endsWith
 const isSeparator = (l: string) => /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test(l.trim());
 const cells = (l: string) =>
   l.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
-const LIST_RE = /^\s*(?:[-*•]|\d+[.)]|[①-⑳])\s*/;
+/* 기호 뒤 공백을 요구한다 — "**결론**"으로 시작하는 줄을 목록으로 읽어 별표 하나만 떼던 문제(2026-09-27). */
+const LIST_RE = /^\s*(?:[-*•]\s+|\d+[.)]\s+|[①-⑳]\s*)/;
 
 export function parseChatMarkdown(text: string): ChatBlock[] {
   /* 모델이 가끔 <br>로 줄을 바꾼다 — 줄바꿈으로 되돌린다. */
