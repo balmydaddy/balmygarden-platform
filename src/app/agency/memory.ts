@@ -4,15 +4,16 @@
 export type MemoryEntry = { id: string; tag: string; txt: string };
 
 export const MEMORY: MemoryEntry[] = [
+  { id: "M-104", tag: "현황", txt: "현재 상태 (2026-09-27 기준, 다른 항목과 충돌하면 이 항목이 우선). 음악: GOSARI T-01 작사 단계 — Hook v0.3 Freeze(M-71), 전체 초안 v0.2 작성(2026-08-02, GOSARI_T01_FULL_DRAFT.md), 판정은 CEO 단독 통독(M-82). 앱: M-02. 게임: M-03, 현재 CI 상태는 미확인. 안전(WARDEN): 크몽 위험성평가 체크리스트 v1.2.2, 1건 판매. 콘텐츠: Blogger는 Notion 대기열→cron이 초안 생성, 네이버는 복붙 초안, 인스타·Threads·YouTube는 Buffer 초안 — 발행은 전부 CEO. 콘텐츠 계획표 주 2~3편, Canva는 CONDUCTOR 세션에서만(90일 구독). 운영: 예산 집행 없음(구독 4종: Claude Pro·Suno Pro·DistroKid·Canva Pro), CRON_LLM_ENABLED·PAID_LLM_ENABLED 꺼짐, 사용량은 항상 5% 남김(USAGE-05). 미확인: 네이버 뉴스 API 키 등록·실호출, 트레이딩 서버 터널 현재 연결 상태. 여기 없는 진척·수치는 지어내지 말고 '미확인'으로 답한다." },
   { id: "M-01", tag: "기업", txt: "BALMYGARDEN = BALMYDADDY 전속 음반사. 심포닉/클래시컬 메탈, 다크판타지, 복음 발라드." },
-  { id: "M-02", tag: "앱", txt: "영수증 OCR: Next.js 14 / Supabase / Gemini API / Vercel / Resend. 사전 테스팅 단계." },
-  { id: "M-03", tag: "게임", txt: "LOD (Lord of Dynasty): React 다크판타지 턴제 RPG 리마스터. 프로토타입 완성." },
+  { id: "M-02", tag: "앱", txt: "영수증 OCR 앱: 저장소 balmydaddy/balmydaddy-receipt (Next.js / Supabase / Gemini / Vercel). 실측(2026-08-30): 탭 6개, OCR 신뢰도·영수증 총액 필드 없음 — 개편 첫 작업은 OCR 응답 스키마(RECEIPT-UI-01). 남길 탭은 CEO 판단." },
+  { id: "M-03", tag: "게임", txt: "LOD: Unity 6 LTS 다크판타지 턴제 RPG. 비공개 저장소 balmydaddy/lord-of-dark, 빌드·Play 테스트는 CEO 로컬 PC에서만. 게임 이름은 대외 비공개(CEO 결정 2026-09-23)." },
   { id: "M-04", tag: "CEO", txt: "김태을 대표. 파라텍 안전보건팀 과장. 모바일 낮 / PC 23시 이후." },
   { id: "M-05", tag: "QA", txt: "전 결과물 QA 95/100 통과 후 CEO 보고. AEGIS → CONDUCTOR 최종 확인." },
-  { id: "M-06", tag: "크레딧", txt: "Higgsfield 월 크레딧 = LOD 게임 아트 전용. CEO 승인 전 타 용도 절대 금지." },
+  { id: "M-06", tag: "크레딧", txt: "Higgsfield 사용 보류 — 회사 월 수입 50만원 이상 전까지(2026-08-11). 이후에도 LOD 게임 아트 전용, 타 용도는 CEO 승인." },
   { id: "M-07", tag: "Fugu", txt: "에이전트 배정 시 이유 공개 필수. 블랙박스 금지 (CONDUCTOR 핵심)." },
   { id: "M-08", tag: "배급", txt: "DistroKid 음원 배급. 아티스트: BALMYDADDY, JEDMIR, DUBUREN." },
-  { id: "M-09", tag: "스택", txt: "GitHub: balmydaddy/lord-of-dark. CI/CD: Harness.io → Vercel. Obsidian: D:\\obsidian\\obsidian." },
+  { id: "M-09", tag: "스택", txt: "저장소 3개 분리(M-91): balmygarden-platform(이 대시보드, main=Vercel 프로덕션) / balmydaddy-receipt / lord-of-dark(비공개). Obsidian: D:\\obsidian\\obsidian." },
   { id: "M-10", tag: "소스", txt: "모니터링 채택(5): prompt_what, nookitokki, chase.h.ai, whopdwho, linamond.insight(v4.0 신규·AI/리서치 분석). 기존유지: @parky0ngnam, @_business.story, @shoppduddn_, @platformtree_, trenddalkak_ai, keanu_visuals. 거부(6): girsta, thesaar_ai, ainewsdly, adityaa.daily, __3ceo, bestapps_ai (검증불가 수익주장)." },
   { id: "M-11", tag: "학습", txt: "v3.0 탑재: 파인만·오류시뮬·번역기·경로설계·빈틈탐지·곡선파괴 6종." },
   { id: "M-12", tag: "마케팅", txt: "v3.0 탑재: 고객조사·이메일·광고카피·포지셔닝·상세페이지·크리에이터·영상스크립트 7종." },

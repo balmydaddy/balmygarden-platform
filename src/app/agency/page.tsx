@@ -102,9 +102,10 @@ CEO 결정 사안 외 기업 영리 기준 독립 의사결정. 결과물은 구
   PHANTOM: {
     code: "A-02", av: "⚔️", color: "#8B5CF6", type: "Thinker",
     role: "LOD 게임 PM",
-    desc: "React 다크판타지 턴제 RPG · 프로토타입 완성",
-    sys: `당신은 PHANTOM, BALMYGARDEN 소속 LOD (Lord of Dynasty) 게임 PM입니다.
-다크 판타지 턴제 RPG React 리마스터. 프로토타입 완성 단계.
+    desc: "Unity 6 다크판타지 턴제 RPG · CEO 로컬 개발",
+    sys: `당신은 PHANTOM, BALMYGARDEN 소속 LOD 게임 PM입니다.
+다크 판타지 턴제 RPG. Unity 6 LTS, 비공개 저장소 lord-of-dark, 빌드·Play 테스트는 CEO 로컬 PC에서만.
+게임 이름·코드·함수명은 대외 비공개.
 스토리, 밸런스, 아트 방향성 포함 전체 개발 일정 관장.
 CEO 결정 사안 외 독립 의사결정. 응답 300자 이내.`,
   },
@@ -113,7 +114,7 @@ CEO 결정 사안 외 독립 의사결정. 응답 300자 이내.`,
     role: "개발/기술",
     desc: "풀스택 · GitHub balmydaddy/lord-of-dark",
     sys: `당신은 ZERO, BALMYGARDEN 풀스택 개발자 에이전트입니다.
-기술 스택: Next.js 14, React, Supabase, Gemini API, Vercel, Resend, TypeScript, Harness CI/CD.
+기술 스택: 플랫폼 Next.js·TypeScript·Vercel, 영수증 앱 Next.js·Supabase·Gemini, LOD Unity 6(C#, GitHub Actions CI).
 코드 작성 시 에러 핸들링·타입 안전성·성능 최적화 필수.
 GitHub 링크나 패키지명 제공 시 즉시 기술 평가 후 통합 방안 제시. 응답 300자 이내.`,
   },
@@ -251,7 +252,7 @@ const WORKFLOWS: Workflow[] = [
     id: "lod_story", emoji: "⚔️", cat: "게임", name: "LOD 스토리/기획",
     chain: ["MUSE", "ZERO", "NOVA", "PHANTOM"],
     desc: "다크판타지 스토리·밸런스·아트 방향",
-    quickSkill: "LOD(Lord of Dynasty) 다크판타지 턴제 RPG의 메인 스토리 3막 구조와 주요 캐릭터 2인, 첫 번째 보스 챕터 설계안을 작성해주세요.",
+    quickSkill: "LOD 다크판타지 턴제 RPG의 메인 스토리 3막 구조와 주요 캐릭터 2인, 첫 번째 보스 챕터 설계안을 작성해주세요.",
   },
   {
     id: "music_release", emoji: "🎵", cat: "음악", name: "음원 발매 파이프라인",
@@ -280,7 +281,7 @@ const WORKFLOWS: Workflow[] = [
     chain: ["NOVA", "REX", "CONDUCTOR"],
     parallel: [["NOVA", "REX"], ["CONDUCTOR"]],
     desc: "수익모델·고객획득·자동화 → 90일 현금흐름 로드맵",
-    quickSkill: "당신은 1인 에이전시를 100억 매출까지 키워본 비즈니스 설계자입니다. BALMYGARDEN 상황: CEO 1인·파라텍 안전보건팀 병행, 3트랙(음악 BALMYDADDY DistroKid 배급 시작 / 앱 영수증 OCR 사전테스팅 / 게임 LOD 프로토타입) 동시 운영. AI 에이전트 12명 배치. 현재 매출 0. 집중 트랙: [트랙 선택: 음악/앱/게임]. 목표: 90일 안에 첫 유료 매출 확보. 수익모델·고객 획득·상품 구조·가격 전략·운영 시스템·자동화까지 포함해 90일 실행 로드맵을 설계해주세요.",
+    quickSkill: "당신은 1인 에이전시를 100억 매출까지 키워본 비즈니스 설계자입니다. BALMYGARDEN 상황: CEO 1인·파라텍 안전보건팀 병행, 4트랙(음악 BALMYDADDY DistroKid 배급 / 앱 영수증 OCR 화면 개편 준비 / 게임 LOD Unity 개발 중 / 안전관리 크몽 상품 판매 중) 동시 운영. AI 에이전트 13명 배치. 예산 집행 없음 — 비용 드는 방안은 제외. 현재 매출 0. 집중 트랙: [트랙 선택: 음악/앱/게임]. 목표: 90일 안에 첫 유료 매출 확보. 수익모델·고객 획득·상품 구조·가격 전략·운영 시스템·자동화까지 포함해 90일 실행 로드맵을 설계해주세요.",
   },
   {
     id: "bottleneck", emoji: "🔍", cat: "CEO전략", name: "숨은 병목 찾기",
@@ -344,7 +345,7 @@ const WORKFLOWS: Workflow[] = [
     id: "game_art", emoji: "🎮", cat: "게임", name: "LOD 게임 아트 생성",
     chain: ["MUSE", "PHANTOM", "AEGIS"],
     desc: "크레딧 확인 → 게임 아트 → CEO 승인",
-    quickSkill: "LOD 프로토타입에 필요한 핵심 게임 아트 목록(배경 3종·캐릭터 2종·UI 요소 5종)과 Higgsfield/Midjourney 프롬프트 가이드를 작성해주세요. 크레딧 사용 승인 요청 포함.",
+    quickSkill: "LOD에 필요한 핵심 게임 아트 목록(배경 3종·캐릭터 2종·UI 요소 5종)과 무료 파이프라인(Pollinations.ai)용 프롬프트 가이드를 작성해주세요. 유료 도구·크레딧 사용은 제외.",
   },
   {
     id: "qa_gate", emoji: "✅", cat: "품질", name: "QA 게이트 검증",
@@ -356,14 +357,14 @@ const WORKFLOWS: Workflow[] = [
     id: "weekly", emoji: "📊", cat: "행정", name: "주간 현황 보고",
     chain: ["REX", "SCOUT", "CONDUCTOR"],
     desc: "프로젝트 현황·크레딧·다음 주 계획",
-    quickSkill: "이번 주 BALMYGARDEN 3트랙(음악/앱/게임) 진행 현황, AI 크레딧 잔여량, 완료/미완료 태스크, 다음 주 우선순위 3가지를 CEO 보고 형식으로 정리해주세요.",
+    quickSkill: "이번 주 BALMYGARDEN 4트랙(음악/앱/게임/안전관리) 진행 현황, 완료/미완료 태스크, 다음 주 우선순위 3가지를 CEO 보고 형식으로 정리해주세요.",
   },
   /* ── 자동화 파이프라인 ── */
   {
     id: "reels_auto", emoji: "🎬", cat: "콘텐츠", name: "글→릴스 영상 자동화",
     chain: ["MUSE", "STROBE", "NOVA"],
-    desc: "블로그/글 → 컷 분할 → Higgsfield 프롬프트 → SNS 배포",
-    quickSkill: "BALMYGARDEN 콘텐츠를 릴스 영상으로 자동 변환해주세요. 입력 글을 5~7개 컷으로 나누고, 컷마다 화면 구성·자막·Higgsfield 영상 생성 프롬프트(영문)를 표로 만들어주세요. 마지막으로 Instagram/TikTok 배포용 캡션과 해시태그를 작성해주세요. 입력 글: [글 붙여넣기]",
+    desc: "블로그/글 → 컷 분할 → 컷 구성표 → Buffer 초안",
+    quickSkill: "BALMYGARDEN 콘텐츠를 릴스 영상으로 자동 변환해주세요. 입력 글을 5~7개 컷으로 나누고, 컷마다 화면 구성·자막·무료 도구용 이미지 프롬프트(영문)를 표로 만들어주세요. 마지막으로 Instagram 캡션(해시태그 5개 이하)을 작성해주세요. 게시는 Buffer 초안까지만, 발행은 CEO. 입력 글: [글 붙여넣기]",
   },
   {
     id: "trend_research", emoji: "📊", cat: "리서치", name: "트렌드 리서치 자동화",
@@ -1779,8 +1780,8 @@ export default function BALMYGARDENDashboard() {
               }}
             >
               {[
-                { emoji: "🗂️", name: "영수증 OCR 앱", status: "사전 테스팅", color: "#6366F1", detail: "Next.js 14 · Supabase · Gemini API · Vercel" },
-                { emoji: "⚔️", name: "LOD: Lord of Dynasty", status: "프로토타입 완성", color: "#8B5CF6", detail: "React 다크판타지 턴제 RPG · Harness CI/CD" },
+                { emoji: "🗂️", name: "영수증 OCR 앱", status: "화면 개편 준비", color: "#6366F1", detail: "OCR 응답 스키마 먼저 · 탭 6→3 (RECEIPT-UI-01)" },
+                { emoji: "⚔️", name: "LOD", status: "개발 중", color: "#8B5CF6", detail: "Unity 6 다크판타지 턴제 RPG · CEO 로컬 PC" },
                 { emoji: "🎵", name: "BALMYDADDY", status: "배급 중", color: "#F59E0B", detail: "DistroKid · 심포닉 메탈 · 다크판타지 · 복음" },
                 { emoji: "🌿", name: "PROJECT GOSARI", status: gosariStep === 0 ? "OS 구축 중" : gosariStep >= 15 ? "발매 완료" : `STEP ${gosariStep}/15 진행 중`, color: "#7C3AED", detail: `EP 6트랙 · 테마: 시간 · ${gosariStep === 0 ? "Creative Bible 준비 중" : `현재: ${GOSARI_PIPELINE[gosariStep - 1]?.name ?? ""}`}` },
               ].map((p) => (
