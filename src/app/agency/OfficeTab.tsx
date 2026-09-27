@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
 import { ZONES, STAFF, MEETINGS, seatIn, type ZoneId, type Staff } from "./office";
 import { MEMORY } from "./memory";
+import { ChatMarkdown } from "./ChatMarkdown";
 import { resolveStaffKey } from "./staffLog";
 
 /* ══════════════════════════════════════════════════
@@ -477,9 +478,11 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
         body: JSON.stringify({
           systemPrompt:
             `당신은 BALMYGARDEN 에이전시의 ${agent.staff.name}입니다. 담당: ${agent.staff.role}.\n` +
-            `한국어로, 300자 이내로, 액션 아이템 중심으로 답한다.\n` +
+            `한국어로 답한다. 결론 한 줄을 맨 위에 쓰고, 세부는 그 아래에 둔다.\n` +
+            `현황·진척·목록 보고는 마크다운 표로 쓴다: | 구분 | 상태 | 다음 액션 | (상태 칸은 완료/진행/대기/미확인/CEO 조치 중 하나로 짧게). 표 밖 설명은 2줄 이내.\n` +
+            `표가 아닌 답은 300자 이내, 목록은 "- "로 쓴다. 문장마다 **굵게**를 남발하지 않는다.\n` +
             `현황·진척을 말할 때는 아래 [현황] 항목만 근거로 삼는다. 거기 없는 완료·수치는 "미확인"이라고 쓴다.\n` +
-            `[현황]이 채널·트랙별로 나눠 둔 항목은 합쳐 요약하지 말고 나눈 그대로 한 줄씩 쓴다.\n` +
+            `[현황]이 채널·트랙별로 나눠 둔 항목은 합쳐 요약하지 말고 표의 행 하나씩으로 나눠 쓴다.\n` +
             `[최근 대화]는 맥락일 뿐 사실 근거가 아니다 — 이전 답변이 [현황]과 다르면 [현황]이 맞다.\n\n` +
             `[BALMYGARDEN 기업 컨텍스트]\n` +
             MEMORY.map((m) => `[${m.tag}] ${m.txt}`).join("\n") +
@@ -1006,8 +1009,8 @@ export default function OfficeTab({ isMobile, locked = false }: { isMobile: bool
                       </span>
                       <span>{m.t}</span>
                     </div>
-                    <div style={{ fontSize: "12.5px", color: "#1e293b", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
-                      {m.text}
+                    <div style={{ fontSize: "12.5px", color: "#1e293b", lineHeight: 1.6, whiteSpace: m.role === "user" ? "pre-wrap" : "normal" }}>
+                      {m.role === "user" ? m.text : <ChatMarkdown text={m.text} />}
                     </div>
                   </div>
                 ))
