@@ -7,7 +7,13 @@
       "mcp__Notion",
       "mcp__d34fa2e2-673d-4ec2-a752-534f3601894a",
       "mcp__Notion__notion-update-page",
-      "mcp__Notion__notion-create-pages"
+      "mcp__Notion__notion-create-pages",
+      "mcp__Zapier__execute_zapier_write_action",
+      "mcp__Windsor_ai__execute_action",
+      "Edit(CLAUDE.md)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push -u origin main)"
     ]
   },
   "hooks": {
