@@ -147,6 +147,15 @@ Canva 자동 생성은 쪽마다 글꼴을 다르게 넣고, 그림 안에 한�
 
 ---
 
+**Buffer 캐러셀 초안 입력 형식 (2026-09-27 실측)**: Zapier Buffer `Add to Queue`에서
+`attachment=multiple_images`일 때 이미지 키 `image0`~`image9`(와 `imageN_alttext`)를
+`dynamic_properties` **최상위에 평평하게** 넣어야 붙는다. 스키마가 보여주는 `uploads` 배열 안에
+넣으면 오류 없이 저장되지만 이미지가 빠진 텍스트 초안이 된다(응답 `type: text`,
+`can_send_direct_reason: ASPECT_RATIO`). 성공 판정은 응답의 `type: picture`와 `extra_media` 3건.
+이미지 URL은 Canva 내보내기 서명 링크를 그대로 써도 Buffer가 가져간다.
+
+---
+
 ## 8. 착수 순서
 
 1. CEO — 인스타 계정을 프로페셔널로 전환
