@@ -1,0 +1,12 @@
+{
+  "name": "balmygarden-penpot-tools",
+  "private": true,
+  "type": "module",
+  "description": "Penpot 편집용 .penpot 파일을 코드로 만든다 (TOOL-01 7차 적용). 플랫폼 빌드와 분리된 독립 도구.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@penpot/library": "1.2.0-RC2"
+  }
+}
