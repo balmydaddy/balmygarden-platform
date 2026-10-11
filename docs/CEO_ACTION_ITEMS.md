@@ -90,12 +90,12 @@ python3 tools/generate_lobby_background.py
 
 ## 2. 플랫폼 (balmygarden-platform) — 배포본에서만 확인 가능
 
-> 로컬 세션엔 프로덕션 키가 없어 실제 Notion·트레이딩 응답을 검증할 수 없다.
+> 로컬 세션엔 프로덕션 키가 없어 실제 Notion 응답을 검증할 수 없다.
 
 ### 2-1. 자물쇠 재인증 — **한 번은 반드시 해야 함**
 
 이번에 잠금 방식을 바꿨다. 기존에 잠금해제해둔 브라우저는 **서버 쿠키가
-없어서** 홈 화면의 미결 수치·업무 로그·트레이딩이 안 뜬다.
+없어서** 홈 화면의 미결 수치·업무 로그가 안 뜬다.
 
 - [ ] 배포본 접속 → 우측 상단 **🔓 자물쇠 클릭(= 잠그기)** → 다시 클릭 → 비밀번호 입력
 - [ ] 홈 화면에 미결 사항 수치(총/완료/진행/미진행)가 뜨는지
@@ -112,9 +112,8 @@ python3 tools/generate_lobby_background.py
 | `DASHBOARD_UNLOCK_PASSWORD` | 잠금해제가 아예 불가 — 모든 보호 API가 401 |
 | `CRON_SECRET` | **cron·SCOUT 자동화가 통째로 401** (이번에 내부 호출 토큰으로도 씀) |
 | `NOTION_API_KEY` | 미결 수치·업무 로그 안 뜸 |
-| `TRADING_SERVER_URL` | 트레이딩 오프라인 (터널 안 쓰면 정상 상태) |
 
-- [ ] Vercel 대시보드에서 4개 존재 확인 (특히 `CRON_SECRET`)
+- [ ] Vercel 대시보드에서 3개 존재 확인 (특히 `CRON_SECRET`)
 
 ### 2-3. 자동화 정상 동작 확인 (다음 cron 실행 후)
 

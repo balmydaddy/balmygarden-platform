@@ -11,13 +11,11 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["500", "700",
 /* ══════════════════════════════════════════════════
    BALMYGARDEN 홈 — 벤토 그리드 대시보드 (2026 개인 대시보드 벤치마킹)
    CEO 지시(2026-08-19, 2차): 화면에 필요한 것만 남긴다 —
-   ①상단(인사+CEO 결정 대기+팀)은 압축 ②트레이딩은 확대 ③업무화면은 별도 구획
-   ④4트랙 현황·업무 수치 카드는 지금은 숨김(필요하면 CEO가 다시 요청).
+   ①상단(인사+CEO 결정 대기+팀)은 압축 ②업무화면은 별도 구획
+   ③4트랙 현황·업무 수치 카드는 지금은 숨김(필요하면 CEO가 다시 요청).
+   트레이딩 카드는 CEO 지시(2026-10-11)로 주식 관련 연동과 함께 중단했다(원본: archive/trading/).
    ══════════════════════════════════════════════════ */
 
-type Portfolio = { total_asset?: number; cash?: number; eval_total?: number; total_pnl?: number };
-type Signal = { symbol: string; action: "BUY" | "SELL" | "HOLD"; price?: string };
-type TradingStatus = { portfolio?: Portfolio; signals?: Signal[]; updated?: string };
 /* url은 미인증 응답에서 빠진다(서버가 Notion 링크를 제거) — 옵셔널로 둔다. */
 type LogEntry = { id: string; url?: string; title: string; type: string; date: string };
 type Blocker = { id: string; title: string; priority: string; status: string; owner: string };
@@ -73,16 +71,7 @@ const label: CSSProperties = {
   fontWeight: 700,
 };
 
-const fmtWon = (n: number | undefined) => `${Math.round(n || 0).toLocaleString("ko-KR")}원`;
-
-const ACTION_STYLE: Record<Signal["action"], { bg: string; fg: string }> = {
-  BUY: { bg: "#dcfce7", fg: "#16a34a" },
-  SELL: { bg: "#fef2f2", fg: "#dc2626" },
-  HOLD: { bg: "#f1f5f9", fg: "#64748b" },
-};
-
 export default function HomeTab({ isMobile }: { isMobile: boolean }) {
-  const [trading, setTrading] = useState<{ online: boolean; data?: TradingStatus; reason?: string; locked?: boolean }>({ online: false });
   /* 서버가 인증 없는 요청에 목록을 줄여서 준 상태 — 화면이 "이게 전부"라고
      오해하지 않게 표시한다. */
   const [logRedacted, setLogRedacted] = useState(false);
@@ -97,7 +86,7 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
        없음"으로 보여서 연동이 끊긴 걸 알 방법이 없었다.
        이 API들은 실패해도 HTTP 500 + {error} JSON을 돌려준다 — 즉 .catch가 안 걸린다.
        r.ok를 직접 보지 않으면 "실패"가 "데이터 없음"으로 둔갑하고, 연동이 끊긴 상태에서
-       화면은 평온해 보인다. 세 요청 모두 같은 기준으로 막는다. */
+       화면은 평온해 보인다. 두 요청 모두 같은 기준으로 막는다. */
     const asJson = async (url: string) => {
       const r = await fetch(url, { cache: "no-store" });
       if (!r.ok) throw new Error(String(r.status));
@@ -105,19 +94,6 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
     };
 
     const load = () => {
-      /* 트레이딩은 502/503 본문에도 의미가 있다({online:false, reason} — 왜 못 붙었는지).
-         그래서 여기만 r.ok를 따지지 않고 본문을 살려 쓴다. */
-      const trading$ = fetch("/api/trading", { cache: "no-store" })
-        .then((r) => r.json())
-        .then((j: { online: boolean; data?: TradingStatus; reason?: string; locked?: boolean }) => {
-          if (alive) setTrading(j);
-          return true;
-        })
-        .catch(() => {
-          if (alive) setTrading({ online: false, reason: "상태 조회 실패" });
-          return false;
-        });
-
       const log$ = asJson("/api/notion?limit=6")
         .then((j: { entries?: LogEntry[]; redacted?: boolean }) => {
           const ok = Array.isArray(j?.entries);
@@ -156,7 +132,7 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
          실패해도 시각만 최신으로 올라가 낡은 화면을 최신으로 오독하게 된다.
          (allSettled는 .catch로 삼킨 실패까지 fulfilled로 세므로 성공 여부를 값으로
          돌려받아 직접 확인한다.) */
-      Promise.all([trading$, log$, stats$]).then((results) => {
+      Promise.all([log$, stats$]).then((results) => {
         if (alive && results.some(Boolean)) setSyncedAt(new Date());
       });
     };
@@ -171,9 +147,6 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
     };
   }, []);
 
-  const p = trading.data?.portfolio ?? {};
-  const pnl = p.total_pnl ?? 0;
-  const signals = (trading.data?.signals ?? []).slice(0, 6);
   const roster = STAFF.slice(0, 8);
   const blockers = stats?.ok ? stats.blockers : [];
 
@@ -272,69 +245,6 @@ export default function HomeTab({ isMobile }: { isMobile: boolean }) {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* ── 트레이딩 — 확대 ── */}
-      <div style={{ ...card(), marginBottom: "14px", padding: isMobile ? "20px" : "28px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
-          <div style={label}>트레이딩</div>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: trading.online ? "#16a34a" : "#94a3b8" }}>
-            <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: trading.online ? "#22C55E" : "#cbd5e1", boxShadow: trading.online ? "0 0 6px #22C55E" : "none" }} />
-            {trading.online
-              ? "LIVE · 자동매매 가동 중"
-              : trading.locked
-                ? "잠금 — 서버 인증 후 조회"
-                : `오프라인 — ${trading.reason ?? "연결 대기"}`}
-          </div>
-        </div>
-
-        {trading.online ? (
-          <>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(4,1fr)", gap: "16px", marginBottom: signals.length ? "22px" : 0 }}>
-              {[
-                { name: "총 자산", value: fmtWon(p.total_asset), color: "#1e293b" },
-                { name: "현금 잔고", value: fmtWon(p.cash), color: "#334155" },
-                { name: "평가금액", value: fmtWon(p.eval_total), color: "#334155" },
-                { name: "총 손익", value: `${pnl >= 0 ? "+" : ""}${fmtWon(pnl)}`, color: pnl >= 0 ? "#16a34a" : "#dc2626" },
-              ].map((s) => (
-                <div key={s.name}>
-                  <div style={label}>{s.name}</div>
-                  <div style={{ fontSize: isMobile ? "20px" : "26px", fontWeight: 800, marginTop: "6px", color: s.color }}>{s.value}</div>
-                </div>
-              ))}
-            </div>
-            {signals.length > 0 && (
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {signals.map((s) => (
-                  <div
-                    key={s.symbol}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      padding: "6px 12px",
-                      borderRadius: "10px",
-                      background: "#f8fafc",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#334155", fontFamily: "monospace" }}>{s.symbol}</span>
-                    <span style={{ fontSize: "10px", fontWeight: 700, padding: "1px 7px", borderRadius: "999px", background: ACTION_STYLE[s.action].bg, color: ACTION_STYLE[s.action].fg }}>
-                      {s.action}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        ) : trading.locked ? (
-          <div style={{ fontSize: "13px", color: "#b45309", lineHeight: 1.6 }}>
-            잠금 상태라 계좌 수치를 불러오지 않습니다. 우측 상단 자물쇠로 한 번 잠근 뒤
-            비밀번호를 다시 입력하면 표시됩니다 — 트레이딩 서버 쪽 문제가 아닙니다.
-          </div>
-        ) : (
-          <div style={{ fontSize: "13px", color: "#94a3b8" }}>트레이딩 서버 연결 대기 중</div>
-        )}
       </div>
 
       {/* ── 업무 로그 ── */}

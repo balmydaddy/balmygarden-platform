@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect, CSSProperties } from "react";
 import HomeTab from "./HomeTab";
-import TradingTab from "./TradingTab";
 import { MEMORY, type MemoryEntry } from "./memory";
 import OsV4Tab from "./OsV4Tab";
 import OfficeTab from "./OfficeTab";
@@ -3668,10 +3667,6 @@ export default function BALMYGARDENDashboard() {
 
         {/* ══════ OS v4.0 ══════ */}
         {tab === "osv4" && <OsV4Tab isMobile={isMobile} />}
-
-        {/* ══════ TRADING ══════ */}
-        {/* 탭이 열릴 때만 마운트 — 닫혀 있으면 폴링 자체가 돌지 않는다. */}
-        {tab === "trading" && <TradingTab isMobile={isMobile} />}
 
         {/* ══════ HISTORY ══════ */}
         {tab === "history" && (

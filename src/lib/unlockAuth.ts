@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import type { NextRequest } from "next/server";
 
-/** 잠금해제 쿠키 이름 — 이 값을 읽는 쪽(api/notion·api/trading)과 공유한다. */
+/** 잠금해제 쿠키 이름 — 이 값을 읽는 쪽(api/notion 등)과 공유한다. */
 export const UNLOCK_COOKIE = "bg_unlocked";
 
 /** 쿠키 유효기간(초). 토큰 자체에 만료를 넣어 쿠키를 지워도 서버가 판정한다. */

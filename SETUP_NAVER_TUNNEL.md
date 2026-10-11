@@ -1,5 +1,8 @@
 # 네이버 API 키 발급 + 트레이딩 터널 설정
 
+> **2026-10-11 트레이딩 연동 중단 (CEO 지시).** 2·3절과 체크리스트의 트레이딩 항목은 기록으로만 남긴다 — 따라 하지 않는다.
+> 플랫폼에는 트레이딩 탭·`/api/trading`이 더 이상 없고, 원본 코드·스크립트는 `archive/trading/`에 보관돼 있다.
+
 > 대상: CEO 로컬 PC (Windows)
 > 작성: 2026-08-03 / ZERO
 > 소요: 네이버 5분 / 터널 10분
@@ -128,7 +131,7 @@ https://balmygarden-platform-git-claude-cad013-xodmf224-1419s-projects.vercel.ap
 
 ---
 
-# 2. 트레이딩 서버 터널
+# 2. 트레이딩 서버 터널 (중단 — 기록용)
 
 ## 먼저 읽을 것 — 보안
 
@@ -233,7 +236,7 @@ class H(BaseHTTPRequestHandler):
 
 ---
 
-# 3. 터널 주소가 바뀌는 문제
+# 3. 터널 주소가 바뀌는 문제 (중단 — 기록용)
 
 Quick Tunnel은 실행할 때마다 주소가 달라져 매번 Vercel 환경변수를 고쳐야 한다. 자주 쓰게 되면 아래 중 하나를 택한다.
 
@@ -264,6 +267,7 @@ start "tunnel" cmd /k cloudflared tunnel --url http://localhost:5000
 □ Redeploy
 □ /api/naver-news?preset=safety 응답 확인
 
+(이하 트레이딩 항목 — 2026-10-11 중단, 실행하지 않는다)
 □ cloudflared 설치
 □ server.py 실행
 □ cloudflared tunnel --url http://localhost:5000 실행
