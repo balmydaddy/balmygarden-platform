@@ -33,18 +33,21 @@ const COLORS = { bg: "#F5F1EA", ink: "#1B1B1B", sub: "#4A4A4A", accent: "#1F3A5F
    (2026-10-13 CEO 가져오기 화면으로 확인). 그래서 줄을 여기서 미리 나눠 문단으로 넣는다.
    폭은 글자 종류별 대략치로 어림하고, 실제보다 넓게 잡아 Penpot이 다시 자를 일을 줄인다.
    스펙에 "\n"을 넣으면 그 자리에서 강제로 끊는다. */
+/* 폭 계수는 2026-10-13 CEO Penpot 화면(v2)에서 잰 실측으로 맞췄다 — Noto Sans KR 굵게 기준
+   한글 약 0.89em, 띄어쓰기 약 0.33em. 처음 값(한글 1.0×1.08)은 21% 넓게 잡아 줄이 필요 이상 짧았다.
+   지금 값도 실측보다 조금 넓다(한글 0.92×1.04 ≈ 0.96em) — 좁게 잡으면 Penpot이 다시 낱말을 자른다. */
 function charWidth(ch) {
   if (ch === " ") return 0.3;
-  if (/[\u1100-\u11ff\u3000-\u303f\u3130-\u318f\uac00-\ud7a3\u4e00-\u9fff\uff00-\uffef]/.test(ch)) return 1.0;
-  if (/[A-Z0-9]/.test(ch)) return 0.66;
-  if (/[a-z]/.test(ch)) return 0.56;
-  return 0.4;
+  if (/[\u1100-\u11ff\u3000-\u303f\u3130-\u318f\uac00-\ud7a3\u4e00-\u9fff\uff00-\uffef]/.test(ch)) return 0.92;
+  if (/[A-Z0-9]/.test(ch)) return 0.62;
+  if (/[a-z]/.test(ch)) return 0.52;
+  return 0.35;
 }
 
 function measure(s, size) {
   let w = 0;
   for (const ch of s) w += charWidth(ch);
-  return w * size * 1.08;
+  return w * size * 1.04;
 }
 
 function wrapLines(value, size, maxWidth) {
@@ -91,8 +94,10 @@ function addBoard(ctx, b, index) {
   /* 보드는 가로로 나란히 놓는다 — 가져온 뒤 한 화면에서 비교하기 쉽다. */
   const x = index * 2100;
   const inner = p.width - p.pad * 2;
-  /* 기본 줄간격 1.2 기준 3줄이 들어가는 높이. 3줄을 넘는 제목은 박스 밖으로 넘친다. */
-  const titleH = Math.ceil(p.title * 1.2 * 3);
+  /* 제목 상자·강조 막대 높이를 실제 줄 수(기본 줄간격 1.2)에 맞춘다. 고정 3줄 높이로 두면
+     2줄 제목에서 막대가 글자보다 길게 남았다(2026-10-13 v2 화면). 부제는 제목 바로 아래에 붙는다. */
+  const titleLines = wrapLines(b.title, p.title, inner).length;
+  const titleH = Math.ceil(p.title * 1.2 * titleLines);
   ctx.addBoard({
     name: b.name ?? `${b.preset}-${p.width}x${p.height}`,
     x,
