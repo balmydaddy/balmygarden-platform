@@ -29,26 +29,56 @@ const PRESETS = {
 const FONT = { fontFamily: "Noto Sans KR", fontId: "gfont-noto-sans-kr" };
 const COLORS = { bg: "#F5F1EA", ink: "#1B1B1B", sub: "#4A4A4A", accent: "#1F3A5F" };
 
-function text(value, size, weight, color) {
+/* Penpot은 한글을 글자 단위로 줄바꿈해서 "채점하 / 게 했다"처럼 낱말 중간이 잘린다
+   (2026-10-13 CEO 가져오기 화면으로 확인). 그래서 줄을 여기서 미리 나눠 문단으로 넣는다.
+   폭은 글자 종류별 대략치로 어림하고, 실제보다 넓게 잡아 Penpot이 다시 자를 일을 줄인다.
+   스펙에 "\n"을 넣으면 그 자리에서 강제로 끊는다. */
+function charWidth(ch) {
+  if (ch === " ") return 0.3;
+  if (/[\u1100-\u11ff\u3000-\u303f\u3130-\u318f\uac00-\ud7a3\u4e00-\u9fff\uff00-\uffef]/.test(ch)) return 1.0;
+  if (/[A-Z0-9]/.test(ch)) return 0.66;
+  if (/[a-z]/.test(ch)) return 0.56;
+  return 0.4;
+}
+
+function measure(s, size) {
+  let w = 0;
+  for (const ch of s) w += charWidth(ch);
+  return w * size * 1.08;
+}
+
+function wrapLines(value, size, maxWidth) {
+  const lines = [];
+  for (const hard of String(value).split("\n")) {
+    let line = "";
+    for (const word of hard.split(" ").filter(Boolean)) {
+      const next = line ? `${line} ${word}` : word;
+      if (line && measure(next, size) > maxWidth) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = next;
+      }
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+
+function text(value, size, weight, color, maxWidth) {
+  const span = (s) => ({
+    text: s,
+    ...FONT,
+    fontSize: String(size),
+    fontWeight: String(weight),
+    fills: [{ fillColor: color, fillOpacity: 1 }],
+  });
   return {
     type: "root",
     children: [
       {
         type: "paragraph-set",
-        children: [
-          {
-            type: "paragraph",
-            children: [
-              {
-                text: value,
-                ...FONT,
-                fontSize: String(size),
-                fontWeight: String(weight),
-                fills: [{ fillColor: color, fillOpacity: 1 }],
-              },
-            ],
-          },
-        ],
+        children: wrapLines(value, size, maxWidth).map((line) => ({ type: "paragraph", children: [span(line)] })),
       },
     ],
   };
@@ -61,6 +91,8 @@ function addBoard(ctx, b, index) {
   /* 보드는 가로로 나란히 놓는다 — 가져온 뒤 한 화면에서 비교하기 쉽다. */
   const x = index * 2100;
   const inner = p.width - p.pad * 2;
+  /* 기본 줄간격 1.2 기준 3줄이 들어가는 높이. 3줄을 넘는 제목은 박스 밖으로 넘친다. */
+  const titleH = Math.ceil(p.title * 1.2 * 3);
   ctx.addBoard({
     name: b.name ?? `${b.preset}-${p.width}x${p.height}`,
     x,
@@ -69,13 +101,13 @@ function addBoard(ctx, b, index) {
     height: p.height,
     fills: [{ fillColor: COLORS.bg, fillOpacity: 1 }],
   });
-  ctx.addRect({ name: "accent", x: x + p.pad - 40, y: p.pad, width: 12, height: p.title * 3, fills: [{ fillColor: COLORS.accent, fillOpacity: 1 }] });
-  ctx.addText({ name: "title", x: x + p.pad, y: p.pad, width: inner, height: p.title * 3, grow: "fixed", content: text(b.title, p.title, 700, COLORS.ink) });
+  ctx.addRect({ name: "accent", x: x + p.pad - 40, y: p.pad, width: 12, height: titleH, fills: [{ fillColor: COLORS.accent, fillOpacity: 1 }] });
+  ctx.addText({ name: "title", x: x + p.pad, y: p.pad, width: inner, height: titleH, grow: "fixed", content: text(b.title, p.title, 700, COLORS.ink, inner) });
   if (b.sub) {
-    ctx.addText({ name: "sub", x: x + p.pad, y: p.pad + p.title * 3 + 40, width: inner, height: p.sub * 3, grow: "fixed", content: text(b.sub, p.sub, 400, COLORS.sub) });
+    ctx.addText({ name: "sub", x: x + p.pad, y: p.pad + titleH + 40, width: inner, height: p.sub * 3, grow: "fixed", content: text(b.sub, p.sub, 400, COLORS.sub, inner) });
   }
   if (b.footer) {
-    ctx.addText({ name: "footer", x: x + p.pad, y: p.height - p.pad, width: inner, height: p.footer * 2, grow: "fixed", content: text(b.footer, p.footer, 500, COLORS.accent) });
+    ctx.addText({ name: "footer", x: x + p.pad, y: p.height - p.pad, width: inner, height: p.footer * 2, grow: "fixed", content: text(b.footer, p.footer, 500, COLORS.accent, inner) });
   }
   ctx.closeBoard();
 }
