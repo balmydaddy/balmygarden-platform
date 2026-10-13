@@ -114,8 +114,9 @@ function addBoard(ctx, b, index) {
   const x = index * 2100;
   const inner = p.width - p.pad * 2;
   /* 제목은 쉼표 뒤에서 끊는다 — 폭으로만 자르면 "맡기고, 다른 AI가 / 채점하게 했다"처럼 한 구절이
-     두 줄에 걸친다(2026-10-13 CEO "쉼표 다음 줄바꿈"). "1,000"처럼 뒤에 띄어쓰기 없는 쉼표는 그대로 둔다. */
-  const titleWrapped = wrapLines(String(b.title).replace(/,[ \t]+/g, ",\n"), p.title, inner);
+     두 줄에 걸친다(2026-10-13 CEO "쉼표 다음 줄바꿈"). "1,000"처럼 뒤에 띄어쓰기 없는 쉼표와
+     제목 끝 쉼표는 그대로 둔다(빈 줄이 생기면 막대·부제가 한 줄 내려간다). */
+  const titleWrapped = wrapLines(String(b.title).replace(/,[ \t]+(?=\S)/g, ",\n"), p.title, inner);
   /* 제목 상자·강조 막대 높이를 실제 줄 수×행간에 맞춘다. 고정 3줄 높이로 두면 2줄 제목에서 막대가
      글자보다 길게 남았다(2026-10-13 v2 화면). 부제는 제목 바로 아래에 붙는다. */
   const titleH = Math.ceil(p.title * LINE_HEIGHT * lineCount(titleWrapped, p.title, inner));
