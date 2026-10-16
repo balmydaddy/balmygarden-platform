@@ -245,7 +245,7 @@ MULTI-01 적용: 블로그 안전 글을 그대로 옮기지 않는다. 같은 �
 
 **CONDUCTOR 세션의 SNS 게시는 Buffer 초안(draft)으로만 넣는다. 발행 버튼은 CEO가 누른다.**
 > **2026-09-27 CEO 결정: 자동 게시로 전환(AUTOPUB-01, `docs/SNS_AUTOPUBLISH_STANDARD.md`).**
-> 인스타는 Windsor 즉시 게시 한 경로, Threads는 Buffer. YouTube는 CEO 음성이 들어간 편만.
+> 인스타는 Windsor 즉시 게시 한 경로(릴스만 Edits에서 CEO 직접 게시, 2026-10-13), Threads는 Buffer. YouTube는 CEO 음성이 들어간 편만.
 > 분리된 리뷰 에이전트가 AEGIS 체크리스트로 채점하고 1~8번 중 하나라도 걸리면 게시하지 않는다.
 > 세션 권한 검사가 게시 호출을 거절하면 이 절의 초안 규칙으로 되돌아간다.
 실측(2026-09-23): Zapier→Buffer 무료 플랜에 인스타(프로페셔널)·YouTube·Threads 3채널이
